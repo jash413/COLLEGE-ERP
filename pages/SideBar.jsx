@@ -170,7 +170,7 @@ function SideBar() {
                         <span className="noti-title">Mercury Software Inc</span>{" "}
                         added a new product{" "}
                         <span className="noti-title">Apple MacBook Pro</span>
-                      </p>
+                      </p> 
                       <p className="noti-time">
                         <span className="notification-time">12 mins ago</span>
                       </p>
