@@ -1,6 +1,70 @@
 import React from "react";
+import network from "../config/network";
+import { useEffect } from "react";
+import { useState } from "react";
+function AddFaculty() {
+  const [FacultyData, setFacultyData] = useState({
+    // Initialize state for patient data fields
+    name: "",
+    email: "",
+    password: "",
+    username: "",
+    gender: "",
+    designation: "",
+    department: "",
+    contactNumber: "",
+    dob: "",
+    joiningYear: "",
+  });
+  const handleInputChange = (event) => {
+    const { name, value, type, checked } = event.target;
+    setFacultyData((prevData) => ({
+      ...prevData,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-function AddTeacher() {
+    try {
+      const formData = new FormData();
+      for (const key in FacultyData) {
+        formData.append(key, FacultyData[key]);
+      }
+
+      const response = await axios.post(
+        network.server+"/api/addfaculty", formData, {
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 201) {
+        toast.success("Faculty created successfully");
+        // Reset the form after successful submission
+        setFacultyData({
+          // Reset patient data fields
+          name: "",
+          email: "",
+          password: "",
+          username: "",
+          gender: "",
+          designation: "",
+          department: "",
+          contactNumber: "",
+          dob: "",
+          joiningYear: "",
+        });
+      }
+
+      console.log("Faculty created:", response.data);
+    } catch (error) {
+      toast.error(error.response.data.message);
+      console.error("Error creating faculty:", error.response.data);
+      console.log(patientData);
+    }
+  };
   return (
     <div className="page-wrapper">
       <div className="content container-fluid">
@@ -33,24 +97,16 @@ function AddTeacher() {
                     <div className="col-12 col-sm-4">
                       <div className="form-group local-forms">
                         <label>
-                          Teacher ID <span className="login-danger">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Teacher ID"
-                        />
-                      </div>
-                    </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>
                           Name <span className="login-danger">*</span>
                         </label>
                         <input
+                          required
                           type="text"
+                          name="name"
+                          value={FacultyData.name}
+                          onChange={handleInputChange}
                           className="form-control"
-                          placeholder="Enter Name"
+                          id="name"
                         />
                       </div>
                     </div>
@@ -62,7 +118,6 @@ function AddTeacher() {
                         <select className="form-control select">
                           <option>Male</option>
                           <option>Female</option>
-                          <option>Others</option>
                         </select>
                       </div>
                     </div>
@@ -72,9 +127,13 @@ function AddTeacher() {
                           Date Of Birth <span className="login-danger">*</span>
                         </label>
                         <input
-                          className="form-control datetimepicker"
-                          type="text"
-                          placeholder="DD-MM-YYYY"
+                          required
+                          type="date"
+                          name="dob"
+                          value={FacultyData.dob}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="dob"
                         />
                       </div>
                     </div>
@@ -84,21 +143,29 @@ function AddTeacher() {
                           Mobile <span className="login-danger">*</span>
                         </label>
                         <input
+                          required
                           type="text"
+                          name="firstName"
+                          value={FacultyData.contactNumber}
+                          onChange={handleInputChange}
                           className="form-control"
-                          placeholder="Enter Phone"
+                          id="Contactnumber"
                         />
                       </div>
                     </div>
                     <div className="col-12 col-sm-4">
                       <div className="form-group local-forms calendar-icon">
                         <label>
-                          Joining Date <span className="login-danger">*</span>
+                          Joining Year <span className="login-danger">*</span>
                         </label>
                         <input
-                          className="form-control datetimepicker"
-                          type="text"
-                          placeholder="DD-MM-YYYY"
+                         required
+                         type="date"
+                         name="joiningYear"
+                         value={FacultyData.joiningYear}
+                         onChange={handleInputChange}
+                         className="form-control"
+                         id="joiningYear"
                         />
                       </div>
                     </div>
@@ -149,9 +216,13 @@ function AddTeacher() {
                           Email ID <span className="login-danger">*</span>
                         </label>
                         <input
+                          required
                           type="email"
+                          name="email"
+                          value={FacultyData.email}
+                          onChange={handleInputChange}
                           className="form-control"
-                          placeholder="Enter Mail Id"
+                          id="email"
                         />
                       </div>
                     </div>
@@ -161,90 +232,64 @@ function AddTeacher() {
                           Password <span className="login-danger">*</span>
                         </label>
                         <input
-                          type="text"
+                          type="password"
+                          name="password"
+                          value={FacultyData.password}
+                          onChange={handleInputChange}
+                          required
                           className="form-control"
-                          placeholder="Enter Password"
-                        />
-                      </div>
-                    </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>
-                          Repeat Password{" "}
-                          <span className="login-danger">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Repeat Password"
                         />
                       </div>
                     </div>
                     <div className="col-12">
-                      <h5 className="form-title">
-                        <span>Address</span>
-                      </h5>
-                    </div>
-                    <div className="col-12">
                       <div className="form-group local-forms">
                         <label>
-                          Address <span className="login-danger">*</span>
+                          Username <span className="login-danger">*</span>
                         </label>
                         <input
+                          required
                           type="text"
+                          name="username"
+                          value={FacultyData.username}
+                          onChange={handleInputChange}
                           className="form-control"
-                          placeholder="Enter address"
+                          id="firstname"
                         />
                       </div>
                     </div>
                     <div className="col-12 col-sm-4">
                       <div className="form-group local-forms">
                         <label>
-                          City <span className="login-danger">*</span>
+                          Designation <span className="login-danger">*</span>
                         </label>
                         <input
+                          required
                           type="text"
+                          name="designation"
+                          value={FacultyData.designation}
+                          onChange={handleInputChange}
                           className="form-control"
-                          placeholder="Enter City"
+                          id="designation"
                         />
                       </div>
                     </div>
                     <div className="col-12 col-sm-4">
                       <div className="form-group local-forms">
                         <label>
-                          State <span className="login-danger">*</span>
+                          Department <span className="login-danger">*</span>
                         </label>
                         <input
+                          required
                           type="text"
+                          name="department"
+                          value={FacultyData.department}
+                          onChange={handleInputChange}
                           className="form-control"
-                          placeholder="Enter State"
+                          id="department"
                         />
                       </div>
                     </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>
-                          Zip Code <span className="login-danger">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Enter Zip"
-                        />
-                      </div>
-                    </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>
-                          Country <span className="login-danger">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Enter Country"
-                        />
-                      </div>
-                    </div>
+                    
                     <div className="col-12">
                       <div className="student-submit">
                         <button type="submit" className="btn btn-primary">
@@ -254,6 +299,7 @@ function AddTeacher() {
                     </div>
                   </div>
                 </form>
+                
               </div>
             </div>
           </div>
@@ -262,4 +308,4 @@ function AddTeacher() {
     </div>
   );
 }
-export default AddTeacher;
+export default AddFaculty;
