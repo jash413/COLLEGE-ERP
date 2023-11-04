@@ -13,6 +13,7 @@ import SideBar from "./components/SideBar";
 
 // Import Pages
 import SignIn from "./pages/SignIn";
+import StudentAdd from "./pages/StudentAdd";  
 
 // create context
 export const userContext = createContext();
@@ -73,13 +74,23 @@ function App() {
                       </>
                     }
                   />
+                  <Route
+                    path="/student/add"
+                    element={
+                      <>
+                        <Header />
+                        <SideBar />
+                        <StudentAdd />
+                      </>
+                    }
+                  />
                 </>
               )}
             </Routes>
           </div>
         </Router>
       </userContext.Provider>
-      <Toaster position="top-center" />
+      <Toaster position="bottom-right" />
     </>
   );
 }
