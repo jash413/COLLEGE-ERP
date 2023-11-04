@@ -20,4 +20,4 @@ function Error404(){
     )
 }
  
-export default Error-4;
+export default Error404;
