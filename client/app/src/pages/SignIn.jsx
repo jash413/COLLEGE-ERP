@@ -1,11 +1,18 @@
 import React, { useState } from "react";
 import axios from "axios";
+import toast from 'react-hot-toast';
+import network from "../config/network";
+
 
 function SignIn({ onSignIn }) {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
+
+  const [userType, setUserType] = useState("admin");
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -15,21 +22,39 @@ function SignIn({ onSignIn }) {
     });
   };
 
+  // handle show password
+  const handleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    try {
-      const response = await axios.post("http://localhost:5000/api/admin/login", formData);
+    if (formData.username === "" || formData.password === "") {
+      toast.error("Please fill all the fields");
+      return;
+    }
 
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        network.server+`/api/${userType}/login`,
+        formData
+      );
       if (response.status === 200) {
         const { data } = response;
         localStorage.setItem("user", JSON.stringify(data.result));
         localStorage.setItem("token", data.token);
         onSignIn();
+        toast.success("Login Successful");
+        setLoading(false);
       } else {
         console.log("Error in response status");
+        toast.error("Invalid Credentials");
       }
     } catch (error) {
+      setLoading(false);
+      toast.error("Invalid Credentials");
       console.error("An error occurred during sign-in:", error);
     }
   };
@@ -53,6 +78,7 @@ function SignIn({ onSignIn }) {
                     Username <span className="login-danger">*</span>
                   </label>
                   <input
+                    required
                     className="form-control"
                     type="text"
                     name="username"
@@ -68,18 +94,57 @@ function SignIn({ onSignIn }) {
                     Password <span className="login-danger">*</span>
                   </label>
                   <input
+                    required
                     className="form-control pass-input"
-                    type="password" 
+                    type={showPassword ? "text" : "password"}
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
                   />
-                  <span className="profile-views feather-eye toggle-password" />
+                  <span className="profile-views feather-eye toggle-password" onClick={handleShowPassword} />
+                </div>
+                <div classname="form-group">
+                  <label>User Type</label>
+                  <div className="radio">
+                    <label>
+                      <input
+                        required
+                        type="radio"
+                        name="userType"
+                        value="admin"
+                        onChange={(e) => {
+                          setUserType(e.target.value);
+                        }}
+                      />{" "}
+                      Admin
+                    </label>
+                  </div>
+                  <div className="radio">
+                    <label>
+                      <input
+                        required
+                        type="radio"
+                        name="userType"
+                        value="faculty"
+                        onChange={(e) => {
+                          setUserType(e.target.value);
+                        }}
+                      />{" "}
+                      Faculty
+                    </label>
+                  </div>
                 </div>
                 <div className="form-group">
-                  <button className="btn btn-primary btn-block" type="submit">
-                    Login
-                  </button>
+                  {loading ? (
+                    <div className="d-flex justify-content-center">
+                    <div className="spinner-border text-primary m-2" role="status" />
+                  </div>
+                  
+                  ) : (
+                    <button className="btn btn-primary btn-block" type="submit">
+                      Login
+                    </button>
+                  )}
                 </div>
               </form>
             </div>
