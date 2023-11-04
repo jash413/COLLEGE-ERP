@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 function AddSubject() {
   return (
@@ -73,4 +73,4 @@ function AddSubject() {
   )
 }
 
-export default AddSubject
+export default AddSubject;
