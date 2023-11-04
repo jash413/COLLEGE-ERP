@@ -1,6 +1,6 @@
 import React from "react";
 
-function Error-404(){
+function Error404(){
     return (
         <div className="main-wrapper">
   <div className="error-box">
