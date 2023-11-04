@@ -12,6 +12,7 @@ function SignIn({ onSignIn }) {
 
   const [userType, setUserType] = useState("admin");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -21,8 +22,18 @@ function SignIn({ onSignIn }) {
     });
   };
 
+  // handle show password
+  const handleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (formData.username === "" || formData.password === "") {
+      toast.error("Please fill all the fields");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -85,12 +96,12 @@ function SignIn({ onSignIn }) {
                   <input
                     required
                     className="form-control pass-input"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
                   />
-                  <span className="profile-views feather-eye toggle-password" />
+                  <span className="profile-views feather-eye toggle-password" onClick={handleShowPassword} />
                 </div>
                 <div classname="form-group">
                   <label>User Type</label>

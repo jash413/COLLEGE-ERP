@@ -34,6 +34,8 @@ function App() {
     const storedToken = localStorage.getItem("token");
     if (storedToken) {
       setIsAuthenticated(true);
+      setToken(localStorage.getItem("token"));
+      setUser(JSON.parse(localStorage.getItem("user")));
     } else {
       setIsAuthenticated(false);
       if (window.location.pathname !== "/") {

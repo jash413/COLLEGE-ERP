@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { userContext } from "../App";
 
 function Header() {
-  const { user, token } = useContext(userContext);
+  const { user } = useContext(userContext);
   
   const [isMaximized, setIsMaximized] = useState(false);
 
@@ -80,16 +80,16 @@ function Header() {
                   alt="Ryan Taylor"
                 /> */}
                 <div className="user-text">
-                  <h6>{user.name}</h6>
-                  <p className="text-muted mb-0 capitalize">{user.userType}</p>
+                  <h6 style={{textTransform:"capitalize"}}>{user.name}</h6>
+                  <p className="text-muted mb-0" style={{textTransform:"capitalize"}}>{user.userType}</p>
                 </div>
               </span> 
             </a>
             <div className="dropdown-menu">
               <div className="user-header">
                 <div className="user-text">
-                  <h6>{user.name}</h6>
-                  <p className="text-muted mb-0 capitalize">{user.userType}</p>
+                  <h6 style={{textTransform:"capitalize"}}>{user.name}</h6>
+                  <p className="text-muted mb-0 capitalize" style={{textTransform:"capitalize"}} >{user.userType}</p>
                 </div>
               </div>
               <a className="dropdown-item" href="profile.html">
