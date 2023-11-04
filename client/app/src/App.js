@@ -79,7 +79,7 @@ function App() {
           </div>
         </Router>
       </userContext.Provider>
-      <Toaster position="top-center" />
+      <Toaster position="bottom-right" />
     </>
   );
 }
