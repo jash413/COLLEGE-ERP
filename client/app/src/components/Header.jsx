@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { userContext } from "../App";
 
 function Header() {
+  const { user, token } = useContext(userContext);
+  
   const [isMaximized, setIsMaximized] = useState(false);
 
   const handleZoomToggle = () => {
@@ -70,30 +73,23 @@ function Header() {
               data-bs-toggle="dropdown"
             >
               <span className="user-img">
-                <img
+                {/* <img
                   className="rounded-circle"
                   src="assets/img/profiles/avatar-01.jpg"
                   width={31}
                   alt="Ryan Taylor"
-                />
+                /> */}
                 <div className="user-text">
-                  <h6>Ryan Taylor</h6>
-                  <p className="text-muted mb-0">Administrator</p>
+                  <h6>{user.name}</h6>
+                  <p className="text-muted mb-0 capitalize">{user.userType}</p>
                 </div>
-              </span>
+              </span> 
             </a>
             <div className="dropdown-menu">
               <div className="user-header">
-                <div className="avatar avatar-sm">
-                  <img
-                    src="assets/img/profiles/avatar-01.jpg"
-                    alt="User Image"
-                    className="avatar-img rounded-circle"
-                  />
-                </div>
                 <div className="user-text">
-                  <h6>Ryan Taylor</h6>
-                  <p className="text-muted mb-0">Administrator</p>
+                  <h6>{user.name}</h6>
+                  <p className="text-muted mb-0 capitalize">{user.userType}</p>
                 </div>
               </div>
               <a className="dropdown-item" href="profile.html">
