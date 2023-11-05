@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 function AddFaculty() {
   const [FacultyData, setFacultyData] = useState({
-    // Initialize state for patient data fields
+    // Initialize state for faculty data fields
     name: "",
     email: "",
     password: "",
@@ -44,7 +44,7 @@ function AddFaculty() {
         toast.success("Faculty created successfully");
         // Reset the form after successful submission
         setFacultyData({
-          // Reset patient data fields
+          // Reset faculty data fields
           name: "",
           email: "",
           password: "",
@@ -62,7 +62,7 @@ function AddFaculty() {
     } catch (error) {
       toast.error(error.response.data.message);
       console.error("Error creating faculty:", error.response.data);
-      console.log(patientData);
+      console.log(FacultyData);
     }
   };
   return (
