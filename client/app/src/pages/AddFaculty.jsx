@@ -5,7 +5,6 @@ import network from "../config/network";
 import { useState, useContext } from "react";
 import { userContext } from "../App";
 
-
 function AddFaculty() {
   const { token } = useContext(userContext);
   const [FacultyData, setFacultyData] = useState({
@@ -20,7 +19,6 @@ function AddFaculty() {
     joiningYear: "",
   });
 
-
   const handleInputChange = (event) => {
     const { name, value, type, checked } = event.target;
     setFacultyData((prevData) => ({
@@ -28,7 +26,6 @@ function AddFaculty() {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
-
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -40,36 +37,35 @@ function AddFaculty() {
       }
 
       const response = await axios.post(
-        network.server+"/api/faculty/addfaculty", formData, {
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${token}`,
-        },
-      });
+        `${network.server}/api/admin/addfaculty`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      if (response.status === 201) {
-        toast.success("Faculty created successfully");
-        // Reset the form after successful submission
-        setFacultyData({
-          // Reset faculty data fields
-          name: "",
-          email: "",
-          password: "",
-          username: "",
-          gender: "",
-          designation: "",
-          department: "",
-          contactNumber: "",
-          dob: "",
-          joiningYear: "",
-        });
-      }
+      toast.success("Faculty created successfully");
+      // Reset the form after successful submission
+      setFacultyData({
+        // Reset faculty data fields
+        name: "",
+        email: "",
+        gender: "",
+        designation: "",
+        department: "",
+        contactNumber: "",
+        dob: "",
+        joiningYear: "",
+      });
 
       console.log("Faculty created:", response.data);
     } catch (error) {
       toast.error(error.response.data.message);
       console.error("Error creating faculty:", error.response.data);
-      console.log(patientData);
+      console.log(FacultyData);
     }
   };
   return (
@@ -94,7 +90,7 @@ function AddFaculty() {
           <div className="col-sm-12">
             <div className="card">
               <div className="card-body">
-                <form>
+                <form onSubmit={handleSubmit}>
                   <div className="row">
                     <div className="col-12">
                       <h5 className="form-title">
@@ -114,6 +110,7 @@ function AddFaculty() {
                           onChange={handleInputChange}
                           className="form-control"
                           id="name"
+                          placeholder="Enter name"
                         />
                       </div>
                     </div>
@@ -122,9 +119,13 @@ function AddFaculty() {
                         <label>
                           Gender <span className="login-danger">*</span>
                         </label>
-                        <select className="form-control select">
-                          <option>Male</option>
-                          <option>Female</option>
+                        <select
+                          className="form-control select"
+                          value={FacultyData.gender}
+                          onChange={handleInputChange}
+                        >
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
                         </select>
                       </div>
                     </div>
@@ -152,11 +153,12 @@ function AddFaculty() {
                         <input
                           required
                           type="text"
-                          name="firstName"
+                          name="contactNumber"
                           value={FacultyData.contactNumber}
                           onChange={handleInputChange}
                           className="form-control"
                           id="Contactnumber"
+                          placeholder="Enter mobile no"
                         />
                       </div>
                     </div>
@@ -166,13 +168,13 @@ function AddFaculty() {
                           Joining Year <span className="login-danger">*</span>
                         </label>
                         <input
-                         required
-                         type="date"
-                         name="joiningYear"
-                         value={FacultyData.joiningYear}
-                         onChange={handleInputChange}
-                         className="form-control"
-                         id="joiningYear"
+                          required
+                          type="number"
+                          name="joiningYear"
+                          value={FacultyData.joiningYear}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="joiningYear"
                         />
                       </div>
                     </div>
@@ -184,7 +186,7 @@ function AddFaculty() {
                         <input
                           className="form-control"
                           type="text"
-                          placeholder="Enter Joining Date"
+                          placeholder="Enter qualification"
                         />
                       </div>
                     </div>
@@ -200,23 +202,7 @@ function AddFaculty() {
                         />
                       </div>
                     </div>
-                    <div className="col-12">
-                      <h5 className="form-title">
-                        <span>Login Details</span>
-                      </h5>
-                    </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>
-                          Username <span className="login-danger">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Enter Username"
-                        />
-                      </div>
-                    </div>
+
                     <div className="col-12 col-sm-4">
                       <div className="form-group local-forms">
                         <label>
@@ -230,40 +216,11 @@ function AddFaculty() {
                           onChange={handleInputChange}
                           className="form-control"
                           id="email"
+                          placeholder="Enter e-mail id"
                         />
                       </div>
                     </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>
-                          Password <span className="login-danger">*</span>
-                        </label>
-                        <input
-                          type="password"
-                          name="password"
-                          value={FacultyData.password}
-                          onChange={handleInputChange}
-                          required
-                          className="form-control"
-                        />
-                      </div>
-                    </div>
-                    <div className="col-12">
-                      <div className="form-group local-forms">
-                        <label>
-                          Username <span className="login-danger">*</span>
-                        </label>
-                        <input
-                          required
-                          type="text"
-                          name="username"
-                          value={FacultyData.username}
-                          onChange={handleInputChange}
-                          className="form-control"
-                          id="firstname"
-                        />
-                      </div>
-                    </div>
+
                     <div className="col-12 col-sm-4">
                       <div className="form-group local-forms">
                         <label>
@@ -277,6 +234,7 @@ function AddFaculty() {
                           onChange={handleInputChange}
                           className="form-control"
                           id="designation"
+                          placeholder="Enter designation"
                         />
                       </div>
                     </div>
@@ -293,10 +251,11 @@ function AddFaculty() {
                           onChange={handleInputChange}
                           className="form-control"
                           id="department"
+                          placeholder="Enter department"
                         />
                       </div>
                     </div>
-                    
+
                     <div className="col-12">
                       <div className="student-submit">
                         <button type="submit" className="btn btn-primary">
@@ -306,7 +265,6 @@ function AddFaculty() {
                     </div>
                   </div>
                 </form>
-                
               </div>
             </div>
           </div>

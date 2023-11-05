@@ -39,7 +39,7 @@ router.get("/getalladmin", auth, getAllAdmin);
 router.post("/updateprofile", auth, updateAdmin);
 router.post("/addadmin", auth, addAdmin);
 router.post("/adddepartment", auth, addDepartment);
-router.post("/api/addfaculty", auth, addFaculty);
+router.post("/addfaculty", auth, addFaculty);
 router.post("/getfaculty", auth, getFaculty);
 router.post("/addsubject", auth, addSubject);
 router.post("/getsubject", auth, getSubject);
