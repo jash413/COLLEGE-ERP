@@ -119,6 +119,9 @@ function App() {
     const storedToken = localStorage.getItem("token");
     if (storedToken) {
       setIsAuthenticated(true);
+      if (window.location.pathname !== "/dashboard") {
+        window.location.href = "/dashboard";
+      }
       setToken(localStorage.getItem("token"));
       setUser(JSON.parse(localStorage.getItem("user")));
     } else {
