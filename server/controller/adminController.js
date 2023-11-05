@@ -4,8 +4,10 @@ import Faculty from "../models/faculty.js";
 import Student from "../models/student.js";
 import Subject from "../models/subject.js";
 import Notice from "../models/notice.js";
+import Marks from "../models/marks.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import e from "express";
 
 export const adminLogin = async (req, res) => {
   const { username, password } = req.body;
@@ -192,7 +194,7 @@ export const createNotice = async (req, res) => {
 export const addDepartment = async (req, res) => {
   try {
     const errors = { departmentError: String };
-    const { department,hod } = req.body;
+    const { department, hod } = req.body;
     const existingDepartment = await Department.findOne({ department });
     if (existingDepartment) {
       errors.departmentError = "Department already added";
@@ -294,6 +296,54 @@ export const addFaculty = async (req, res) => {
   }
 };
 
+export const addMarks = async (req, res) => {
+  try {
+    const {
+      student,
+      subject,
+      t1,
+      t2,
+      t3,
+      t4,
+      practicalMarksIPE,
+      practicalMarksProject,
+    } = req.body;
+    const exisitingMarks = await Marks.findOne({ student, subject });
+    if (exisitingMarks) {
+      exisitingMarks.t1 = t1;
+      exisitingMarks.t2 = t2;
+      exisitingMarks.t3 = t3;
+      exisitingMarks.t4 = t4;
+      exisitingMarks.practicalMarksIPE = practicalMarksIPE;
+      exisitingMarks.practicalMarksProject = practicalMarksProject;
+      await exisitingMarks.save();
+      return res.status(200).json({
+        success: true,
+        message: "Marks updated successfully",
+        response: exisitingMarks,
+      });
+    }
+    const newMarks = await new Marks({
+      student,
+      subject,
+      t1,
+      t2,
+      t3,
+      t4,
+      practicalMarksIPE,
+      practicalMarksProject,
+    });
+    await newMarks.save();
+    return res.status(200).json({
+      success: true,
+      message: "Marks added successfully",
+      response: newMarks,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
 export const getFaculty = async (req, res) => {
   try {
     const { department } = req.body;
@@ -328,8 +378,14 @@ export const getNotice = async (req, res) => {
 
 export const addSubject = async (req, res) => {
   try {
-    const { totalLectures, department, subjectCode, subjectName, year,credit } =
-      req.body;
+    const {
+      totalLectures,
+      department,
+      subjectCode,
+      subjectName,
+      year,
+      credit,
+    } = req.body;
     const errors = { subjectError: String };
     const subject = await Subject.findOne({ subjectCode });
     if (subject) {
@@ -411,7 +467,7 @@ export const deleteAdmin = async (req, res) => {
     const errors = { noAdminError: String };
     for (var i = 0; i < admins.length; i++) {
       var admin = admins[i];
-   
+
       await Admin.findOneAndDelete({ _id: admin });
     }
     res.status(200).json({ message: "Admin Deleted" });
@@ -427,7 +483,7 @@ export const deleteFaculty = async (req, res) => {
     const errors = { noFacultyError: String };
     for (var i = 0; i < faculties.length; i++) {
       var faculty = faculties[i];
- 
+
       await Faculty.findOneAndDelete({ _id: faculty });
     }
     res.status(200).json({ message: "Faculty Deleted" });
@@ -443,7 +499,7 @@ export const deleteStudent = async (req, res) => {
     const errors = { noStudentError: String };
     for (var i = 0; i < students.length; i++) {
       var student = students[i];
-   
+
       await Student.findOneAndDelete({ _id: student });
     }
     res.status(200).json({ message: "Student Deleted" });
@@ -483,7 +539,7 @@ export const deleteDepartment = async (req, res) => {
     res.status(500).json(errors);
   }
 };
- 
+
 export const addStudent = async (req, res) => {
   try {
     const {
@@ -492,7 +548,7 @@ export const addStudent = async (req, res) => {
       department,
       contactNumber,
       email,
-      section,
+      enrollmentNumber,
       gender,
       batch,
       fatherName,
@@ -507,14 +563,14 @@ export const addStudent = async (req, res) => {
       errors.emailError = "Email already exists";
       return res.status(400).json(errors);
     }
- 
+
     const newStudent = await new Student({
       name,
       dob,
       department,
       contactNumber,
       email,
-      section,
+      enrollmentNumber,
       gender,
       batch,
       fatherName,

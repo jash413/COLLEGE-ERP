@@ -13,7 +13,7 @@ function StudentAdd() {
     gender: "",
     dob: "",
     batch: "",
-    section: "",
+    enrollmentNumber: "",
     email: "",
     contact: "",
     fatherName: "",
@@ -42,7 +42,7 @@ function StudentAdd() {
         gender: "",
         dob: "",
         batch: "",
-        section: "",
+        enrollmentNumber: "",
         email: "",
         contact: "",
         fatherName: "",
@@ -175,15 +175,15 @@ function StudentAdd() {
                       <div className="col-12 col-sm-4">
                         <div className="form-group local-forms">
                           <label>
-                            Section <span className="login-danger">*</span>
+                            Enrollment Number <span className="login-danger">*</span>
                           </label>
                           <input
                             className="form-control"
-                            name="section"
-                            value={formData.section}
+                            name="enrollmentNumber"
+                            value={formData.enrollmentNumber}
                             onChange={handleFormData}
-                            type="text"
-                            placeholder="Enter Section Name"
+                            type="number"
+                            placeholder="Enter Enrollment Number"
                           />
                         </div>
                       </div>

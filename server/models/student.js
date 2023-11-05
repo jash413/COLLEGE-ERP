@@ -33,9 +33,10 @@ const studentSchema = new Schema({
     type: String,
     required: true,
   },
-  section: {
-    type: String,
+  enrollmentNumber: {
+    type: Number,
     required: true,
+    unique: true,
   },
   batch: {
     type: String,
