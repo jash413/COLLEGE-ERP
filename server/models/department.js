@@ -10,6 +10,10 @@ const departmentSchema = mongoose.Schema({
     required: true,
     unique: true,
   },
+  hod:{
+    type: String,
+    required: true
+  },
 });
 
 export default mongoose.model("department", departmentSchema);
