@@ -1,14 +1,17 @@
 import React from "react";
+import axios from "axios";
+import { toast } from "react-hot-toast";
 import network from "../config/network";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { userContext } from "../App";
+
+
 function AddFaculty() {
+  const { token } = useContext(userContext);
   const [FacultyData, setFacultyData] = useState({
     // Initialize state for faculty data fields
     name: "",
     email: "",
-    password: "",
-    username: "",
     gender: "",
     designation: "",
     department: "",
@@ -16,6 +19,8 @@ function AddFaculty() {
     dob: "",
     joiningYear: "",
   });
+
+
   const handleInputChange = (event) => {
     const { name, value, type, checked } = event.target;
     setFacultyData((prevData) => ({
@@ -23,6 +28,8 @@ function AddFaculty() {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -33,7 +40,7 @@ function AddFaculty() {
       }
 
       const response = await axios.post(
-        network.server+"/api/addfaculty", formData, {
+        network.server+"/api/faculty/addfaculty", formData, {
         headers: {
           "Content-Type": "application/json",
           authorization: `Bearer ${token}`,
@@ -62,7 +69,7 @@ function AddFaculty() {
     } catch (error) {
       toast.error(error.response.data.message);
       console.error("Error creating faculty:", error.response.data);
-      console.log(FacultyData);
+      console.log(patientData);
     }
   };
   return (
@@ -72,12 +79,12 @@ function AddFaculty() {
         <div className="page-header">
           <div className="row align-items-center">
             <div className="col">
-              <h3 className="page-title">Add Teachers</h3>
+              <h3 className="page-title">Add Faculties</h3>
               <ul className="breadcrumb">
                 <li className="breadcrumb-item">
-                  <a href="teachers.html">Teachers</a>
+                  <a href="teachers.html">Faculties</a>
                 </li>
-                <li className="breadcrumb-item active">Add Teachers</li>
+                <li className="breadcrumb-item active">Add Faculties</li>
               </ul>
             </div>
           </div>
@@ -305,6 +312,9 @@ function AddFaculty() {
           </div>
         </div>
       </div>
+      <footer>
+        <p>Copyright © 2022 Webwise Solutions.</p>
+      </footer>
     </div>
   );
 }

@@ -310,11 +310,9 @@ function Subjects() {
           </div>
         </div>
       </div>
-      {/* Footer */}
       <footer>
-        <p>Copyright © 2022 Dreamguys.</p>
+        <p>Copyright © 2022 Webwise Solutions.</p>
       </footer>
-      {/* /Footer */}
     </div>
   );
 }

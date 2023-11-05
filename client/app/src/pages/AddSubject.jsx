@@ -68,6 +68,9 @@ function AddSubject() {
           </div>
         </div>
       </div>
+      <footer>
+        <p>Copyright © 2022 Webwise Solutions.</p>
+      </footer>
     </div>
   );
 }

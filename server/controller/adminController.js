@@ -481,7 +481,7 @@ export const deleteDepartment = async (req, res) => {
     res.status(500).json(errors);
   }
 };
-
+ 
 export const addStudent = async (req, res) => {
   try {
     const {
@@ -489,7 +489,6 @@ export const addStudent = async (req, res) => {
       dob,
       department,
       contactNumber,
-      avatar,
       email,
       section,
       gender,
@@ -506,36 +505,12 @@ export const addStudent = async (req, res) => {
       errors.emailError = "Email already exists";
       return res.status(400).json(errors);
     }
-    const existingDepartment = await Department.findOne({ department });
-    let departmentHelper = existingDepartment.departmentCode;
-
-    const students = await Student.find({ department });
-    let helper;
-    if (students.length < 10) {
-      helper = "00" + students.length.toString();
-    } else if (students.length < 100 && students.length > 9) {
-      helper = "0" + students.length.toString();
-    } else {
-      helper = students.length.toString();
-    }
-    var date = new Date();
-    var components = ["STU", date.getFullYear(), departmentHelper, helper];
-
-    var username = components.join("");
-    let hashedPassword;
-    const newDob = dob.split("-").reverse().join("-");
-
-    hashedPassword = await bcrypt.hash(newDob, 10);
-    var passwordUpdated = false;
-
+ 
     const newStudent = await new Student({
       name,
       dob,
-      password: hashedPassword,
-      username,
       department,
       contactNumber,
-      avatar,
       email,
       section,
       gender,
@@ -545,7 +520,6 @@ export const addStudent = async (req, res) => {
       fatherContactNumber,
       motherContactNumber,
       year,
-      passwordUpdated,
     });
     await newStudent.save();
     const subjects = await Subject.find({ department, year });
