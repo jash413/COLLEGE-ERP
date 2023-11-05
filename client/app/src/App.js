@@ -129,6 +129,25 @@ function App() {
     }
   }, []);
 
+  // Handle sign out
+  const handleSignOut = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/";
+  };
+
+  // check jwt token expiry
+  useEffect(() => {
+    if (token) {
+      const decodedToken = JSON.parse(atob(token.split(".")[1]));
+      const currentTime = Date.now() / 1000;
+      if (decodedToken.exp < currentTime) {
+        handleSignOut();
+      }
+    }
+  }, [token]);
+
   return (
     <>
       <userContext.Provider value={{ user, token }}>

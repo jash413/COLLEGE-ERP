@@ -12,8 +12,6 @@ function AddFaculty() {
     // Initialize state for patient data fields
     name: "",
     email: "",
-    password: "",
-    username: "",
     gender: "",
     designation: "",
     department: "",
