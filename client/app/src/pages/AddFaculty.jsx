@@ -123,6 +123,7 @@ function AddFaculty() {
                           className="form-control select"
                           value={FacultyData.gender}
                           onChange={handleInputChange}
+                          name="gender"
                         >
                           <option value="male">Male</option>
                           <option value="female">Female</option>
