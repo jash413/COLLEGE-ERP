@@ -124,6 +124,26 @@ function SideBar() {
                   </li>
                 </ul>
               </li>
+              <li
+                className={`submenu ${isSubMenuActive("marks") ? "active" : ""}`}
+              >
+                <a
+                  href="#"
+                  onClick={() => handleSubMenuToggle("marks")}
+                >
+                  <i className="fas fa-book" /> <span>Marks</span>{" "}
+                  <span className="menu-arrow" />
+                </a>
+                <ul
+                  style={{
+                    display: isSubMenuActive("marks") ? "block" : "none",
+                  }}
+                >
+                  <li>
+                    <Link to="/marks/enter">Enter Marks</Link>
+                  </li>
+                </ul>
+              </li>
             </ul>
           </div>
         </div>

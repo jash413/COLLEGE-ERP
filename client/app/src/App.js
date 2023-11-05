@@ -26,6 +26,7 @@ import AddDepartment from "./pages/AddDepartment";
 import Departments from "./pages/Departments";
 import AddSubject from "./pages/AddSubject";
 import Subjects from "./pages/Subjects";
+import EnterMarks from "./pages/EnterMarks";
 
 // create context
 export const userContext = createContext();
@@ -266,6 +267,16 @@ function App() {
                                 <Header />
                                 <SideBar />
                                 <Students />
+                              </>
+                            }
+                          />
+                          <Route
+                            path="/marks/enter"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <EnterMarks />
                               </>
                             }
                           />

@@ -17,6 +17,7 @@ function AddFaculty() {
     contactNumber: "",
     dob: "",
     joiningYear: "",
+    userType: "faculty",
   });
 
   const handleInputChange = (event) => {
