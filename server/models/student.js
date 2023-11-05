@@ -10,13 +10,6 @@ const studentSchema = new Schema({
     required: true,
     unique: true,
   },
-  avatar: {
-    type: String,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
   year: {
     type: Number,
     required: true,
@@ -27,9 +20,6 @@ const studentSchema = new Schema({
       ref: "subject",
     },
   ],
-  username: {
-    type: String,
-  },
   gender: {
     type: String,
   },
@@ -59,10 +49,6 @@ const studentSchema = new Schema({
   dob: {
     type: String,
     required: true,
-  },
-  passwordUpdated: {
-    type: Boolean,
-    default: false,
   },
 });
 

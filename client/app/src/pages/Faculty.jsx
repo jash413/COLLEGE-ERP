@@ -1,5 +1,6 @@
 import React from 'react'
 import axios from 'axios'
+import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 function Faculty() {
     const [faculty, setFaculty] = useState([
@@ -17,12 +18,12 @@ function Faculty() {
       <div className="page-header">
         <div className="row align-items-center">
           <div className="col">
-            <h3 className="page-title">Teachers</h3>
+            <h3 className="page-title">Faculties</h3>
             <ul className="breadcrumb">
               <li className="breadcrumb-item">
                 <a href="index.html">Dashboard</a>
               </li>
-              <li className="breadcrumb-item active">Teachers</li>
+              <li className="breadcrumb-item active">Faculties</li>
             </ul>
           </div>
         </div>
@@ -74,27 +75,15 @@ function Faculty() {
               <div className="page-header">
                 <div className="row align-items-center">
                   <div className="col">
-                    <h3 className="page-title">Teachers</h3>
+                    <h3 className="page-title">Faculties</h3>
                   </div>
                   <div className="col-auto text-end float-end ms-auto download-grp">
-                    <a
-                      href="teachers.html"
-                      className="btn btn-outline-gray me-2 active"
-                    >
-                      <i className="feather-list" />
-                    </a>
-                    <a
-                      href="teachers-grid.html"
-                      className="btn btn-outline-gray me-2"
-                    >
-                      <i className="feather-grid" />
-                    </a>
                     <a href="#" className="btn btn-outline-primary me-2">
                       <i className="fas fa-download" /> Download
                     </a>
-                    <a href="add-teacher.html" className="btn btn-primary">
+                    <Link to="/faculty/add" className="btn btn-primary">
                       <i className="fas fa-plus" />
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -626,7 +615,7 @@ function Faculty() {
     </div>
     {/* Footer */}
     <footer>
-      <p>Copyright © 2022 Webwise Solutions.</p>
+      <p>Copyright © 2023 Webwise Solutions.</p>
     </footer>
     {/* /Footer */}
   </div>
