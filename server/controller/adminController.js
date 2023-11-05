@@ -192,7 +192,7 @@ export const createNotice = async (req, res) => {
 export const addDepartment = async (req, res) => {
   try {
     const errors = { departmentError: String };
-    const { department } = req.body;
+    const { department,hod } = req.body;
     const existingDepartment = await Department.findOne({ department });
     if (existingDepartment) {
       errors.departmentError = "Department already added";
@@ -210,6 +210,7 @@ export const addDepartment = async (req, res) => {
     const newDepartment = await new Department({
       department,
       departmentCode,
+      hod,
     });
 
     await newDepartment.save();
@@ -327,7 +328,7 @@ export const getNotice = async (req, res) => {
 
 export const addSubject = async (req, res) => {
   try {
-    const { totalLectures, department, subjectCode, subjectName, year } =
+    const { totalLectures, department, subjectCode, subjectName, year,credit } =
       req.body;
     const errors = { subjectError: String };
     const subject = await Subject.findOne({ subjectCode });
@@ -342,6 +343,7 @@ export const addSubject = async (req, res) => {
       subjectCode,
       subjectName,
       year,
+      credit,
     });
 
     await newSubject.save();

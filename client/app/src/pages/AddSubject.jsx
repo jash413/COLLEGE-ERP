@@ -1,6 +1,67 @@
 import React from "react";
+import axios from "axios";
+import { toast } from "react-hot-toast";
+import network from "../config/network";
+import { useState, useContext } from "react";
+import { subjectContext, userContext } from "../App";
 
 function AddSubject() {
+  const { token } = useContext(userContext);
+  const [SubjectData, setSubjectData] = useState({
+    // Initialize state for subject data fields
+    subjectName: "",
+    subjectCode: "",
+    department: "",
+    totalLectures: 10,
+    year: "",
+    credit: "",
+  });
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    const camelCaseName = name.charAt(0).toLowerCase() + name.slice(1);
+    setSubjectData((prevState) => ({ ...prevState, [camelCaseName]: value }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const formData = new FormData();
+      for (const key in SubjectData) {
+        formData.append(key, SubjectData[key]);
+      }
+
+      const response = await axios.post(
+        `${network.server}/api/admin/addsubject`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      toast.success("subject added successfully");
+      // Reset the form after successful submission
+      setSubjectData({
+        // Reset faculty data fields
+        subjectName: "",
+        subjectCode: "",
+        department: "",
+        totalLectures: 10,
+        year: "",
+        credit: "",
+      });
+
+      console.log("Faculty created:", response.data);
+    } catch (error) {
+      toast.error(error.response.data.message);
+      console.error("Error creating subject:", error.response.data);
+      console.log(SubjectData);
+    }
+  };
   return (
     <div className="page-wrapper">
       <div className="content container-fluid">
@@ -23,7 +84,7 @@ function AddSubject() {
           <div className="col-sm-12">
             <div className="card">
               <div className="card-body">
-                <form>
+                <form onSubmit={handleSubmit}>
                   <div className="row">
                     <div className="col-12">
                       <h5 className="form-title">
@@ -33,25 +94,103 @@ function AddSubject() {
                     <div className="col-12 col-sm-4">
                       <div className="form-group local-forms">
                         <label>
-                          Subject ID <span className="login-danger">*</span>
-                        </label>
-                        <input type="text" className="form-control" />
-                      </div>
-                    </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>
                           Subject Name <span className="login-danger">*</span>
                         </label>
-                        <input type="text" className="form-control" />
+                        <input
+                          required
+                          type="text"
+                          name="SubjectName"
+                          value={SubjectData.subjectName}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="subjectName"
+                          placeholder="Enter Subject"
+                        />
                       </div>
                     </div>
                     <div className="col-12 col-sm-4">
                       <div className="form-group local-forms">
                         <label>
-                          Class <span className="login-danger">*</span>
+                          Subject Code <span className="login-danger">*</span>
                         </label>
-                        <input type="text" className="form-control" />
+                        <input
+                          required
+                          type="text"
+                          name="SubjectCode"
+                          value={SubjectData.subjectCode}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="Enter Code"
+                          placeholder="Enter Code"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-12 col-sm-4">
+                      <div className="form-group local-forms">
+                        <label>
+                          Department <span className="login-danger">*</span>
+                        </label>
+                        <input
+                          required
+                          type="text"
+                          name="department"
+                          value={SubjectData.department}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="Department"
+                          placeholder="Enter Department"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-12 col-sm-4">
+                      <div className="form-group local-forms">
+                        <label>
+                          Total Lectures <span className="login-danger">*</span>
+                        </label>
+                        <input
+                          required
+                          type="number"
+                          name="totalLectures"
+                          value={SubjectData.totalLectures}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="totalLectures"
+                          placeholder="Total No Of Lectures"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-12 col-sm-4">
+                      <div className="form-group local-forms">
+                        <label>
+                          Year <span className="login-danger">*</span>
+                        </label>
+                        <input
+                          required
+                          type="number"
+                          name="year"
+                          value={SubjectData.year}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="Enter Subject"
+                          placeholder="Enter The Year"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-12 col-sm-4">
+                      <div className="form-group local-forms">
+                        <label>
+                          Credit <span className="login-danger">*</span>
+                        </label>
+                        <input
+                          required
+                          type="number"
+                          name="credit"
+                          value={SubjectData.credit}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="credit"
+                          placeholder="Credit Of This Subject"
+                        />
                       </div>
                     </div>
                     <div className="col-12">
