@@ -5,7 +5,7 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import { userContext } from "../App";
  
-function StudentAdd() {
+function StudentAdd({onAdd}) {
   const { token } = useContext(userContext);
   const [formData, setFormData] = useState({
     name: "",
@@ -36,6 +36,7 @@ function StudentAdd() {
         headers: { Authorization: `Bearer ${token}` }
         });
       toast.success(res.data.message);
+      onAdd();
       setFormData({
         name: "",
         department: "",

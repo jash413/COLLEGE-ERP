@@ -46,54 +46,14 @@ function App() {
 
   // Get all students
   useEffect(() => {
-    if (token && user.userType === "admin") {
-      axios
-        .get(network.server + "/api/admin/getallstudent", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((res) => {
-          setStudents(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
+    getAllStudents();
+    getAllSubjects();
+    getAllFaculties();
+    getAllDepartments();
   }, [token, user]);
 
-  // Get all faculties
-  useEffect(() => {
-    if (token && user.userType === "admin") {
-      axios
-        .get(network.server + "/api/admin/getallfaculty", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((res) => {
-          setFaculties(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  }, [token, user]);
-
-  // Get all departments
-  useEffect(() => {
-    if (token && user.userType === "admin") {
-      axios
-        .get(network.server + "/api/admin/getalldepartment", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((res) => {
-          setDepartments(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  }, [token, user]);
-
-  // Get all subjects
-  useEffect(() => {
+  // Function to get all subjects
+  const getAllSubjects = () => {
     if (token && user.userType === "admin") {
       axios
         .get(network.server + "/api/admin/getallsubject", {
@@ -106,7 +66,55 @@ function App() {
           console.log(err);
         });
     }
-  }, [token, user]);
+  };
+
+  // Function to get all students 
+  const getAllStudents = () => {
+    if (token && user.userType === "admin") {
+      axios
+        .get(network.server + "/api/admin/getallstudent", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => {
+          setStudents(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
+  // Function to get all faculties
+  const getAllFaculties = () => {
+    if (token && user.userType === "admin") {
+      axios
+        .get(network.server + "/api/admin/getallfaculty", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => {
+          setFaculties(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
+  // Function to get all departments
+  const getAllDepartments = () => {
+    if (token && user.userType === "admin") {
+      axios
+        .get(network.server + "/api/admin/getalldepartment", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => {
+          setDepartments(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
 
   // Handle sign in
   const handleSignIn = () => {
@@ -196,7 +204,7 @@ function App() {
                               <>
                                 <Header />
                                 <SideBar />
-                                <StudentAdd />
+                                <StudentAdd onAdd={getAllStudents} />
                               </>
                             }
                           />
@@ -206,7 +214,7 @@ function App() {
                               <>
                                 <Header />
                                 <SideBar />
-                                <AddFaculty />
+                                <AddFaculty onAdd={getAllFaculties} />
                               </>
                             }
                           />
@@ -226,7 +234,7 @@ function App() {
                               <>
                                 <Header />
                                 <SideBar />
-                                <AddDepartment />
+                                <AddDepartment onAdd={getAllDepartments} />
                               </>
                             }
                           />
@@ -246,7 +254,7 @@ function App() {
                               <>
                                 <Header />
                                 <SideBar />
-                                <AddSubject />
+                                <AddSubject onAdd={getAllSubjects} />
                               </>
                             }
                           />

@@ -3,9 +3,9 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import network from "../config/network";
 import { useState, useContext } from "react";
-import { subjectContext, userContext } from "../App";
+import { userContext } from "../App";
 
-function AddSubject() {
+function AddSubject({onAdd}) {
   const { token } = useContext(userContext);
   const [SubjectData, setSubjectData] = useState({
     // Initialize state for subject data fields
@@ -44,6 +44,7 @@ function AddSubject() {
       );
 
       toast.success("subject added successfully");
+      onAdd();
       // Reset the form after successful submission
       setSubjectData({
         // Reset faculty data fields

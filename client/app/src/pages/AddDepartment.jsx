@@ -5,7 +5,7 @@ import network from "../config/network";
 import { useState, useContext } from "react";
 import { subjectContext, userContext } from "../App";
 
-function AddDepartment() {
+function AddDepartment({onAdd}) {
   const { token } = useContext(userContext);
   const [DepartmentData, setDepartmentData] = useState({
     // Initialize state for subject data fields
@@ -42,6 +42,7 @@ function AddDepartment() {
       );
 
       toast.success("Department added successfully");
+      onAdd();
       // Reset the form after successful submission
       setDepartmentData({
         // Reset Department data fields

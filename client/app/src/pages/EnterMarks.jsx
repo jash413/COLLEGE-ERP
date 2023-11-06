@@ -284,6 +284,7 @@ function EnterMarks() {
                           onChange={handleChange}
                           className="form-control"
                           value={marks.t1 ? marks.t1 : "T1 Marks"}
+                          placeholder="T1 Marks"
                         />
                       </div>
                     </div>
@@ -296,6 +297,7 @@ function EnterMarks() {
                           onChange={handleChange}
                           className="form-control"
                           value={marks.t2 ? marks.t2 : "T2 Marks"}
+                          placeholder="T2 Marks"
                         />
                       </div>
                     </div>
@@ -308,6 +310,7 @@ function EnterMarks() {
                           onChange={handleChange}
                           className="form-control"
                           value={marks.t3 ? marks.t3 : "T3 Marks"}
+                          placeholder="T3 Marks"
                         />
                       </div>
                     </div>
@@ -320,6 +323,7 @@ function EnterMarks() {
                           onChange={handleChange}
                           className="form-control"
                           value={marks.t4 ? marks.t4 : "T4 Marks"}
+                          placeholder="T4 Marks"
                         />
                       </div>
                     </div>
@@ -336,6 +340,7 @@ function EnterMarks() {
                               ? marks.practicalMarksIPE
                               : "IPE Marks"
                           }
+                          placeholder="IPE Marks"
                         />
                       </div>
                     </div>
@@ -352,6 +357,7 @@ function EnterMarks() {
                               ? marks.practicalMarksProject
                               : "Practical Marks"
                           }
+                          placeholder="Practical Marks"
                         />
                       </div>
                     </div>
@@ -360,7 +366,10 @@ function EnterMarks() {
                         <button type="submit" className="btn btn-primary">
                           Submit/Update
                         </button>
-                      </div>
+                      </div><br/>
+                    </div>
+                    <div className="col-12">
+                      <p><span className="login-danger">*</span> The value (-1) indicates that no marks have been added.</p>
                     </div>
                   </div>
                 </form>

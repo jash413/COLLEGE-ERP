@@ -5,7 +5,7 @@ import network from "../config/network";
 import { useState, useContext } from "react";
 import { userContext } from "../App";
 
-function AddFaculty() {
+function AddFaculty({ onAdd }) {
   const { token } = useContext(userContext);
   const [FacultyData, setFacultyData] = useState({
     // Initialize state for faculty data fields
@@ -49,6 +49,7 @@ function AddFaculty() {
       );
 
       toast.success("Faculty created successfully");
+      onAdd();
       // Reset the form after successful submission
       setFacultyData({
         // Reset faculty data fields
