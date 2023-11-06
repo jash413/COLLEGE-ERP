@@ -344,6 +344,19 @@ export const addMarks = async (req, res) => {
   }
 };
 
+export const getMarks = async (req, res) => {
+  try {
+    const { student, subject } = req.body;
+    const marks = await Marks.findOne({ student, subject });
+    if (!marks) {
+      return res.status(404).json({ message: "Marks not found" });
+    }
+    return res.status(200).json(marks);
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
 export const getFaculty = async (req, res) => {
   try {
     const { department } = req.body;

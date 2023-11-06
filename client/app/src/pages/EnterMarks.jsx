@@ -63,6 +63,49 @@ function EnterMarks() {
     }
   }, [student.course, subjects]);
 
+  // Get Marks
+  useEffect(() => {
+    if (marks.subject !== "") {
+      axios
+        .post(
+          `${network.server}/api/admin/getmarks`,
+          {
+            student: student.id,
+            subject: marks.subject,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        )
+        .then((res) => {
+          if (res.data) {
+            setMarks({
+              student: student.id,
+              subject: marks.subject,
+              t1: res.data.t1,
+              t2: res.data.t2,
+              t3: res.data.t3,
+              t4: res.data.t4,
+              practicalMarksIPE: res.data.practicalMarksIPE,
+              practicalMarksProject: res.data.practicalMarksProject,
+            });
+          }
+        })
+        .catch((err) => {
+          setMarks({
+            student: student.id,
+            subject: marks.subject,
+            t1: "-1",
+            t2: "-1",
+            t3: "-1",
+            t4: "-1",
+            practicalMarksIPE: "-1",
+            practicalMarksProject: "-1",
+          });
+        });
+    }
+  }, [marks.subject, student.id, token]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (marks.subject === "") {
@@ -150,7 +193,7 @@ function EnterMarks() {
                   <div className="row">
                     <div className="col-12">
                       <h5 className="form-title">
-                        <span>Basic Details</span>
+                        <span>Student Details</span>
                       </h5>
                     </div>
                     <div className="col-12 col-sm-4">
@@ -207,7 +250,9 @@ function EnterMarks() {
                           >
                             <option>Select Course</option>
                             {courses.map((course, index) => (
-                              <option key={index} value={subjects[index]._id}>{course}</option>
+                              <option key={index} value={subjects[index]._id}>
+                                {course}
+                              </option>
                             ))}
                           </select>
                         </div>
@@ -227,7 +272,7 @@ function EnterMarks() {
                   <div className="row">
                     <div className="col-12">
                       <h5 className="form-title">
-                        <span>Marks Details</span>
+                        <span>Marks Detail</span>
                       </h5>
                     </div>
                     <div className="col-12 col-sm-4">
@@ -238,8 +283,7 @@ function EnterMarks() {
                           name="t1"
                           onChange={handleChange}
                           className="form-control"
-                          value={marks.t1}
-                          placeholder="Enter T1 Marks"
+                          value={marks.t1 ? marks.t1 : "T1 Marks"}
                         />
                       </div>
                     </div>
@@ -251,8 +295,7 @@ function EnterMarks() {
                           name="t2"
                           onChange={handleChange}
                           className="form-control"
-                          value={marks.t2}
-                          placeholder="Enter T2 Marks"
+                          value={marks.t2 ? marks.t2 : "T2 Marks"}
                         />
                       </div>
                     </div>
@@ -264,8 +307,7 @@ function EnterMarks() {
                           name="t3"
                           onChange={handleChange}
                           className="form-control"
-                          value={marks.t3}
-                          placeholder="Enter T3 Marks"
+                          value={marks.t3 ? marks.t3 : "T3 Marks"}
                         />
                       </div>
                     </div>
@@ -277,8 +319,7 @@ function EnterMarks() {
                           name="t4"
                           onChange={handleChange}
                           className="form-control"
-                          value={marks.t4}
-                          placeholder="Enter T4 Marks"
+                          value={marks.t4 ? marks.t4 : "T4 Marks"}
                         />
                       </div>
                     </div>
@@ -290,8 +331,11 @@ function EnterMarks() {
                           name="practicalMarksIPE"
                           onChange={handleChange}
                           className="form-control"
-                          value={marks.practicalMarksIPE}
-                          placeholder="Enter IPE Marks"
+                          value={
+                            marks.practicalMarksIPE
+                              ? marks.practicalMarksIPE
+                              : "IPE Marks"
+                          }
                         />
                       </div>
                     </div>
@@ -303,15 +347,18 @@ function EnterMarks() {
                           name="practicalMarksProject"
                           onChange={handleChange}
                           className="form-control"
-                          value={marks.practicalMarksProject}
-                          placeholder="Enter Practical Marks"
+                          value={
+                            marks.practicalMarksProject
+                              ? marks.practicalMarksProject
+                              : "Practical Marks"
+                          }
                         />
                       </div>
                     </div>
                     <div className="col-12">
                       <div className="student-submit">
                         <button type="submit" className="btn btn-primary">
-                          Submit
+                          Submit/Update
                         </button>
                       </div>
                     </div>

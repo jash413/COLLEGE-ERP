@@ -10,6 +10,7 @@ import {
   getSubject,
   addStudent,
   addMarks,
+  getMarks,
   getStudent,
   addDepartment,
   getAllStudent,
@@ -54,5 +55,6 @@ router.post("/deletestudent", auth, deleteStudent);
 router.post("/deletedepartment", auth, deleteDepartment);
 router.post("/deletesubject", auth, deleteSubject);
 router.post("/addmarks", auth, addMarks);
+router.post("/getmarks", auth, getMarks);
 
 export default router;
