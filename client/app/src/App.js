@@ -61,6 +61,7 @@ function App() {
         })
         .then((res) => {
           setSubjects(res.data);
+          getAllStudents();
         })
         .catch((err) => {
           console.log(err);
