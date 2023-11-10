@@ -3,10 +3,12 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import network from "../config/network";
 import { useState, useContext } from "react";
-import { userContext } from "../App";
+import { userContext, departmentContext } from "../App";
+import { Link } from "react-router-dom";
 
 function AddFaculty({ onAdd }) {
   const { token } = useContext(userContext);
+  const [ departments ] = useContext(departmentContext);
   const [FacultyData, setFacultyData] = useState({
     // Initialize state for faculty data fields
     name: "",
@@ -27,6 +29,7 @@ function AddFaculty({ onAdd }) {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -80,7 +83,7 @@ function AddFaculty({ onAdd }) {
               <h3 className="page-title">Add Faculties</h3>
               <ul className="breadcrumb">
                 <li className="breadcrumb-item">
-                  <a href="teachers.html">Faculties</a>
+                  <Link to="/faculty/list">Faculties</Link>
                 </li>
                 <li className="breadcrumb-item active">Add Faculties</li>
               </ul>
@@ -112,7 +115,7 @@ function AddFaculty({ onAdd }) {
                           onChange={handleInputChange}
                           className="form-control"
                           id="name"
-                          placeholder="Enter name"
+                          placeholder="Enter Name"
                         />
                       </div>
                     </div>
@@ -127,6 +130,7 @@ function AddFaculty({ onAdd }) {
                           onChange={handleInputChange}
                           name="gender"
                         >
+                          <option value="">Select Gender</option>
                           <option value="male">Male</option>
                           <option value="female">Female</option>
                         </select>
@@ -161,7 +165,7 @@ function AddFaculty({ onAdd }) {
                           onChange={handleInputChange}
                           className="form-control"
                           id="Contactnumber"
-                          placeholder="Enter mobile no"
+                          placeholder="Enter Mobile Number"
                         />
                       </div>
                     </div>
@@ -178,6 +182,7 @@ function AddFaculty({ onAdd }) {
                           onChange={handleInputChange}
                           className="form-control"
                           id="joiningYear"
+                          placeholder="Enter Joining Year"
                         />
                       </div>
                     </div>
@@ -189,7 +194,7 @@ function AddFaculty({ onAdd }) {
                         <input
                           className="form-control"
                           type="text"
-                          placeholder="Enter qualification"
+                          placeholder="Enter Qualification"
                         />
                       </div>
                     </div>
@@ -219,7 +224,7 @@ function AddFaculty({ onAdd }) {
                           onChange={handleInputChange}
                           className="form-control"
                           id="email"
-                          placeholder="Enter e-mail id"
+                          placeholder="Enter Email ID"
                         />
                       </div>
                     </div>
@@ -237,7 +242,7 @@ function AddFaculty({ onAdd }) {
                           onChange={handleInputChange}
                           className="form-control"
                           id="designation"
-                          placeholder="Enter designation"
+                          placeholder="Enter Designation"
                         />
                       </div>
                     </div>
@@ -246,16 +251,19 @@ function AddFaculty({ onAdd }) {
                         <label>
                           Department <span className="login-danger">*</span>
                         </label>
-                        <input
-                          required
-                          type="text"
-                          name="department"
+                        <select
+                          className="form-control select"
                           value={FacultyData.department}
                           onChange={handleInputChange}
-                          className="form-control"
-                          id="department"
-                          placeholder="Enter department"
-                        />
+                          name="department"
+                        >
+                          <option value="">Select Department</option>
+                          {departments.map((department) => (
+                            <option value={department.department}>
+                              {department.department}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
 

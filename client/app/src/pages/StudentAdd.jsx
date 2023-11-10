@@ -15,12 +15,13 @@ function StudentAdd({onAdd}) {
     batch: "",
     enrollmentNumber: "",
     email: "",
-    contact: "",
+    contactNumber: "",
     fatherName: "",
     motherName: "",
     fatherContactNumber: "",
     motherContactNumber: "",
     year: "",
+    section: "",
   });
 
   // handle form data
@@ -45,12 +46,13 @@ function StudentAdd({onAdd}) {
         batch: "",
         enrollmentNumber: "",
         email: "",
-        contact: "",
+        contactNumber: "",
         fatherName: "",
         motherName: "",
         fatherContactNumber: "",
         motherContactNumber: "",
         year: "",
+        section: "",
       });
     } catch (error) {
       console.log(formData)
@@ -135,7 +137,7 @@ function StudentAdd({onAdd}) {
                             Gender <span className="login-danger">*</span>
                           </label>
                           <select name="gender" value={formData.gender} onChange={handleFormData} className="form-control select">
-                            <option value="Select Gender" disabled>Select Gender</option>
+                            <option value="">Select Gender</option>
                             <option value="female">Female</option>
                             <option value="male">Male</option>
                             <option value="others">Others</option>
@@ -169,7 +171,7 @@ function StudentAdd({onAdd}) {
                             value={formData.batch}
                             onChange={handleFormData}
                             type="text"
-                            placeholder="Enter Batch Name"
+                            placeholder="YYYY-YYYY"
                           />
                         </div>
                       </div>
@@ -210,8 +212,8 @@ function StudentAdd({onAdd}) {
                              </label>
                           <input
                             className="form-control"
-                            name="contact"
-                            value={formData.contact}
+                            name="contactNumber"
+                            value={formData.contactNumber}
                             onChange={handleFormData}
                             type="number"
                             placeholder="Enter Contact Number"
@@ -281,6 +283,21 @@ function StudentAdd({onAdd}) {
                       <div className="col-12 col-sm-4">
                         <div className="form-group local-forms">
                           <label>
+                            Section <span className="login-danger">*</span>
+                             </label>
+                          <input
+                            className="form-control"
+                            name="section"
+                            value={formData.section}
+                            onChange={handleFormData}
+                            type="text"
+                            placeholder="Enter Section"
+                          />
+                        </div>
+                      </div>
+                      <div className="col-12 col-sm-4">
+                        <div className="form-group local-forms">
+                          <label>
                             Year <span className="login-danger">*</span>
                              </label>
                           <input
@@ -289,7 +306,7 @@ function StudentAdd({onAdd}) {
                             value={formData.year}
                             onChange={handleFormData}
                             type="text"
-                            placeholder="yyyy"
+                            placeholder="Enter Year"
                           />
                         </div>
                       </div>

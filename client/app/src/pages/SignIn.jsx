@@ -126,6 +126,7 @@ function SignIn({ onSignIn }) {
                         type="radio"
                         name="userType"
                         value="faculty"
+                        disabled
                         onChange={(e) => {
                           setUserType(e.target.value);
                         }}

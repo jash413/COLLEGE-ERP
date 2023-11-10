@@ -3,10 +3,11 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import network from "../config/network";
 import { useState, useContext } from "react";
-import { userContext } from "../App";
+import { userContext, departmentContext } from "../App";
 
 function AddSubject({onAdd}) {
   const { token } = useContext(userContext);
+  const [ department ] = useContext(departmentContext);
   const [SubjectData, setSubjectData] = useState({
     // Initialize state for subject data fields
     subjectName: "",
@@ -14,6 +15,7 @@ function AddSubject({onAdd}) {
     department: "",
     totalLectures: 10,
     year: "",
+    semester: "",
     credit: "",
   });
 
@@ -53,6 +55,7 @@ function AddSubject({onAdd}) {
         department: "",
         totalLectures: 10,
         year: "",
+        semester: "",
         credit: "",
       });
 
@@ -131,16 +134,21 @@ function AddSubject({onAdd}) {
                         <label>
                           Department <span className="login-danger">*</span>
                         </label>
-                        <input
+                        <select
                           required
-                          type="text"
                           name="department"
                           value={SubjectData.department}
                           onChange={handleInputChange}
                           className="form-control"
-                          id="Department"
-                          placeholder="Enter Department"
-                        />
+                          id="department"
+                        >
+                          <option value="">Select Department</option>
+                          {department.map((dept) => (
+                            <option key={dept._id} value={dept.department}>
+                              {dept.department}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
                     <div className="col-12 col-sm-4">
@@ -167,13 +175,30 @@ function AddSubject({onAdd}) {
                         </label>
                         <input
                           required
-                          type="number"
+                          type="text"
                           name="year"
                           value={SubjectData.year}
                           onChange={handleInputChange}
                           className="form-control"
                           id="Enter Subject"
                           placeholder="Enter The Year"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-12 col-sm-4">
+                      <div className="form-group local-forms">
+                        <label>
+                          Semester <span className="login-danger">*</span>
+                        </label>
+                        <input
+                          required
+                          type="number"
+                          name="semester"
+                          value={SubjectData.semester}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="Enter Subject"
+                          placeholder="Enter The Semester"
                         />
                       </div>
                     </div>

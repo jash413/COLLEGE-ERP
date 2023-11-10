@@ -11,7 +11,7 @@ const studentSchema = new Schema({
     unique: true,
   },
   year: {
-    type: Number,
+    type: String,
     required: true,
   },
   subjects: [
@@ -20,6 +20,10 @@ const studentSchema = new Schema({
       ref: "subject",
     },
   ],
+  marks:{
+    type: Schema.Types.ObjectId,
+    ref: "marks",
+  },
   gender: {
     type: String,
   },
@@ -39,6 +43,9 @@ const studentSchema = new Schema({
     unique: true,
   },
   batch: {
+    type: String,
+  },
+  section: {
     type: String,
   },
   contactNumber: {

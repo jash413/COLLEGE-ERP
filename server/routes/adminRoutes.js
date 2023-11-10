@@ -9,11 +9,11 @@ import {
   addSubject,
   getSubject,
   addStudent,
-  addMarks,
-  getMarks,
+  updateMarks,
   getStudent,
   addDepartment,
   getAllStudent,
+  getAllFilteredStudent,
   getAllFaculty,
   getAllAdmin,
   getAllDepartment,
@@ -37,6 +37,7 @@ router.post("/createnotice", auth, createNotice);
 router.get("/getallfaculty", auth, getAllFaculty);
 router.get("/getalldepartment", auth, getAllDepartment);
 router.get("/getallsubject", auth, getAllSubject);
+router.get("/getallfilteredstudent", auth, getAllFilteredStudent);
 router.get("/getalladmin", auth, getAllAdmin);
 router.post("/updateprofile", auth, updateAdmin);
 router.post("/addadmin", auth, addAdmin);
@@ -54,7 +55,6 @@ router.post("/deletefaculty", auth, deleteFaculty);
 router.post("/deletestudent", auth, deleteStudent);
 router.post("/deletedepartment", auth, deleteDepartment);
 router.post("/deletesubject", auth, deleteSubject);
-router.post("/addmarks", auth, addMarks);
-router.post("/getmarks", auth, getMarks);
+router.post("/updatemarks", auth, updateMarks);
 
 export default router;

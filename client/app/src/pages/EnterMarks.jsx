@@ -1,146 +1,70 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { studentContext, subjectContext, userContext } from "../App";
+import { subjectContext, userContext, departmentContext } from "../App";
 import { toast } from "react-hot-toast";
 import network from "../config/network";
 import axios from "axios";
 
 function EnterMarks() {
   const { token } = useContext(userContext);
-  const [students] = useContext(studentContext);
   const [subjects] = useContext(subjectContext);
-  const [enrollmentNumber, setEnrollmentNumber] = useState(null);
-  const [courses, setCourses] = useState([]);
-
-  const [student, setStudent] = useState({
-    id: "",
-    name: "",
+  const [departmentSubjects, setDepartmentSubjects] = useState([]);
+  const [departments] = useContext(departmentContext);
+  const [students, setStudents] = useState([]);
+  const [filters, setFilters] = useState({
     department: "",
-    batch: "",
-    course: [],
+    year: "",
+    semester: "",
+    section: "",
+    course: "",
+    phase: "",
   });
 
-  const [marks, setMarks] = useState({
-    student: student.id,
-    subject: "",
-    t1: "",
-    t2: "",
-    t3: "",
-    t4: "",
-    practicalMarksIPE: "",
-    practicalMarksProject: "",
-  });
-
-  const handleChange = (e) => {
-    setMarks({ ...marks, [e.target.name]: e.target.value });
+  const handleChanges = (e) => {
+    setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
-  const getStudentDetails = () => {
-    const foundStudent = students.find(
-      (student) => student.enrollmentNumber === parseInt(enrollmentNumber, 10)
-    );
-    if (foundStudent) {
-      setStudent({
-        id: foundStudent._id,
-        name: foundStudent.name,
-        department: foundStudent.department,
-        batch: foundStudent.batch,
-        course: foundStudent.subjects,
-      });
-    } else {
-      toast.error("Student not found");
-    }
-  };
-
-  // student course name
+  // filter subjects based on selected department
   useEffect(() => {
-    if (student.course && student.course.length > 0) {
-      const courseName = student.course.map((course) => {
-        const foundSubject = subjects.find((subject) => subject._id === course);
-        return foundSubject.subjectName;
+    if (filters.department && filters.semester) {
+      const subject = subjects.filter((subject) => {
+        if (
+          subject.department === filters.department &&
+          subject.semester === parseInt(filters.semester)
+        ) {
+          return subject;
+        }
       });
-      setCourses(courseName);
+      setDepartmentSubjects(subject);
     }
-  }, [student.course, subjects]);
+  }, [filters.department, filters.semester, subjects]);
 
-  // Get Marks
   useEffect(() => {
-    if (marks.subject !== "") {
+    if (
+      filters.department &&
+      filters.year &&
+      filters.semester &&
+      filters.section &&
+      filters.course &&
+      filters.phase
+    ) {
       axios
-        .post(
-          `${network.server}/api/admin/getmarks`,
+        .get(
+          `${network.server}/api/admin/getallfilteredstudent?department=${filters.department}&year=${filters.year}&section=${filters.section}`,
           {
-            student: student.id,
-            subject: marks.subject,
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
         )
         .then((res) => {
-          if (res.data) {
-            setMarks({
-              student: student.id,
-              subject: marks.subject,
-              t1: res.data.t1,
-              t2: res.data.t2,
-              t3: res.data.t3,
-              t4: res.data.t4,
-              practicalMarksIPE: res.data.practicalMarksIPE,
-              practicalMarksProject: res.data.practicalMarksProject,
-            });
-          }
+          setStudents(res.data);
         })
         .catch((err) => {
-          setMarks({
-            student: student.id,
-            subject: marks.subject,
-            t1: "-1",
-            t2: "-1",
-            t3: "-1",
-            t4: "-1",
-            practicalMarksIPE: "-1",
-            practicalMarksProject: "-1",
-          });
+          toast.error(err.response.data.message);
         });
     }
-  }, [marks.subject, student.id, token]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (marks.subject === "") {
-      toast.error("Please select course");
-    } else {
-      const foundStudent = students.find(
-        (student) => student.enrollmentNumber === parseInt(enrollmentNumber, 10)
-      );
-      if (foundStudent) {
-        setMarks({ ...marks, student: foundStudent._id });
-        axios
-          .post(`${network.server}/api/admin/addmarks`, marks, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          .then((res) => {
-            toast.success("Marks added successfully");
-            setMarks({
-              student: student.id,
-              subject: "",
-              t1: "",
-              t2: "",
-              t3: "",
-              t4: "",
-              practicalMarksIPE: "",
-              practicalMarksProject: "",
-            });
-          })
-          .catch((err) => {
-            toast.error(err.response.data.message);
-          });
-      } else {
-        toast.error("Student not found");
-      }
-    }
-  };
+  }, [filters, token]);
 
   return (
     <div className="page-wrapper">
@@ -160,218 +84,143 @@ function EnterMarks() {
             </div>
           </div>
         </div>
-        <div className="student-group-form">
-          <div className="row">
-            <div className="col-lg-4 col-md-6">
-              <div className="form-group">
-                <input
-                  type="number"
-                  className="form-control"
-                  onChange={(e) => setEnrollmentNumber(e.target.value)}
-                  placeholder="Search by Enrollment Number ..."
-                />
-              </div>
-            </div>
-            <div className="col-lg-2">
-              <div className="search-student-btn">
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={getStudentDetails}
-                >
-                  Search
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
         <div className="row">
           <div className="col-sm-12">
             <div className="card">
               <div className="card-body">
-                <form onSubmit={handleSubmit}>
+                <form>
                   <div className="row">
-                    <div className="col-12">
-                      <h5 className="form-title">
-                        <span>Student Details</span>
-                      </h5>
-                    </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>Name</label>
-                        <input
-                          readOnly
-                          type="text"
-                          name="name"
+                    <div className="col-md-2">
+                      <div className="form-group">
+                        <select
                           className="form-control"
-                          value={student.name ? student.name : "Student Name"}
-                        />
-                      </div>
-                    </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>Department</label>
-                        <input
-                          readOnly
-                          type="text"
                           name="department"
-                          className="form-control"
-                          value={
-                            student.department
-                              ? student.department
-                              : "Student Department"
-                          }
-                        />
+                          value={filters.department}
+                          onChange={handleChanges}
+                        >
+                          <option value="">Select Department</option>
+                          {departments.map((department) => (
+                            <option
+                              key={department._id}
+                              value={department.department}
+                            >
+                              {department.department}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>Batch</label>
+                    <div className="col-md-2">
+                      <div className="form-group">
+                        <select
+                          className="form-control"
+                          name="year"
+                          value={filters.year}
+                          onChange={handleChanges}
+                        >
+                          <option value="">Select Year</option>
+                          <option value="FY">FY</option>
+                          <option value="SY">SY</option>
+                          <option value="TY">TY</option>
+                          <option value="FINAL">FINAL YEAR</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="col-md-2">
+                      <div className="form-group">
+                        <select
+                          className="form-control"
+                          name="semester"
+                          value={filters.semester}
+                          onChange={handleChanges}
+                        >
+                          <option value="">Select Semester</option>
+                          <option value="1">Semester 1</option>
+                          <option value="2">Semester 2</option>
+                          <option value="3">Semester 3</option>
+                          <option value="4">Semester 4</option>
+                          <option value="5">Semester 5</option>
+                          <option value="6">Semester 6</option>
+                          <option value="7">Semester 7</option>
+                          <option value="8">Semester 8</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="col-md-2">
+                      <div className="form-group">
                         <input
-                          readOnly
                           type="text"
-                          name="batch"
                           className="form-control"
-                          value={
-                            student.batch ? student.batch : "Student Batch"
-                          }
+                          placeholder="Enter Section"
+                          name="section"
+                          value={filters.section}
+                          onChange={handleChanges}
                         />
                       </div>
                     </div>
-                    {student.course && student.course.length > 0 && (
-                      <div className="col-12 col-sm-4">
-                        <div className="form-group local-forms">
-                          <label>Select Course</label>
-                          <select
-                            className="form-control"
-                            name="subject"
-                            value={marks.subject}
-                            onChange={handleChange}
-                          >
-                            <option>Select Course</option>
-                            {courses.map((course, index) => (
-                              <option key={index} value={subjects[index]._id}>
-                                {course}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-sm-12">
-            <div className="card">
-              <div className="card-body">
-                <form onSubmit={handleSubmit}>
-                  <div className="row">
-                    <div className="col-12">
-                      <h5 className="form-title">
-                        <span>Marks Detail</span>
-                      </h5>
-                    </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>T1</label>
-                        <input
-                          type="number"
-                          name="t1"
-                          onChange={handleChange}
+                    <div className="col-md-2">
+                      <div className="form-group">
+                        <select
                           className="form-control"
-                          value={marks.t1 ? marks.t1 : "T1 Marks"}
-                          placeholder="T1 Marks"
-                        />
+                          name="course"
+                          value={filters.course}
+                          onChange={handleChanges}
+                        >
+                          <option value="">Select Course</option>
+                          {departmentSubjects.map((subject) => (
+                            <option
+                              key={subject._id}
+                              value={subject.subjectName}
+                            >
+                              {subject.subjectName}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>T2</label>
-                        <input
-                          type="number"
-                          name="t2"
-                          onChange={handleChange}
+                    <div className="col-md-2">
+                      <div className="form-group">
+                        <select
                           className="form-control"
-                          value={marks.t2 ? marks.t2 : "T2 Marks"}
-                          placeholder="T2 Marks"
-                        />
+                          name="phase"
+                          value={filters.phase}
+                          onChange={handleChanges}
+                        >
+                          <option value="">Select Phase</option>
+                          <option value="T1">T1</option>
+                          <option value="T2">T2</option>
+                          <option value="T3">T3</option>
+                          <option value="T4">T4</option>
+                          <option value="ipe">IPE</option>
+                          <option value="project">Practical</option>
+                        </select>
                       </div>
-                    </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>T3</label>
-                        <input
-                          type="number"
-                          name="t3"
-                          onChange={handleChange}
-                          className="form-control"
-                          value={marks.t3 ? marks.t3 : "T3 Marks"}
-                          placeholder="T3 Marks"
-                        />
-                      </div>
-                    </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>T4</label>
-                        <input
-                          type="number"
-                          name="t4"
-                          onChange={handleChange}
-                          className="form-control"
-                          value={marks.t4 ? marks.t4 : "T4 Marks"}
-                          placeholder="T4 Marks"
-                        />
-                      </div>
-                    </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>IPE</label>
-                        <input
-                          type="number"
-                          name="practicalMarksIPE"
-                          onChange={handleChange}
-                          className="form-control"
-                          value={
-                            marks.practicalMarksIPE
-                              ? marks.practicalMarksIPE
-                              : "IPE Marks"
-                          }
-                          placeholder="IPE Marks"
-                        />
-                      </div>
-                    </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>Practical</label>
-                        <input
-                          type="number"
-                          name="practicalMarksProject"
-                          onChange={handleChange}
-                          className="form-control"
-                          value={
-                            marks.practicalMarksProject
-                              ? marks.practicalMarksProject
-                              : "Practical Marks"
-                          }
-                          placeholder="Practical Marks"
-                        />
-                      </div>
-                    </div>
-                    <div className="col-12">
-                      <div className="student-submit">
-                        <button type="submit" className="btn btn-primary">
-                          Submit/Update
-                        </button>
-                      </div><br/>
-                    </div>
-                    <div className="col-12">
-                      <p><span className="login-danger">*</span> The value (-1) indicates that no marks have been added.</p>
                     </div>
                   </div>
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Enrollment Number</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Batch</th>
+                        <th>Enter Marks (Out Of 25)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {students.map((student) => (
+                        <tr key={student._id}>
+                          <td>{student.enrollmentNumber}</td>
+                          <td>{student.name}</td>
+                          <td>{student.department}</td>
+                          <td>{student.batch}</td>
+                          <td>
+                            <input type="number" />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </form>
               </div>
             </div>

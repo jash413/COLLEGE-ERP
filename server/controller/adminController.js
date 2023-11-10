@@ -7,7 +7,6 @@ import Notice from "../models/notice.js";
 import Marks from "../models/marks.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import e from "express";
 
 export const adminLogin = async (req, res) => {
   const { username, password } = req.body;
@@ -235,7 +234,6 @@ export const addFaculty = async (req, res) => {
       dob,
       department,
       contactNumber,
-      avatar,
       email,
       joiningYear,
       gender,
@@ -276,13 +274,13 @@ export const addFaculty = async (req, res) => {
       joiningYear,
       username,
       department,
-      avatar,
       contactNumber,
       dob,
       gender,
       designation,
       passwordUpdated,
     });
+
     await newFaculty.save();
     return res.status(200).json({
       success: true,
@@ -296,64 +294,27 @@ export const addFaculty = async (req, res) => {
   }
 };
 
-export const addMarks = async (req, res) => {
-  try {
-    const {
-      student,
-      subject,
-      t1,
-      t2,
-      t3,
-      t4,
-      practicalMarksIPE,
-      practicalMarksProject,
-    } = req.body;
-    const exisitingMarks = await Marks.findOne({ student, subject });
-    if (exisitingMarks) {
-      exisitingMarks.t1 = t1;
-      exisitingMarks.t2 = t2;
-      exisitingMarks.t3 = t3;
-      exisitingMarks.t4 = t4;
-      exisitingMarks.practicalMarksIPE = practicalMarksIPE;
-      exisitingMarks.practicalMarksProject = practicalMarksProject;
-      await exisitingMarks.save();
-      return res.status(200).json({
-        success: true,
-        message: "Marks updated successfully",
-        response: exisitingMarks,
-      });
-    }
-    const newMarks = await new Marks({
-      student,
-      subject,
-      t1,
-      t2,
-      t3,
-      t4,
-      practicalMarksIPE,
-      practicalMarksProject,
-    });
-    await newMarks.save();
-    return res.status(200).json({
-      success: true,
-      message: "Marks added successfully",
-      response: newMarks,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
-  }
-};
+export const updateMarks = async (req, res) => {
+  const { filter, updateData, isBulkUpdate } = req.body;
 
-export const getMarks = async (req, res) => {
   try {
-    const { student, subject } = req.body;
-    const marks = await Marks.findOne({ student, subject });
-    if (!marks) {
-      return res.status(404).json({ message: "Marks not found" });
+    let result;
+
+    if (isBulkUpdate) {
+      result = await Marks.updateMany(filter, updateData);
+    } else {
+      result = await Marks.findOneAndUpdate(filter, updateData, { new: true });
     }
-    return res.status(200).json(marks);
+
+    if (result) {
+      res.status(200).json(result);
+    } else {
+      res.status(404).json({ message: "Marks not found" });
+    }
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
+    res
+      .status(500)
+      .json({ message: `Failed to update marks: ${error.message}` });
   }
 };
 
@@ -397,6 +358,7 @@ export const addSubject = async (req, res) => {
       subjectCode,
       subjectName,
       year,
+      semester,
       credit,
     } = req.body;
     const errors = { subjectError: String };
@@ -412,8 +374,14 @@ export const addSubject = async (req, res) => {
       subjectCode,
       subjectName,
       year,
+      semester,
       credit,
     });
+
+    // uppercase all letters in all fields before saving
+    newSubject.subjectCode = newSubject.subjectCode.toUpperCase();
+    newSubject.subjectName = newSubject.subjectName.toUpperCase();
+    newSubject.year = newSubject.year.toUpperCase();
 
     await newSubject.save();
     const students = await Student.find({ department, year });
@@ -423,12 +391,22 @@ export const addSubject = async (req, res) => {
         await students[i].save();
       }
     }
+
+    const marks= await Marks.find({student:students.map((student) => student._id)});
+    if(marks.length!==0){
+      for(var i=0;i<marks.length;i++){
+        marks[i].marks.push({subject:newSubject._id});
+        await marks[i].save();
+      }
+    }
+
     return res.status(200).json({
       success: true,
       message: "Subject added successfully",
       response: newSubject,
     });
   } catch (error) {
+    console.log(error);
     const errors = { backendError: String };
     errors.backendError = error;
     res.status(500).json(errors);
@@ -564,20 +542,24 @@ export const addStudent = async (req, res) => {
       enrollmentNumber,
       gender,
       batch,
+      section,
+      year,
       fatherName,
       motherName,
       fatherContactNumber,
       motherContactNumber,
-      year,
     } = req.body;
+
     const errors = { emailError: String };
     const existingStudent = await Student.findOne({ email });
+
     if (existingStudent) {
       errors.emailError = "Email already exists";
       return res.status(400).json(errors);
     }
+    
 
-    const newStudent = await new Student({
+    const newStudent = new Student({
       name,
       dob,
       department,
@@ -586,23 +568,58 @@ export const addStudent = async (req, res) => {
       enrollmentNumber,
       gender,
       batch,
+      section,
+      year,
       fatherName,
       motherName,
       fatherContactNumber,
       motherContactNumber,
-      year,
     });
-    await newStudent.save();
+
+    // Find subjects for the student's department and year
     const subjects = await Subject.find({ department, year });
-    if (subjects.length !== 0) {
-      for (var i = 0; i < subjects.length; i++) {
-        newStudent.subjects.push(subjects[i]._id);
-      }
-    }
+
+    newStudent.subjects.push(...subjects.map((subject) => subject._id));
+
+    // uppercase all letters in all fields before saving
+    newStudent.name = newStudent.name.toUpperCase();
+    newStudent.department = newStudent.department.toUpperCase();
+    newStudent.email = newStudent.email.toUpperCase();
+    newStudent.fatherName = newStudent.fatherName.toUpperCase();
+    newStudent.motherName = newStudent.motherName.toUpperCase();
+    newStudent.section = newStudent.section.toUpperCase();
+    newStudent.year = newStudent.year.toUpperCase();
+    newStudent.gender = newStudent.gender.toUpperCase();
+
+
+    // Save the new student
     await newStudent.save();
+
+    // Create marks for each subject
+       // Create a new Marks model for the student
+    const marksData = {
+      student: newStudent._id,
+      marks: subjects.map((subject) => ({
+        subject: subject._id,
+      })),
+    };
+
+      // Create marks for the subject
+      const marks = new Marks(marksData);
+
+      // Save the marks
+      await marks.save();
+
+      // Add the marks to the student's marks array
+      newStudent.marks=marks._id;
+
+
+    // Save the updated student with marks
+    await newStudent.save();
+
     return res.status(200).json({
       success: true,
-      message: "Student registerd successfully",
+      message: "Student registered successfully with marks for all subjects",
       response: newStudent,
     });
   } catch (error) {
@@ -636,6 +653,28 @@ export const getAllStudent = async (req, res) => {
     res.status(200).json(students);
   } catch (error) {
     console.log("Backend Error", error);
+  }
+};
+
+export const getAllFilteredStudent = async (req, res) => {
+  try {
+    // Define an empty object to store filter conditions
+    const filters = {};
+
+    // Loop through all query parameters and add them to the filters object
+    for (const key in req.query) {
+      if (req.query.hasOwnProperty(key)) {
+        filters[key] = req.query[key];
+      }
+    }
+
+    // Modify the Student.find() query to include the filters
+    const students = await Student.find(filters);
+
+    res.status(200).json(students);
+  } catch (error) {
+    console.log("Backend Error", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 

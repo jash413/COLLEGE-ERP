@@ -22,6 +22,10 @@ const subjectSchema = new Schema({
     type: String,
     required: true,
   },
+  semester: {
+    type: Number,
+    required: true,
+  },
   credit:{
     type:Number,
     required:true
