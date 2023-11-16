@@ -11,6 +11,8 @@ function EnterMarks() {
   const [departmentSubjects, setDepartmentSubjects] = useState([]);
   const [departments] = useContext(departmentContext);
   const [students, setStudents] = useState([]);
+  const [tableLoading, setTableLoading] = useState(null);
+  const [buttonLoading, setButtonLoading] = useState(true); // for submit button
   const [filters, setFilters] = useState({
     department: "",
     year: "",
@@ -39,6 +41,7 @@ function EnterMarks() {
     }
   }, [filters.department, filters.semester, subjects]);
 
+  // get students based on selected filters
   useEffect(() => {
     if (
       filters.department &&
@@ -48,6 +51,7 @@ function EnterMarks() {
       filters.course &&
       filters.phase
     ) {
+      setTableLoading(true);
       axios
         .get(
           `${network.server}/api/admin/getallfilteredstudent?department=${filters.department}&year=${filters.year}&section=${filters.section}`,
@@ -59,12 +63,14 @@ function EnterMarks() {
         )
         .then((res) => {
           setStudents(res.data);
+          setTableLoading(false);
         })
         .catch((err) => {
           toast.error(err.response.data.message);
         });
     }
   }, [filters, token]);
+
 
   return (
     <div className="page-wrapper">
@@ -208,19 +214,48 @@ function EnterMarks() {
                       </tr>
                     </thead>
                     <tbody>
-                      {students.map((student) => (
-                        <tr key={student._id}>
-                          <td>{student.enrollmentNumber}</td>
-                          <td>{student.name}</td>
-                          <td>{student.department}</td>
-                          <td>{student.batch}</td>
-                          <td>
-                            <input type="number" />
+                      {tableLoading && students.length === 0 && (
+                        <tr>
+                          <td colSpan="5" className="text-center">
+                            <div className="spinner-border spinner-border-lg align-center"></div>
                           </td>
                         </tr>
-                      ))}
+                      )}
+                      {students.length === 0 &&
+                        !tableLoading &&
+                        tableLoading !== null && (
+                          <tr>
+                            <td colSpan="5" className="text-center">
+                              No Students Found
+                            </td>
+                          </tr>
+                        )}
+                      {!tableLoading &&
+                        students.map((student) => (
+                          <tr key={student._id}>
+                            <td>{student.enrollmentNumber}</td>
+                            <td>{student.name}</td>
+                            <td>{student.department}</td>
+                            <td>{student.batch}</td>
+                            <td>
+                              <input type="number" min={0} max={25} />
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
+                  <div className="submit-section">
+                    {!buttonLoading && (
+                      <button className="btn btn-primary submit-btn">
+                        Submit
+                      </button>
+                    )}
+                    {buttonLoading && (
+                      <button className="btn btn-primary submit-btn" disabled>
+                        Submit
+                      </button>
+                    )}
+                  </div>
                 </form>
               </div>
             </div>
