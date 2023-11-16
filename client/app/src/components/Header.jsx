@@ -15,6 +15,7 @@ function Header() {
       if (!isMaximized) {
         document.documentElement.requestFullscreen();
       } else {
+        if(!document.fullscreenElement) return;
         document.exitFullscreen();
       }
     }
