@@ -10,7 +10,6 @@ function SignIn({ onSignIn }) {
     password: "",
   });
 
-  const [userType, setUserType] = useState("admin");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -38,7 +37,7 @@ function SignIn({ onSignIn }) {
     try {
       setLoading(true);
       const response = await axios.post(
-        network.server+`/api/${userType}/login`,
+        network.server+`/api/admin/login`,
         formData
       );
       if (response.status === 200) {
@@ -102,38 +101,6 @@ function SignIn({ onSignIn }) {
                     onChange={handleChange}
                   />
                   <span className="profile-views feather-eye toggle-password" onClick={handleShowPassword} />
-                </div>
-                <div classname="form-group">
-                  <label>User Type</label>
-                  <div className="radio">
-                    <label>
-                      <input
-                        required
-                        type="radio"
-                        name="userType"
-                        value="admin"
-                        onChange={(e) => {
-                          setUserType(e.target.value);
-                        }}
-                      />{" "}
-                      Admin
-                    </label>
-                  </div>
-                  <div className="radio">
-                    <label>
-                      <input
-                        required
-                        type="radio"
-                        name="userType"
-                        value="faculty"
-                        disabled
-                        onChange={(e) => {
-                          setUserType(e.target.value);
-                        }}
-                      />{" "}
-                      Faculty
-                    </label>
-                  </div>
                 </div>
                 <div className="form-group">
                   {loading ? (
