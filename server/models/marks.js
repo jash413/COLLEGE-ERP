@@ -38,6 +38,18 @@ const markSchema = new Schema({
             type: Number,
             default: -1,
           },
+          ipeMarks: {
+            type: Number,
+            default: -1,
+          },
+          practicalMarks: {
+            type: Number,
+            default: -1,
+          },
+          practicalTotal: {
+            type: Number,
+            default: 0,
+          },
           theoryTotal: {
             type: Number,
             default: -1,
@@ -54,7 +66,19 @@ const markSchema = new Schema({
             type: Boolean,
             default: true,
           },
-          credits: {
+          theoryCredit: {
+            type: Number,
+            default: 0,
+          },
+          practicalCredit: {
+            type: Number,
+            default: 0,
+          },
+          ipeWeightage: {
+            type: Number,
+            default: 0,
+          },
+          practicalWeightage: {
             type: Number,
             default: 0,
           },

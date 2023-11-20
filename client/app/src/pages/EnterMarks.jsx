@@ -26,7 +26,7 @@ function EnterMarks() {
   useEffect(() => {
     if (user.userType === "faculty") {
       filters.department = user.department;
-      setSections(user.section);
+      filters.section = user.section;
     }
   }, [user]);
 

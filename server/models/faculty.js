@@ -27,6 +27,10 @@ const facultySchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  section : {
+    type: String,
+    required: true,
+  },
   contactNumber: {
     type: Number,
   },
@@ -41,6 +45,10 @@ const facultySchema = mongoose.Schema({
   passwordUpdated: {
     type: Boolean,
     default: false,
+  },
+  userType: {
+    type: String,
+    default: "faculty",
   },
 });
 

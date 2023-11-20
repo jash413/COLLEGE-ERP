@@ -20,6 +20,7 @@ function AddFaculty({ onAdd }) {
     dob: "",
     joiningYear: "",
     userType: "faculty",
+    section: "",
   });
 
   const handleInputChange = (event) => {
@@ -64,6 +65,8 @@ function AddFaculty({ onAdd }) {
         contactNumber: "",
         dob: "",
         joiningYear: "",
+        userType: "faculty",
+        section: "",
       });
 
       console.log("Faculty created:", response.data);
@@ -186,31 +189,6 @@ function AddFaculty({ onAdd }) {
                         />
                       </div>
                     </div>
-                    <div className="col-12 col-sm-4 local-forms">
-                      <div className="form-group">
-                        <label>
-                          Qualification <span className="login-danger">*</span>
-                        </label>
-                        <input
-                          className="form-control"
-                          type="text"
-                          placeholder="Enter Qualification"
-                        />
-                      </div>
-                    </div>
-                    <div className="col-12 col-sm-4">
-                      <div className="form-group local-forms">
-                        <label>
-                          Experience <span className="login-danger">*</span>
-                        </label>
-                        <input
-                          className="form-control"
-                          type="text"
-                          placeholder="Enter Experience"
-                        />
-                      </div>
-                    </div>
-
                     <div className="col-12 col-sm-4">
                       <div className="form-group local-forms">
                         <label>
@@ -265,7 +243,25 @@ function AddFaculty({ onAdd }) {
                           ))}
                         </select>
                       </div>
+
                     </div>
+                    <div className="col-12 col-sm-4">
+                      <div className="form-group local-forms">
+                        <label>
+                          Section <span className="login-danger">*</span>
+                        </label>
+                        <input
+                          required
+                          type="text"
+                          name="section"
+                          value={FacultyData.section}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="section"
+                          placeholder="Enter Section"
+                        />
+                      </div>
+                      </div>
 
                     <div className="col-12">
                       <div className="student-submit">

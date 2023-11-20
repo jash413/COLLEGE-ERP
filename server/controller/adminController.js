@@ -238,6 +238,8 @@ export const addFaculty = async (req, res) => {
       joiningYear,
       gender,
       designation,
+      section,
+      userType,
     } = req.body;
     const errors = { emailError: String };
     const existingFaculty = await Faculty.findOne({ email });
@@ -268,18 +270,28 @@ export const addFaculty = async (req, res) => {
     hashedPassword = await bcrypt.hash(newDob, 10);
     var passwordUpdated = false;
 
+    // uppercase all letters in all fields before saving
+    const newName = name.toUpperCase();
+    const newDepartment = department.toUpperCase();
+    const newEmail = email.toUpperCase();
+    const newSection = section.toUpperCase();
+    const newDesignation = designation.toUpperCase();
+    const newGender = gender.toUpperCase();
+
     const newFaculty = await new Faculty({
-      name,
-      email,
+      name: newName,
+      email: newEmail,
       password: hashedPassword,
       joiningYear,
       username,
-      department,
+      department: newDepartment,
       contactNumber,
       dob,
-      gender,
-      designation,
+      gender: newGender,
+      designation: newDesignation,
       passwordUpdated,
+      section: newSection,
+      userType,
     });
 
     await newFaculty.save();
@@ -396,6 +408,21 @@ export const addSubject = async (req, res) => {
       for (var i = 0; i < students.length; i++) {
         students[i].subjects.push(newSubject._id);
         await students[i].save();
+        let marks = await Marks.findOne({ student: students[i]._id });
+        if (marks) {
+          marks.result.forEach((semester) => {
+            if (semester.semester === newSubject.semester) {
+              semester.subjectMarks.push({
+                subject: newSubject._id,
+                theoryCredit: newSubject.theoryCredit,
+                practicalCredit: newSubject.practicalCredit,
+                ipeWeightage: newSubject.ipeWeightage,
+                practicalWeightage: newSubject.practicalWeightage,
+              });
+            }
+          });
+        }
+        await marks.save();
       }
     }
 
@@ -405,10 +432,8 @@ export const addSubject = async (req, res) => {
       response: newSubject,
     });
   } catch (error) {
-    console.log(error);
-    const errors = { backendError: String };
-    errors.backendError = error;
-    res.status(500).json(errors);
+    console.error("Error adding subject:", error);
+    return res.status(500).json({ backendError: "Failed to add subject" });
   }
 };
 
@@ -548,7 +573,6 @@ export const addStudent = async (req, res) => {
       motherName,
       fatherContactNumber,
       motherContactNumber,
-      semester, // Assuming semester is part of the request body
     } = req.body;
 
     // Check for existing student with the same email
@@ -602,8 +626,6 @@ export const addStudent = async (req, res) => {
     return res.status(500).json({ backendError: error.message });
   }
 };
-
-
 
 export const getStudent = async (req, res) => {
   try {
