@@ -1,4 +1,7 @@
 import mongoose from "mongoose";
+import Subject from "../models/subject.js";
+import Marks from "../models/marks.js";
+
 const { Schema } = mongoose;
 const studentSchema = new Schema({
   name: {
@@ -59,5 +62,45 @@ const studentSchema = new Schema({
     required: true,
   },
 });
+
+studentSchema.pre("save", async function (next) {
+  try {
+    const student = this;
+    const subjects = await Subject.find({ department: student.department });
+
+    // Group subjects by semester
+    const subjectsBySemester = {};
+    subjects.forEach(subject => {
+      if (!subjectsBySemester[subject.semester]) {
+        subjectsBySemester[subject.semester] = [];
+      }
+      subjectsBySemester[subject.semester].push(subject);
+    });
+
+    const marks = {
+      student: student._id,
+      result: [],
+    };
+
+    // Create subjectMarks for each semester based on the grouped subjects
+    for (let semester = 1; semester <= 8; semester++) {
+      const semesterSubjects = subjectsBySemester[semester] || [];
+
+      const subjectMarks = semesterSubjects.map(subject => ({
+        subject: subject._id,
+        // Include other default properties for subjectMarks if needed
+      }));
+
+      marks.result.push({ semester, subjectMarks });
+    }
+
+    student.marks = await Marks.create(marks);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+
 
 export default mongoose.model("student", studentSchema);

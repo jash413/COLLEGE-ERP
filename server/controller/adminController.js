@@ -264,6 +264,7 @@ export const addFaculty = async (req, res) => {
     let hashedPassword;
     const newDob = dob.split("-").reverse().join("-");
 
+    console.log(newDob);
     hashedPassword = await bcrypt.hash(newDob, 10);
     var passwordUpdated = false;
 
@@ -359,7 +360,10 @@ export const addSubject = async (req, res) => {
       subjectName,
       year,
       semester,
-      credit,
+      theoryCredit,
+      practicalCredit,
+      ipeWeightage,
+      practicalWeightage,
     } = req.body;
     const errors = { subjectError: String };
     const subject = await Subject.findOne({ subjectCode });
@@ -375,7 +379,10 @@ export const addSubject = async (req, res) => {
       subjectName,
       year,
       semester,
-      credit,
+      theoryCredit,
+      practicalCredit,
+      ipeWeightage,
+      practicalWeightage,
     });
 
     // uppercase all letters in all fields before saving
@@ -389,14 +396,6 @@ export const addSubject = async (req, res) => {
       for (var i = 0; i < students.length; i++) {
         students[i].subjects.push(newSubject._id);
         await students[i].save();
-      }
-    }
-
-    const marks= await Marks.find({student:students.map((student) => student._id)});
-    if(marks.length!==0){
-      for(var i=0;i<marks.length;i++){
-        marks[i].marks.push({subject:newSubject._id});
-        await marks[i].save();
       }
     }
 
@@ -533,6 +532,7 @@ export const deleteDepartment = async (req, res) => {
 
 export const addStudent = async (req, res) => {
   try {
+    // Extract relevant data from req.body
     const {
       name,
       dob,
@@ -548,17 +548,16 @@ export const addStudent = async (req, res) => {
       motherName,
       fatherContactNumber,
       motherContactNumber,
+      semester, // Assuming semester is part of the request body
     } = req.body;
 
-    const errors = { emailError: String };
+    // Check for existing student with the same email
     const existingStudent = await Student.findOne({ email });
-
     if (existingStudent) {
-      errors.emailError = "Email already exists";
-      return res.status(400).json(errors);
+      return res.status(400).json({ emailError: "Email already exists" });
     }
-    
 
+    // Create a new Student instance
     const newStudent = new Student({
       name,
       dob,
@@ -576,12 +575,7 @@ export const addStudent = async (req, res) => {
       motherContactNumber,
     });
 
-    // Find subjects for the student's department and year
-    const subjects = await Subject.find({ department, year });
-
-    newStudent.subjects.push(...subjects.map((subject) => subject._id));
-
-    // uppercase all letters in all fields before saving
+    // Uppercase all necessary fields
     newStudent.name = newStudent.name.toUpperCase();
     newStudent.department = newStudent.department.toUpperCase();
     newStudent.email = newStudent.email.toUpperCase();
@@ -591,30 +585,12 @@ export const addStudent = async (req, res) => {
     newStudent.year = newStudent.year.toUpperCase();
     newStudent.gender = newStudent.gender.toUpperCase();
 
+    // Find subjects for the student's department, year, and semester
+    const subjects = await Subject.find({ department, year });
+
+    newStudent.subjects = subjects.map((subject) => subject._id);
 
     // Save the new student
-    await newStudent.save();
-
-    // Create marks for each subject
-       // Create a new Marks model for the student
-    const marksData = {
-      student: newStudent._id,
-      marks: subjects.map((subject) => ({
-        subject: subject._id,
-      })),
-    };
-
-      // Create marks for the subject
-      const marks = new Marks(marksData);
-
-      // Save the marks
-      await marks.save();
-
-      // Add the marks to the student's marks array
-      newStudent.marks=marks._id;
-
-
-    // Save the updated student with marks
     await newStudent.save();
 
     return res.status(200).json({
@@ -623,11 +599,11 @@ export const addStudent = async (req, res) => {
       response: newStudent,
     });
   } catch (error) {
-    const errors = { backendError: String };
-    errors.backendError = error;
-    res.status(500).json(errors);
+    return res.status(500).json({ backendError: error.message });
   }
 };
+
+
 
 export const getStudent = async (req, res) => {
   try {
@@ -707,6 +683,23 @@ export const getAllSubject = async (req, res) => {
   try {
     const subjects = await Subject.find();
     res.status(200).json(subjects);
+  } catch (error) {
+    console.log("Backend Error", error);
+  }
+};
+
+export const getMarks = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const errors = { noMarksError: String };
+    const marks = await Marks.findOne({ id });
+
+    if (!marks) {
+      errors.noMarksError = "No Marks Found";
+      return res.status(404).json(errors);
+    }
+
+    res.status(200).json({ result: marks });
   } catch (error) {
     console.log("Backend Error", error);
   }

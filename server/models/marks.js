@@ -1,170 +1,171 @@
+// marks.js
 import mongoose from "mongoose";
+import Subject from "../models/subject.js";
 
+const { Schema } = mongoose;
 
-const marksSchema = new mongoose.Schema({
+const markSchema = new Schema({
   student: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "student",
     required: true,
-    unique: true,
   },
-  marks: [
+  result: [
     {
       semester: {
         type: Number,
       },
-      subject: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "subject",
-        required: true,
-      },
-      credits: {
+      subjectMarks: [
+        {
+          subject: {
+            type: Schema.Types.ObjectId,
+            ref: "subject",
+            required: true,
+          },
+          t1: {
+            type: Number,
+            default: -1,
+          },
+          t2: {
+            type: Number,
+            default: -1,
+          },
+          t3: {
+            type: Number,
+            default: -1,
+          },
+          t4: {
+            type: Number,
+            default: -1,
+          },
+          theoryTotal: {
+            type: Number,
+            default: -1,
+          },
+          theoryGrade: {
+            type: String,
+            default: "F",
+          },
+          gradePoint: {
+            type: Number,
+            default: 3,
+          },
+          isBacklog: {
+            type: Boolean,
+            default: true,
+          },
+          credits: {
+            type: Number,
+            default: 0,
+          },
+        },
+      ],
+      totalSubjectsCredits: {
         type: Number,
         default: 0,
       },
-      t1: {
-        type: Number,
-        default: -1,
-      },
-      t2: {
-        type: Number,
-        default: -1,
-      },
-      t3: {
-        type: Number,
-        default: -1,
-      },
-      t4: {
-        type: Number,
-        default: -1,
-      },
-      practicalMarksIPE: {
+      totalGradePoints: {
         type: Number,
         default: 0,
       },
-      practicalMarksProject: {
-        type: Number,
-        default: 0,
-      },
-      theoryTotal: {
-        type: Number,
-        default: 0,
-      },
-      theoryGrade: {
-        type: String,
-      },
-      gradePoint: {
+      spi: {
         type: Number,
         default: 0,
       },
     },
   ],
-  totalGradePoints: {
-    type: Number,
-    default: 0,
-  },
-  totalSubjectsCredits: {
-    type: Number,
-    default: 0,
-  },
-  spi: {
+  cpi: {
     type: Number,
     default: 0,
   },
 });
 
-// Add a method to calculate the theoryTotal, theoryGrade, and gradePoint for each mark object
-marksSchema.pre("save", async function (next) {
-  for (let i = 0; i < this.marks.length; i++) {
-    const mark = this.marks[i];
+// markSchema.pre("save", async function (next) {
 
-    // Calculate theoryTotal as the sum of provided test marks
-    mark.theoryTotal = [mark.t1, mark.t2, mark.t3, mark.t4].reduce(
-      (acc, val) => (val !== -1 ? acc + val : acc),
-      0
-    );
+//   try {
 
-    // Calculate theoryGrade and gradePoint based on theoryTotal
-    if (mark.theoryTotal >= 95) {
-      mark.theoryGrade = "O+++";
-      mark.gradePoint = 10;
-    } else if (mark.theoryTotal >= 90) {
-      mark.theoryGrade = "O++";
-      mark.gradePoint = 9.5;
-    } else if (mark.theoryTotal >= 85) {
-      mark.theoryGrade = "O+";
-      mark.gradePoint = 9;
-    } else if (mark.theoryTotal >= 80) {
-      mark.theoryGrade = "O";
-      mark.gradePoint = 8.5;
-    } else if (mark.theoryTotal >= 75) {
-      mark.theoryGrade = "A++";
-      mark.gradePoint = 8;
-    } else if (mark.theoryTotal >= 70) {
-      mark.theoryGrade = "A+";
-      mark.gradePoint = 7.5;
-    } else if (mark.theoryTotal >= 65) {
-      mark.theoryGrade = "A";
-      mark.gradePoint = 7;
-    } else if (mark.theoryTotal >= 60) {
-      mark.theoryGrade = "B++";
-      mark.gradePoint = 6.5;
-    } else if (mark.theoryTotal >= 55) {
-      mark.theoryGrade = "B+";
-      mark.gradePoint = 6;
-    } else if (mark.theoryTotal >= 50) {
-      mark.theoryGrade = "B";
-      mark.gradePoint = 5.5;
-    } else if (mark.theoryTotal >= 45) {
-      mark.theoryGrade = "C";
-      mark.gradePoint = 5;
-    } else if (mark.theoryTotal >= 40) {
-      mark.theoryGrade = "E";
-      mark.gradePoint = 4.5;
-    } else if (mark.theoryTotal >= 35) {
-      mark.theoryGrade = "D";
-      mark.gradePoint = 4;
-    } else {
-      mark.theoryGrade = "F";
-      mark.gradePoint = 3;
-    }
+//     for (const result of this.result) {
 
-    // Fetch the subject from the database to get its credits and semester
-    // try {
-    //   const subject = await Subject.findById(mark.subject);
-    //   if (subject) {
-    //     mark.credits = subject.credits;
-    //     mark.semester = subject.semester;
-    //   } else {
-    //     console.log(`Subject not found for mark with ID ${mark._id}`);
-    //   }
-    // } catch (error) {
-    //   console.error(`Error fetching subject for mark with ID ${mark._id}: ${error.message}`);
-    // }
-  }
+//       // Calculate theory total
+//       for (const subjectMark of result.subjectMarks) {
+//         const { t1, t2, t3, t4 } = subjectMark;
+//         const allGradesPresent = [t1, t2, t3, t4].every((grade) => grade !== -1);
 
-  // Calculate totalSubjectsCredits as the sum of credits of all subjects
-  this.totalSubjectsCredits = this.marks.reduce(
-    (acc, mark) => acc + mark.credits,
-    0
-  );
+//         if (allGradesPresent) {
+//           subjectMark.theoryTotal = t1 + t2 + t3 + t4;
+//         }
+//         else {
+//           subjectMark.theoryTotal = 0;
+//         }
+//       }
 
-  // Calculate totalGradePoints as the sum of gradePoints of all marks
-  this.totalGradePoints = this.marks.reduce(
-    (acc, mark) => acc + mark.gradePoint,
-    0
-  );
+//       // Calculate theory grade and grade point
+//       const grades = [
+//         { min: 95, grade: "O+++", points: 10 },
+//         { min: 90, grade: "O++", points: 9.5 },
+//         { min: 85, grade: "O+", points: 9 },
+//         { min: 80, grade: "O", points: 8.5 },
+//         { min: 75, grade: "A++", points: 8 },
+//         { min: 70, grade: "A+", points: 7.5 },
+//         { min: 65, grade: "A", points: 7 },
+//         { min: 60, grade: "B++", points: 6.5 },
+//         { min: 55, grade: "B+", points: 6 },
+//         { min: 50, grade: "B", points: 5.5 },
+//         { min: 45, grade: "C", points: 5 },
+//         { min: 40, grade: "E", points: 4.5 },
+//         { min: 35, grade: "D", points: 4 },
+//         { min: 0, grade: "F", points: 3 },
+//       ];
 
-  // Calculate cgpa as the totalGradePoints divided by totalSubjectsCredits
-  if (this.totalSubjectsCredits === 0) {
-    this.spi = 0; // Handle potential division by zero
-  } else {
-    this.spi = this.totalGradePoints / this.totalSubjectsCredits;
-  }
+//       // Calculate theory grade and grade point
+//       for (const subjectMark of result.subjectMarks) {
+//         const grade = grades.find(
+//           (grade) => grade.min <= subjectMark.theoryTotal
+//         );
+//         subjectMark.theoryGrade = grade.grade;
+//         subjectMark.gradePoint = grade.points;
+//       }
 
-  next();
-});
+//       // Calculate total subjects credits
+//       const subjectIds = result.subjectMarks.map(
+//         (subjectMark) => subjectMark.subject
+//       );
+//       const subjects = await Subject.find({ _id: { $in: subjectIds } });
 
-const Marks = mongoose.model("marks", marksSchema);
+//       for (const subjectMark of result.subjectMarks) {
+//         const subject = subjects.find(
+//           (subject) => subject._id.toString() === subjectMark.subject
+//         );
+//         subjectMark.credits = subject.credits;
+//       }
+
+//       result.totalSubjectsCredits = result.subjectMarks.reduce(
+//         (acc, mark) => acc + mark.credits,
+//         0
+//       );
+
+//       // Calculate total grade points
+//       result.totalGradePoints = result.subjectMarks.reduce(
+//         (acc, mark) => acc + mark.gradePoint * mark.credits,
+//         0
+//       );
+
+//       // Calculate spi
+//       result.spi = result.totalGradePoints / result.totalSubjectsCredits;
+//     }
+
+//     // Calculate cpi
+//     this.cpi =
+//       this.result.reduce((acc, mark) => acc + mark.spi, 0) / this.result.length;
+
+//     next();
+//   } catch (error) {
+//     console.log(error);
+//     next(error);
+//   }
+// }
+// );
+
+const Marks = mongoose.model("marks", markSchema);
 
 export default Marks;

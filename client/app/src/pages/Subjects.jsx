@@ -98,7 +98,8 @@ function Subjects() {
                         <th>Department</th>
                         <th>subject Code</th>
                         <th>Year</th>
-                        <th>Credit</th>
+                        <th>Theory Credit</th>
+                        <th>Practical Credit</th>
                         <th className="text-end">Action</th>
                       </tr>
                     </thead>
@@ -118,7 +119,8 @@ function Subjects() {
                           <td>{subject.department}</td>
                           <td>{subject.subjectCode}</td>
                           <td>{subject.year}</td>
-                          <td>{subject.credit}</td>
+                          <td>{subject.theoryCredit}</td>
+                          <td>{subject.practicalCredit}</td>
                           
                           <td className="text-end">
                             <div className="actions">

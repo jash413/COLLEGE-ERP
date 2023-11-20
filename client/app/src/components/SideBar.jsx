@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { userContext } from "../App";
 
 function SideBar() {
+  const { user } = useContext(userContext);
   const location = useLocation();
   const [activeSubMenu, setActiveSubMenu] = useState(null);
 
@@ -21,6 +23,7 @@ function SideBar() {
               <li className="menu-title">
                 <span>Main Menu</span>
               </li>
+              {user.userType === "admin" && (
               <li
                 className={`${
                   location.pathname === "/dashboard" && !activeSubMenu
@@ -32,6 +35,8 @@ function SideBar() {
                   <i className="fas fa-th-large" /> <span>Dashboard</span>
                 </Link>
               </li>
+              )}
+              {user.userType === "admin" && (
               <li
                 className={`submenu ${isSubMenuActive("students") ? "active" : ""}`}
               >
@@ -55,6 +60,8 @@ function SideBar() {
                   </li>
                 </ul>
               </li>
+              )}
+              {user.userType === "admin" && (
               <li
                 className={`submenu ${isSubMenuActive("faculties") ? "active" : ""}`}
               >
@@ -78,6 +85,8 @@ function SideBar() {
                   </li>
                 </ul>
               </li>
+              )}
+              {user.userType === "admin" && (
               <li
                 className={`submenu ${isSubMenuActive("departments") ? "active" : ""}`}
               >
@@ -101,6 +110,8 @@ function SideBar() {
                   </li>
                 </ul>
               </li> 
+              )}
+              {user.userType === "admin" && (
               <li
                 className={`submenu ${isSubMenuActive("courses") ? "active" : ""}`}
               >
@@ -124,6 +135,7 @@ function SideBar() {
                   </li>
                 </ul>
               </li>
+              )}
               <li
                 className={`submenu ${isSubMenuActive("marks") ? "active" : ""}`}
               >
@@ -141,6 +153,9 @@ function SideBar() {
                 >
                   <li>
                     <Link to="/marks/enter">Enter Marks</Link>
+                  </li>
+                  <li>
+                    <Link to="/marks/history">Student Grade History</Link>
                   </li>
                 </ul>
               </li>

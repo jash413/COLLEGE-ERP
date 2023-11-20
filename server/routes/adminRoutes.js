@@ -18,6 +18,7 @@ import {
   getAllAdmin,
   getAllDepartment,
   getAllSubject,
+  getMarks,
   updatedPassword,
   getAdmin,
   deleteAdmin,
@@ -50,6 +51,7 @@ router.post("/addstudent", auth, addStudent);
 router.post("/getstudent", auth, getStudent);
 router.post("/getnotice", auth, getNotice);
 router.post("/getadmin", auth, getAdmin);
+router.get("/getmarks/:id", auth, getMarks);
 router.post("/deleteadmin", auth, deleteAdmin);
 router.post("/deletefaculty", auth, deleteFaculty);
 router.post("/deletestudent", auth, deleteStudent);

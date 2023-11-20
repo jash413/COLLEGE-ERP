@@ -6,13 +6,14 @@ import network from "../config/network";
 import axios from "axios";
 
 function EnterMarks() {
-  const { token } = useContext(userContext);
+  const { token, user } = useContext(userContext);
   const [subjects] = useContext(subjectContext);
   const [departmentSubjects, setDepartmentSubjects] = useState([]);
   const [departments] = useContext(departmentContext);
   const [students, setStudents] = useState([]);
   const [tableLoading, setTableLoading] = useState(null);
   const [buttonLoading, setButtonLoading] = useState(true); // for submit button
+  const [sections, setSections] = useState([]);
   const [filters, setFilters] = useState({
     department: "",
     year: "",
@@ -21,6 +22,13 @@ function EnterMarks() {
     course: "",
     phase: "",
   });
+
+  useEffect(() => {
+    if (user.userType === "faculty") {
+      filters.department = user.department;
+      setSections(user.section);
+    }
+  }, [user]);
 
   const handleChanges = (e) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
@@ -71,7 +79,6 @@ function EnterMarks() {
     }
   }, [filters, token]);
 
-
   return (
     <div className="page-wrapper">
       <div className="content container-fluid">
@@ -96,9 +103,11 @@ function EnterMarks() {
               <div className="card-body">
                 <form>
                   <div className="row">
+                    {user.userType === "admin" && (
                     <div className="col-md-2">
                       <div className="form-group">
                         <select
+                          disabled={user.userType === "faculty" ? true : false}
                           className="form-control"
                           name="department"
                           value={filters.department}
@@ -116,7 +125,23 @@ function EnterMarks() {
                         </select>
                       </div>
                     </div>
+                    )}
+                    {user.userType === "admin" && (
                     <div className="col-md-2">
+                      <div className="form-group">
+                        <input
+                          disabled={user.userType === "faculty" ? true : false}
+                          type="text"
+                          className="form-control"
+                          placeholder="Enter Section"
+                          name="section"
+                          value={filters.section}
+                          onChange={handleChanges}
+                        />
+                      </div>
+                    </div>
+                    )}
+                    <div className={`col-md-${user.userType === "faculty" ? 3 : 2}`}>
                       <div className="form-group">
                         <select
                           className="form-control"
@@ -132,7 +157,7 @@ function EnterMarks() {
                         </select>
                       </div>
                     </div>
-                    <div className="col-md-2">
+                    <div className={`col-md-${user.userType === "faculty" ? 3 : 2}`}>
                       <div className="form-group">
                         <select
                           className="form-control"
@@ -152,19 +177,7 @@ function EnterMarks() {
                         </select>
                       </div>
                     </div>
-                    <div className="col-md-2">
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Enter Section"
-                          name="section"
-                          value={filters.section}
-                          onChange={handleChanges}
-                        />
-                      </div>
-                    </div>
-                    <div className="col-md-2">
+                    <div className={`col-md-${user.userType === "faculty" ? 3 : 2}`}>
                       <div className="form-group">
                         <select
                           className="form-control"
@@ -184,7 +197,7 @@ function EnterMarks() {
                         </select>
                       </div>
                     </div>
-                    <div className="col-md-2">
+                    <div className={`col-md-${user.userType === "faculty" ? 3 : 2}`}>
                       <div className="form-group">
                         <select
                           className="form-control"

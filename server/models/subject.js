@@ -26,7 +26,19 @@ const subjectSchema = new Schema({
     type: Number,
     required: true,
   },
-  credit:{
+  theoryCredit:{
+    type:Number,
+    required:true
+  },
+  practicalCredit:{
+    type:Number,
+    required:true
+  },
+  ipeWeightage:{
+    type:Number,
+    required:true
+  },
+  practicalWeightage:{
     type:Number,
     required:true
   },

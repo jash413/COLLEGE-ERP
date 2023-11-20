@@ -16,7 +16,10 @@ function AddSubject({onAdd}) {
     totalLectures: 10,
     year: "",
     semester: "",
-    credit: "",
+    theoryCredit: "",
+    practicalCredit: "",
+    ipeWeightage: "",
+    practicalWeightage: "",
   });
 
   const handleInputChange = (event) => {
@@ -56,7 +59,10 @@ function AddSubject({onAdd}) {
         totalLectures: 10,
         year: "",
         semester: "",
-        credit: "",
+        theoryCredit: "",
+        practicalCredit: "",
+        ipeWeightage: "",
+        practicalWeightage: "",
       });
 
       console.log("Faculty created:", response.data);
@@ -192,6 +198,8 @@ function AddSubject({onAdd}) {
                         </label>
                         <input
                           required
+                          min={1}
+                          max={8}
                           type="number"
                           name="semester"
                           value={SubjectData.semester}
@@ -205,17 +213,80 @@ function AddSubject({onAdd}) {
                     <div className="col-12 col-sm-4">
                       <div className="form-group local-forms">
                         <label>
-                          Credit <span className="login-danger">*</span>
+                          Theory Credit{" "}
+                          <span className="login-danger">*</span>
                         </label>
                         <input
                           required
+                          min={0}
+                          max={10}
                           type="number"
-                          name="credit"
-                          value={SubjectData.credit}
+                          name="theoryCredit"
+                          value={SubjectData.theoryCredit}
                           onChange={handleInputChange}
                           className="form-control"
-                          id="credit"
-                          placeholder="Credit Of This Subject"
+                          id="Enter Subject"
+                          placeholder="Enter Theory Credit"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-12 col-sm-4">
+                      <div className="form-group local-forms">
+                        <label>
+                          Practical Credit{" "}
+                          <span className="login-danger">*</span>
+                        </label>
+                        <input
+                          required
+                          min={0}
+                          max={10}
+                          type="number"
+                          name="practicalCredit"
+                          value={SubjectData.practicalCredit}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="Enter Subject"
+                          placeholder="Enter Practical Credit"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-12 col-sm-4">
+                      <div className="form-group local-forms">
+                        <label>
+                          IPE Weightage{" "}
+                          <span className="login-danger">*</span>
+                        </label>
+                        <input
+                          required
+                          min={0}
+                          max={100}
+                          type="number"
+                          name="ipeWeightage"
+                          value={SubjectData.theoryWeightage}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="Enter Subject"
+                          placeholder="Enter IPE Weightage in %"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-12 col-sm-4">
+                      <div className="form-group local-forms">
+                        <label>
+                          Practical Weightage{" "}
+                          <span className="login-danger">*</span>
+                        </label>
+                        <input
+                          required
+                          min={0}
+                          max={100}
+                          type="number"
+                          name="practicalWeightage"
+                          value={SubjectData.practicalWeightage}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="Enter Subject"
+                          placeholder="Enter Practical Weightage in %"
                         />
                       </div>
                     </div>

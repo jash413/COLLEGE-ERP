@@ -15,9 +15,6 @@ function Error404() {
           Back to Home
         </a>
       </div>
-      <footer>
-        <p>Copyright © 2022 Webwise Solutions.</p>
-      </footer>
     </div>
   );
 }
