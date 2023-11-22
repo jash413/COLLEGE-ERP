@@ -20,8 +20,9 @@ const attendenceSchema = new Schema({
           },
           t1: [
             {
-              date: [
+              dateWiseAttendance: [
                 {
+                  date: {type:String},
                   num_Lectures:{
                     type:Number
                   },
@@ -31,23 +32,60 @@ const attendenceSchema = new Schema({
                 
                 }
               ],
-              
-
             }
 
           ],
-          t2: {
-            type: Number,
-            default: -1,
-          },
-          t3: {
-            type: Number,
-            default: -1,
-          },
-          t4: {
-            type: Number,
-            default: -1,
-          },
+          t2: [
+            {
+              dateWiseAttendance: [
+                {
+                  date: {type:String},
+                  num_Lectures:{
+                    type:Number
+                  },
+                  attended:{
+                    type:Number
+                  },
+                
+                }
+              ],
+            }
+
+          ],
+          t3: [
+            {
+              dateWiseAttendance: [
+                {
+                  date: {type:String},
+                  num_Lectures:{
+                    type:Number
+                  },
+                  attended:{
+                    type:Number
+                  },
+                
+                }
+              ],
+            }
+
+          ],
+          t4: [
+            {
+              dateWiseAttendance: [
+                {
+                  date: {type:String},
+                  num_Lectures:{
+                    type:Number
+                  },
+                  attended:{
+                    type:Number
+                  },
+                
+                }
+              ],
+            }
+
+          ],
           totalLectures: {
             type: Number,
             default: 0,
@@ -66,23 +104,28 @@ const attendenceSchema = new Schema({
     },
   ],
 });
-// calculate attendance percentage
-attendenceSchema.methods.calculateAttendancePercentage = function () {
-  this.attendanceRecord.forEach((record) => {
-    record.subjectAttendance.forEach((subject) => {
-      subject.attendancePercentage = Math.round(
-        (subject.attendedLectures / subject.totalLectures) * 100
-      );
+
+attendenceSchema.pre('save', function (next) {
+  this.attendanceRecord.forEach(record => {
+    record.subjectAttendance.forEach(subject => {
+      // Calculate attendedLectures
+      ['t1', 't2', 't3', 't4'].forEach(term => {
+        subject[term].forEach(termRecord => {
+          termRecord.dateWiseAttendance.forEach(dateWiseAttendance => {
+            subject.attendedLectures += dateWiseAttendance.attended;
+          });
+        });
+      });
+
+      // Calculate attendancePercentage
+      if (subject.totalLectures > 0) {
+        subject.attendancePercentage = (subject.attendedLectures / subject.totalLectures) * 100;
+      } else {
+        subject.attendancePercentage = 0;
+      }
     });
   });
-};
-// calculate attended lectures
-attendenceSchema.methods.calculateAttendedLectures = function () {
-  this.attendanceRecord.forEach((record) => {
-    record.subjectAttendance.forEach((subject) => {
-      subject.attendedLectures =
-        subject.t1 + subject.t2 + subject.t3 + subject.t4;
-    });
-  });
-};
+  next();
+});
+
 export default mongoose.model("attendance", attendenceSchema);
