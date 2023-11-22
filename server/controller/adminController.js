@@ -866,6 +866,35 @@ export const resetPassword = async (req, res) => {
       user.password = hashedPassword;
       await user.save();
 
+      // Send an email to the user notifying them that their password has been changed
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL,
+          pass: process.env.PASSWORD,
+        },
+      });
+
+      const mailOptions = {
+        from: process.env.EMAIL,
+        to: user.email,
+        subject: "Password Reset Successful",
+        html: `
+          <p>Hello ${user.name},</p>
+          <p>Your password has been reset successfully.</p>
+          <p>If you didn't request this, please contact the admin.</p>
+        `,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(500).json({ message: "Failed to send reset email" });
+        }
+      });
+
+      // Destroy the token
+      jwt.destroy(token);
+
       return res.status(200).json({ message: "Password updated successfully" });
     });
   } catch (error) {
