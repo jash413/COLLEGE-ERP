@@ -807,7 +807,7 @@ export const forgotPasswordLink = async (req, res) => {
         <p>Hello ${user.name},</p>
         <p>You have requested to reset your password. Please click the link below to reset your password:</p>
         <a href="${resetLink}">${resetLink}</a>
-        <p>Link is valid for 1 hour</p>
+        <p>Link is valid for 1 hour and can be used for 1 time only.</p>
         <p>If you didn't request this, you can ignore this email.</p>
       `,
     };
