@@ -22,69 +22,61 @@ const attendenceSchema = new Schema({
             {
               dateWiseAttendance: [
                 {
-                  date: {type:String},
-                  num_Lectures:{
-                    type:Number
+                  date: { type: String },
+                  num_Lectures: {
+                    type: Number,
                   },
-                  attended:{
-                    type:Number
+                  attended: {
+                    type: Number,
                   },
-                
-                }
+                },
               ],
-            }
-
+            },
           ],
           t2: [
             {
               dateWiseAttendance: [
                 {
-                  date: {type:String},
-                  num_Lectures:{
-                    type:Number
+                  date: { type: String },
+                  num_Lectures: {
+                    type: Number,
                   },
-                  attended:{
-                    type:Number
+                  attended: {
+                    type: Number,
                   },
-                
-                }
+                },
               ],
-            }
-
+            },
           ],
           t3: [
             {
               dateWiseAttendance: [
                 {
-                  date: {type:String},
-                  num_Lectures:{
-                    type:Number
+                  date: { type: String },
+                  num_Lectures: {
+                    type: Number,
                   },
-                  attended:{
-                    type:Number
+                  attended: {
+                    type: Number,
                   },
-                
-                }
+                },
               ],
-            }
-
+            },
           ],
           t4: [
             {
               dateWiseAttendance: [
                 {
-                  date: {type:String},
-                  num_Lectures:{
-                    type:Number
+                  date: { type: String },
+                  num_Lectures: {
+                    type: Number,
                   },
-                  attended:{
-                    type:Number
+                  attended: {
+                    type: Number,
                   },
-                
-                }
+                },
               ],
-            }
-
+            },
           ],
           totalLectures: {
             type: Number,
@@ -100,18 +92,17 @@ const attendenceSchema = new Schema({
           },
         },
       ],
-      
     },
   ],
 });
 
-attendenceSchema.pre('save', function (next) {
-  this.attendanceRecord.forEach(record => {
-    record.subjectAttendance.forEach(subject => {
+attendenceSchema.pre("save", function (next) {
+  this.attendanceRecord.forEach((record) => {
+    record.subjectAttendance.forEach((subject) => {
       // Calculate attendedLectures
-      ['t1', 't2', 't3', 't4'].forEach(term => {
-        subject[term].forEach(termRecord => {
-          termRecord.dateWiseAttendance.forEach(dateWiseAttendance => {
+      ["t1", "t2", "t3", "t4"].forEach((term) => {
+        subject[term].forEach((termRecord) => {
+          termRecord.dateWiseAttendance.forEach((dateWiseAttendance) => {
             subject.attendedLectures += dateWiseAttendance.attended;
           });
         });
@@ -119,7 +110,8 @@ attendenceSchema.pre('save', function (next) {
 
       // Calculate attendancePercentage
       if (subject.totalLectures > 0) {
-        subject.attendancePercentage = (subject.attendedLectures / subject.totalLectures) * 100;
+        subject.attendancePercentage =
+          (subject.attendedLectures / subject.totalLectures) * 100;
       } else {
         subject.attendancePercentage = 0;
       }
