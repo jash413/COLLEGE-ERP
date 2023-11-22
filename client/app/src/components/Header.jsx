@@ -1,6 +1,10 @@
 import React, { useState, useContext } from "react";
 import { userContext } from "../App";
 
+// import images
+import logo from "../assets/img/logo.png";
+import logoSmall from "../assets/img/logo-small.png"
+
 function Header() {
   const { user } = useContext(userContext);
   
@@ -35,11 +39,11 @@ function Header() {
         {/* Logo */}
         <div className="header-left">
           <a href="index.html" className="logo">
-            <img src="assets/img/logo.png" alt="Logo" />
+            <img src={logo} alt="Logo" />
           </a>
           <a href="index.html" className="logo logo-small">
             <img
-              src="assets/img/logo-small.png"
+              src={logoSmall}
               alt="Logo"
               width={30}
               height={30}

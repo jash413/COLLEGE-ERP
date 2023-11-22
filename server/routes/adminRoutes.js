@@ -28,6 +28,8 @@ import {
   deleteSubject,
   createNotice,
   getNotice,
+  forgotPasswordLink,
+  resetPassword,
 } from "../controller/adminController.js";
 const router = express.Router();
 
@@ -58,5 +60,7 @@ router.post("/deletestudent", auth, deleteStudent);
 router.post("/deletedepartment", auth, deleteDepartment);
 router.post("/deletesubject", auth, deleteSubject);
 router.post("/updatemarks", auth, updateMarks);
+router.post("/forgotpassword", forgotPasswordLink);
+router.post("/resetpassword", resetPassword);
 
 export default router;

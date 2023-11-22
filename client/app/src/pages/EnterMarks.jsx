@@ -26,7 +26,7 @@ function EnterMarks() {
   useEffect(() => {
     if (user.userType === "faculty") {
       filters.department = user.department;
-      filters.section = user.section;
+      setSections(user.sections);
     }
   }, [user]);
 
@@ -138,6 +138,25 @@ function EnterMarks() {
                           value={filters.section}
                           onChange={handleChanges}
                         />
+                      </div>
+                    </div>
+                    )}
+                    {user.userType === "faculty" && (
+                    <div className="col-md-3">
+                      <div className="form-group">
+                        <select
+                          className="form-control"
+                          name="section"
+                          value={filters.section}
+                          onChange={handleChanges}
+                        >
+                          <option value="">Select Section</option>
+                          {sections.map((section) => (
+                            <option key={section} value={section}>
+                              {section}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
                     )}

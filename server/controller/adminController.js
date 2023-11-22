@@ -7,6 +7,7 @@ import Notice from "../models/notice.js";
 import Marks from "../models/marks.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import nodemailer from "nodemailer";
 
 export const adminLogin = async (req, res) => {
   const { username, password } = req.body;
@@ -236,9 +237,10 @@ export const addFaculty = async (req, res) => {
       contactNumber,
       email,
       joiningYear,
+      joiningDate,
       gender,
       designation,
-      section,
+      sections,
       userType,
     } = req.body;
     const errors = { emailError: String };
@@ -274,15 +276,18 @@ export const addFaculty = async (req, res) => {
     const newName = name.toUpperCase();
     const newDepartment = department.toUpperCase();
     const newEmail = email.toUpperCase();
-    const newSection = section.toUpperCase();
     const newDesignation = designation.toUpperCase();
     const newGender = gender.toUpperCase();
+
+    // Uppercase sections array
+    const newSections = sections.map((section) => section.toUpperCase());
 
     const newFaculty = await new Faculty({
       name: newName,
       email: newEmail,
       password: hashedPassword,
       joiningYear,
+      joiningDate,
       username,
       department: newDepartment,
       contactNumber,
@@ -290,9 +295,39 @@ export const addFaculty = async (req, res) => {
       gender: newGender,
       designation: newDesignation,
       passwordUpdated,
-      section: newSection,
+      sections: newSections,
       userType,
     });
+
+    // Send email to faculty with username and password
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: newFaculty.email,
+      subject: "WELCOME TO LJ UNIVERSITY ERP PORTAL",
+      html: `
+        <p>Welcome <span style="font-weight: bold">${newFaculty.name}</span> to LJ University ERP Portal!</p>
+        <p>Your username is: <span style="font-weight: bold">${newFaculty.username}</span></p>
+        <p>Your temporary password is: <span style="font-weight: bold">${newDob}</span></p>
+        <p>Please change your password after logging in.</p>
+        <p>Click <a href="http://localhost:3000/">here</a> to login.</p>
+      `,
+    };
+    
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      }
+    });
+
 
     await newFaculty.save();
     return res.status(200).json({
@@ -726,3 +761,121 @@ export const getMarks = async (req, res) => {
     console.log("Backend Error", error);
   }
 };
+
+export const forgotPasswordLink = async (req, res) => {
+  try {
+    const { email, userType } = req.body;
+
+    let user;
+    let modelName;
+
+    // Determine the user model based on the userType provided in the request
+    if (userType === 'admin') {
+      user = await Admin.findOne({ email: email.toUpperCase() });
+      modelName = 'Admin';
+    } else if (userType === 'faculty') {
+      user = await Faculty.findOne({ email: email.toUpperCase() });
+      modelName = 'Faculty';
+    } else {
+      return res.status(400).json({ message: 'Invalid userType provided' });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: `${modelName} not found` });
+    }
+
+    // Generate a reset token (you can use JWT or any other method)
+    const resetToken = jwt.sign({ userId: user._id, userType }, "your_secret_key", { expiresIn: "1h" });
+
+    // Send an email to the user with a reset link containing the resetToken
+    const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+
+    // Use Nodemailer to send the email
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Password Reset Request",
+      html: `
+        <p>Hello ${user.name},</p>
+        <p>You have requested to reset your password. Please click the link below to reset your password:</p>
+        <a href="${resetLink}">${resetLink}</a>
+        <p>Link is valid for 1 hour</p>
+        <p>If you didn't request this, you can ignore this email.</p>
+      `,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return res.status(500).json({ message: "Failed to send reset email" });
+      }
+      return res.status(200).json({ message: "Reset email sent successfully" });
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword, confirmPassword } = req.body;
+
+    // Check if passwords match
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    // Verify the token
+    jwt.verify(token, "your_secret_key", async (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ message: "Invalid or expired token. Please request a new link." });
+      }
+
+      const { userId, userType } = decoded;
+
+      let userModel;
+
+      // Determine the user model based on the userType provided in the token
+      if (userType === "admin") {
+        userModel = Admin;
+      } else if (userType === "faculty") {
+        userModel = Faculty;
+      } else {
+        return res.status(400).json({ message: "Invalid userType provided" });
+      }
+
+      // Find the user by ID
+      const user = await userModel.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: `${userType} not found` });
+      }
+
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update the user's password
+      user.password = hashedPassword;
+      await user.save();
+
+      return res.status(200).json({ message: "Password updated successfully" });
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
+
+
+

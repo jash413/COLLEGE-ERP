@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 
 function AddFaculty({ onAdd }) {
   const { token } = useContext(userContext);
-  const [ departments ] = useContext(departmentContext);
+  const [departments] = useContext(departmentContext);
   const [FacultyData, setFacultyData] = useState({
     // Initialize state for faculty data fields
     name: "",
@@ -20,7 +20,8 @@ function AddFaculty({ onAdd }) {
     dob: "",
     joiningYear: "",
     userType: "faculty",
-    section: "",
+    sections: [""], // Change to an array for multiple sections
+    joiningDate: "",
   });
 
   const handleInputChange = (event) => {
@@ -31,19 +32,39 @@ function AddFaculty({ onAdd }) {
     }));
   };
 
+  const handleSectionChange = (event, index) => {
+    const newSections = [...FacultyData.sections];
+    newSections[index] = event.target.value;
+    setFacultyData((prevData) => ({
+      ...prevData,
+      sections: newSections,
+    }));
+  };
+
+  const addSection = () => {
+    setFacultyData((prevData) => ({
+      ...prevData,
+      sections: [...prevData.sections, ""],
+    }));
+  };
+
+  const removeSection = (index) => {
+    const newSections = [...FacultyData.sections];
+    newSections.splice(index, 1);
+    setFacultyData((prevData) => ({
+      ...prevData,
+      sections: newSections,
+    }));
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      const formData = new FormData();
-      for (const key in FacultyData) {
-        formData.append(key, FacultyData[key]);
-      }
-
+      console.log("Faculty created:", FacultyData);
       const response = await axios.post(
         `${network.server}/api/admin/addfaculty`,
-        formData,
+        FacultyData,
         {
           headers: {
             "Content-Type": "application/json",
@@ -66,7 +87,8 @@ function AddFaculty({ onAdd }) {
         dob: "",
         joiningYear: "",
         userType: "faculty",
-        section: "",
+        sections: [""],
+        joiningDate: "",
       });
 
       console.log("Faculty created:", response.data);
@@ -190,6 +212,23 @@ function AddFaculty({ onAdd }) {
                       </div>
                     </div>
                     <div className="col-12 col-sm-4">
+                      <div className="form-group local-forms calendar-icon">
+                        <label>
+                          Joining Date <span className="login-danger">*</span>
+                        </label>
+                        <input
+                          required
+                          type="date"
+                          name="joiningDate"
+                          value={FacultyData.joiningDate}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="joiningDate"
+                          placeholder="Enter Joining Date"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-12 col-sm-4">
                       <div className="form-group local-forms">
                         <label>
                           Email ID <span className="login-danger">*</span>
@@ -243,26 +282,45 @@ function AddFaculty({ onAdd }) {
                           ))}
                         </select>
                       </div>
-
                     </div>
                     <div className="col-12 col-sm-4">
                       <div className="form-group local-forms">
                         <label>
                           Section <span className="login-danger">*</span>
                         </label>
-                        <input
-                          required
-                          type="text"
-                          name="section"
-                          value={FacultyData.section}
-                          onChange={handleInputChange}
-                          className="form-control"
-                          id="section"
-                          placeholder="Enter Section"
-                        />
+                        {FacultyData.sections.map((section, index) => (
+                          <div key={index} className="input-group mb-3">
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Enter Section"
+                              value={section}
+                              onChange={(event) =>
+                                handleSectionChange(event, index)
+                              }
+                            />
+                            {index !== FacultyData.sections.length - 1 && ( // Display "-" button for sections other than the last one
+                              <button
+                                className="btn btn-danger"
+                                type="button"
+                                onClick={() => removeSection(index)}
+                              >
+                                <i className="fa fa-minus"></i>
+                              </button>
+                            )}
+                            {index === FacultyData.sections.length - 1 && ( // Display "+" button for the last section
+                              <button
+                                className="btn btn-success"
+                                type="button"
+                                onClick={addSection}
+                              >
+                                <i className="fa fa-plus"></i>
+                              </button>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                      </div>
-
+                    </div>
                     <div className="col-12">
                       <div className="student-submit">
                         <button type="submit" className="btn btn-primary">

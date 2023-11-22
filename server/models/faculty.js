@@ -27,10 +27,9 @@ const facultySchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  section : {
+  sections : [{
     type: String,
-    required: true,
-  },
+  }],
   contactNumber: {
     type: Number,
   },
@@ -40,6 +39,10 @@ const facultySchema = mongoose.Schema({
   },
   joiningYear: {
     type: Number,
+    required: true,
+  },
+  joiningDate: {
+    type: String,
     required: true,
   },
   passwordUpdated: {

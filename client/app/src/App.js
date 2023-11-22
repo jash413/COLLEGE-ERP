@@ -8,6 +8,14 @@ import {
 import { Toaster } from "react-hot-toast";
 import axios from "axios";
 
+// Import CSS files
+import "./assets/plugins/feather/feather.css"
+import "./assets/plugins/bootstrap/css/bootstrap.min.css"
+import "./assets/plugins/feather/feather.css"
+import "./assets/plugins/fontawesome/css/fontawesome.min.css"
+import "./assets/plugins/fontawesome/css/all.min.css"
+import "./assets/css/style.css";
+
 // Import network config
 import network from "./config/network";
 
@@ -29,6 +37,8 @@ import Subjects from "./pages/Subjects";
 import EnterMarks from "./pages/EnterMarks";
 import StudentGradeHistory from "./pages/StudentGradeHistory";
 import Error404 from "./pages/Error-404";
+import ForgetPassword from "./pages/ForgetPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 // create context
 export const userContext = createContext();
@@ -126,23 +136,31 @@ function App() {
     setUser(JSON.parse(localStorage.getItem("user")));
   };
 
-  // Check if the user is already authenticated
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      setIsAuthenticated(true);
-      if (window.location.pathname !== "/dashboard") {
-          window.location.href = "/dashboard";
-        }
-      setToken(localStorage.getItem("token"));
-      setUser(JSON.parse(localStorage.getItem("user")));
-    } else {
-      setIsAuthenticated(false);
-      if (window.location.pathname !== "/") {
-        window.location.href = "/";
-      }
+// Check if the user is already authenticated
+useEffect(() => {
+  const storedToken = localStorage.getItem("token");
+  const currentPath = window.location.pathname;
+
+  if (storedToken) {
+    setIsAuthenticated(true);
+    if (currentPath !== "/dashboard" && !currentPath.startsWith("/reset-password/")) {
+      window.location.href = "/dashboard";
     }
-  }, []);
+    setToken(localStorage.getItem("token"));
+    setUser(JSON.parse(localStorage.getItem("user")));
+  } else {
+    setIsAuthenticated(false);
+    if (
+      currentPath !== "/" &&
+      currentPath !== "/forgetpassword" &&
+      !currentPath.startsWith("/reset-password/")
+    ) {
+      window.location.href = "/";
+    }
+  }
+}, []);
+
+
 
   // Handle sign out
   const handleSignOut = () => {
@@ -177,6 +195,14 @@ function App() {
                     }`}
                   >
                     <Routes>
+                      <Route
+                        path="/forgetpassword"
+                        element={<ForgetPassword />}
+                      />
+                      <Route
+                        path="/reset-password/:token"
+                        element={<ResetPassword />}
+                      />
                       <Route
                         path="/"
                         element={

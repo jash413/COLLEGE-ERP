@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import network from "../config/network";
+import { Link } from "react-router-dom";
 
 function SignIn({ onSignIn }) {
   const [formData, setFormData] = useState({
@@ -154,9 +155,9 @@ function SignIn({ onSignIn }) {
                   </label>
                 </div><br/>
                 <div className="form-group">
-                  <a href="#" className="forgot-link">
+                  <Link to={"/forgetpassword"}  className="forgot-link">
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
                 <div className="form-group">
                   {loading ? (
