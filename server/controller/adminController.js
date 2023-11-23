@@ -892,8 +892,6 @@ export const resetPassword = async (req, res) => {
         }
       });
 
-      // Destroy the token
-      // jwt.destroy(token);
 
       return res.status(200).json({ message: "Password updated successfully" });
     });
