@@ -39,6 +39,7 @@ import StudentGradeHistory from "./pages/StudentGradeHistory";
 import Error404 from "./pages/Error-404";
 import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
+import UpdateDepartment from "./pages/UpdatedDepartment";
 
 // create context
 export const userContext = createContext();
@@ -160,6 +161,18 @@ useEffect(() => {
   }
 }, []);
 
+// Force logout after 1 hour in case of inactivity
+useEffect(() => {
+  let logoutTimer;
+  if (isAuthenticated) {
+    logoutTimer = setTimeout(() => {
+      handleSignOut();
+    }, 3600000);
+  }
+  return () => {
+    clearTimeout(logoutTimer);
+  };
+}, [isAuthenticated]);
 
 
   // Handle sign out
@@ -282,6 +295,23 @@ useEffect(() => {
                       ) : (
                         <Route
                           path="/department/add"
+                          element={<Error404 />}
+                        />
+                      )}
+                      {isAuthenticated && user.userType === "admin" ? (
+                        <Route
+                          path="/department/update/:id"
+                          element={
+                            <>
+                              <Header />
+                              <SideBar />
+                              <UpdateDepartment onAdd={getAllDepartments} />
+                            </>
+                          }
+                        />
+                      ) : (
+                        <Route
+                          path="/department/update/:id"
                           element={<Error404 />}
                         />
                       )}

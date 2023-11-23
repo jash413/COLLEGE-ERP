@@ -1,6 +1,5 @@
 // marks.js
 import mongoose from "mongoose";
-import Subject from "../models/subject.js";
 
 const { Schema } = mongoose;
 
@@ -48,13 +47,21 @@ const markSchema = new Schema({
           },
           practicalTotal: {
             type: Number,
-            default: 0,
+            default: -1,
           },
           theoryTotal: {
             type: Number,
             default: -1,
           },
           theoryGrade: {
+            type: String,
+            default: "F",
+          },
+          practicalGrade: {
+            type: String,
+            default: "F",
+          },
+          overallGrade: {
             type: String,
             default: "F",
           },
@@ -96,99 +103,174 @@ const markSchema = new Schema({
         type: Number,
         default: 0,
       },
+      backlogs: {
+        type: Number,
+        default: 0,
+      },
     },
   ],
   cpi: {
     type: Number,
     default: 0,
   },
+  totalBacklogs: {
+    type: Number,
+    default: 0,
+  },
 });
 
-// markSchema.pre("save", async function (next) {
+markSchema.pre("save", async function (next) {
+  const markDocument = this;
+  try{
 
-//   try {
+    // calculate theory total and practical total if all marks are entered 
+    markDocument.result.forEach((semester) => {
+      semester.subjectMarks.forEach((subject) => {
+        if (subject.t1 !== -1 && subject.t2 !== -1 && subject.t3 !== -1 && subject.t4 !== -1) {
+          subject.theoryTotal = subject.t1 + subject.t2 + subject.t3 + subject.t4;
+        }else{
+          subject.theoryTotal = -1;
+        }
+        if (subject.practicalMarks !== -1 && subject.ipeMarks !== -1) {
+          subject.practicalTotal = subject.practicalMarks * subject.practicalWeightage / 100 + subject.ipeMarks * subject.ipeWeightage / 100;
+        }else{
+          subject.practicalTotal = -1;
+        }
+      });
+    });
 
-//     for (const result of this.result) {
+    // calculate theory grade and practical grade
+    markDocument.result.forEach((semester) => {
+      semester.subjectMarks.forEach((subject) => {
+        if (subject.theoryTotal !== -1) {
+          if (subject.theoryTotal >= 90) {
+            subject.theoryGrade = "O";
+          } else if (subject.theoryTotal >= 80) {
+            subject.theoryGrade = "A+";
+          } else if (subject.theoryTotal >= 70) {
+            subject.theoryGrade = "A";
+          } else if (subject.theoryTotal >= 60) {
+            subject.theoryGrade = "B+";
+          } else if (subject.theoryTotal >= 50) {
+            subject.theoryGrade = "B";
+          } else if (subject.theoryTotal >= 40) {
+            subject.theoryGrade = "C";
+          } else {
+            subject.theoryGrade = "F";
+          }
+        }
+        if (subject.practicalTotal !== -1) {
+          if (subject.practicalTotal >= 90) {
+            subject.practicalGrade = "O";
+          } else if (subject.practicalTotal >= 80) {
+            subject.practicalGrade = "A+";
+          } else if (subject.practicalTotal >= 70) {
+            subject.practicalGrade = "A";
+          } else if (subject.practicalTotal >= 60) {
+            subject.practicalGrade = "B+";
+          } else if (subject.practicalTotal >= 50) {
+            subject.practicalGrade = "B";
+          } else if (subject.practicalTotal >= 40) {
+            subject.practicalGrade = "C";
+          } else {
+            subject.practicalGrade = "F";
+          }
+        }
+      });
+    });
 
-//       // Calculate theory total
-//       for (const subjectMark of result.subjectMarks) {
-//         const { t1, t2, t3, t4 } = subjectMark;
-//         const allGradesPresent = [t1, t2, t3, t4].every((grade) => grade !== -1);
+    // calculate overall grade
+    markDocument.result.forEach((semester) => {
+      semester.subjectMarks.forEach((subject) => {
+        if (subject.theoryTotal !== -1 && subject.practicalTotal !== -1) {
+          if (subject.theoryTotal >= 35 && subject.practicalTotal >= 35) {
+            subject.overallGrade = "P";
+          } else {
+            subject.overallGrade = "F";
+          }
+        }
+      });
+    });
 
-//         if (allGradesPresent) {
-//           subjectMark.theoryTotal = t1 + t2 + t3 + t4;
-//         }
-//         else {
-//           subjectMark.theoryTotal = 0;
-//         }
-//       }
+    // calculate grade point
+    markDocument.result.forEach((semester) => {
+      semester.subjectMarks.forEach((subject) => {
+        if (subject.theoryTotal !== -1 && subject.practicalTotal !== -1) {
+          if (subject.theoryTotal >= 90) {
+            subject.gradePoint = 10;
+          } else if (subject.theoryTotal >= 80) {
+            subject.gradePoint = 9;
+          } else if (subject.theoryTotal >= 70) {
+            subject.gradePoint = 8;
+          } else if (subject.theoryTotal >= 60) {
+            subject.gradePoint = 7;
+          } else if (subject.theoryTotal >= 50) {
+            subject.gradePoint = 6;
+          } else if (subject.theoryTotal >= 40) {
+            subject.gradePoint = 5;
+          } else {
+            subject.gradePoint = 4;
+          }
+        }
+      });
+    });
 
-//       // Calculate theory grade and grade point
-//       const grades = [
-//         { min: 95, grade: "O+++", points: 10 },
-//         { min: 90, grade: "O++", points: 9.5 },
-//         { min: 85, grade: "O+", points: 9 },
-//         { min: 80, grade: "O", points: 8.5 },
-//         { min: 75, grade: "A++", points: 8 },
-//         { min: 70, grade: "A+", points: 7.5 },
-//         { min: 65, grade: "A", points: 7 },
-//         { min: 60, grade: "B++", points: 6.5 },
-//         { min: 55, grade: "B+", points: 6 },
-//         { min: 50, grade: "B", points: 5.5 },
-//         { min: 45, grade: "C", points: 5 },
-//         { min: 40, grade: "E", points: 4.5 },
-//         { min: 35, grade: "D", points: 4 },
-//         { min: 0, grade: "F", points: 3 },
-//       ];
+    // calculate total subjects credits
+    markDocument.result.forEach((semester) => {
+      semester.subjectMarks.forEach((subject) => {
+        if (subject.theoryTotal !== -1 && subject.practicalTotal !== -1) {
+          subject.theoryCredit = subject.subject.theoryCredits;
+          subject.practicalCredit = subject.subject.practicalCredits + subject.subject.ipeCredits;
+          subject.isBacklog = false;
+        }else{
+          subject.isBacklog = true;
+        }
+      });
+    });
 
-//       // Calculate theory grade and grade point
-//       for (const subjectMark of result.subjectMarks) {
-//         const grade = grades.find(
-//           (grade) => grade.min <= subjectMark.theoryTotal
-//         );
-//         subjectMark.theoryGrade = grade.grade;
-//         subjectMark.gradePoint = grade.points;
-//       }
+    // calculate spi
+    markDocument.result.forEach((semester) => {
+      semester.subjectMarks.forEach((subject) => {
+        if (subject.theoryTotal !== -1 && subject.practicalTotal !== -1) {
+          semester.totalSubjectsCredits += subject.theoryCredit + subject.practicalCredit;
+          semester.totalGradePoints += subject.gradePoint * (subject.theoryCredit + subject.practicalCredit);
+        }
+      });
+      semester.spi = semester.totalGradePoints / semester.totalSubjectsCredits;
+    });
 
-//       // Calculate total subjects credits
-//       const subjectIds = result.subjectMarks.map(
-//         (subjectMark) => subjectMark.subject
-//       );
-//       const subjects = await Subject.find({ _id: { $in: subjectIds } });
+    // calculate backlogs
+    markDocument.result.forEach((semester) => {
+      semester.subjectMarks.forEach((subject) => {
+        if (subject.isBacklog) {
+          semester.backlogs++;
+        }
+      });
+    });
 
-//       for (const subjectMark of result.subjectMarks) {
-//         const subject = subjects.find(
-//           (subject) => subject._id.toString() === subjectMark.subject
-//         );
-//         subjectMark.credits = subject.credits;
-//       }
+    // calculate total backlogs
+    markDocument.totalBacklogs = 0;
+    markDocument.result.forEach((semester) => {
+      markDocument.totalBacklogs += semester.backlogs;
+    });
 
-//       result.totalSubjectsCredits = result.subjectMarks.reduce(
-//         (acc, mark) => acc + mark.credits,
-//         0
-//       );
+    // calculate cpi
+    let totalCredits = 0;
+    let totalGradePoints = 0;
+    markDocument.result.forEach((semester) => {
+      totalCredits += semester.totalSubjectsCredits;
+      totalGradePoints += semester.totalGradePoints;
+    });
+    markDocument.cpi = totalGradePoints / totalCredits;
+    
+    next();
 
-//       // Calculate total grade points
-//       result.totalGradePoints = result.subjectMarks.reduce(
-//         (acc, mark) => acc + mark.gradePoint * mark.credits,
-//         0
-//       );
+  }catch(e){
+    console.log(e);
+  }
+}
+);
 
-//       // Calculate spi
-//       result.spi = result.totalGradePoints / result.totalSubjectsCredits;
-//     }
-
-//     // Calculate cpi
-//     this.cpi =
-//       this.result.reduce((acc, mark) => acc + mark.spi, 0) / this.result.length;
-
-//     next();
-//   } catch (error) {
-//     console.log(error);
-//     next(error);
-//   }
-// }
-// );
 
 const Marks = mongoose.model("marks", markSchema);
 

@@ -23,6 +23,7 @@ function EnterMarks() {
     phase: "",
   });
 
+
   useEffect(() => {
     if (user.userType === "faculty") {
       filters.department = user.department;
@@ -79,6 +80,89 @@ function EnterMarks() {
     }
   }, [filters, token]);
 
+  const [multipleUpdate, setMultipleUpdate] = useState([]);
+
+  useEffect(() => {
+    if (
+      filters.semester &&
+      filters.course &&
+      filters.phase &&
+      students.length > 0
+    ) {
+      const updatedMultipleUpdate = students.map((student) => {
+        return {
+          studentId: student._id,
+          semester: filters.semester,
+          updatedMarks: [
+            {
+              subject: filters.course,
+            },
+          ],
+        };
+      });
+      setMultipleUpdate(updatedMultipleUpdate);
+    }
+  }, [filters.semester, filters.course, filters.phase, students]);
+  
+  const handleMultipleUpdate = (e, studentId) => {
+    const updatedStudentMarks = multipleUpdate.map((student) => {
+      if (student.studentId === studentId) {
+        const updatedMarks = student.updatedMarks.map((mark) => {
+          if (mark.subject === filters.course) {
+            return {
+              ...mark,
+              [filters.phase]: e.target.value,
+            };
+          }
+          return mark;
+        });
+        return {
+          ...student,
+          updatedMarks,
+        };
+      }
+      return student;
+    });
+  
+    setMultipleUpdate(updatedStudentMarks);
+  };
+  
+  useEffect(() => {
+    console.log(multipleUpdate);
+  }
+  , [multipleUpdate])
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const data = {}
+    if(multipleUpdate.length === 1) {
+      data = multipleUpdate[0]
+    } else {
+      data = {
+        multipleUpdate
+      }
+    }
+    setButtonLoading(true);
+    axios
+      .post(
+        `${network.server}/api/admin/updatemarks`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        toast.success(res.data.message);
+        setButtonLoading(false);
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+        setButtonLoading(false);
+      });
+  }
+
   return (
     <div className="page-wrapper">
       <div className="content container-fluid">
@@ -104,63 +188,71 @@ function EnterMarks() {
                 <form>
                   <div className="row">
                     {user.userType === "admin" && (
-                    <div className="col-md-2">
-                      <div className="form-group">
-                        <select
-                          disabled={user.userType === "faculty" ? true : false}
-                          className="form-control"
-                          name="department"
-                          value={filters.department}
-                          onChange={handleChanges}
-                        >
-                          <option value="">Select Department</option>
-                          {departments.map((department) => (
-                            <option
-                              key={department._id}
-                              value={department.department}
-                            >
-                              {department.department}
-                            </option>
-                          ))}
-                        </select>
+                      <div className="col-md-2">
+                        <div className="form-group">
+                          <select
+                            disabled={
+                              user.userType === "faculty" ? true : false
+                            }
+                            className="form-control"
+                            name="department"
+                            value={filters.department}
+                            onChange={handleChanges}
+                          >
+                            <option value="">Select Department</option>
+                            {departments.map((department) => (
+                              <option
+                                key={department._id}
+                                value={department.department}
+                              >
+                                {department.department}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
-                    </div>
                     )}
                     {user.userType === "admin" && (
-                    <div className="col-md-2">
-                      <div className="form-group">
-                        <input
-                          disabled={user.userType === "faculty" ? true : false}
-                          type="text"
-                          className="form-control"
-                          placeholder="Enter Section"
-                          name="section"
-                          value={filters.section}
-                          onChange={handleChanges}
-                        />
+                      <div className="col-md-2">
+                        <div className="form-group">
+                          <input
+                            disabled={
+                              user.userType === "faculty" ? true : false
+                            }
+                            type="text"
+                            className="form-control"
+                            placeholder="Enter Section"
+                            name="section"
+                            value={filters.section}
+                            onChange={handleChanges}
+                          />
+                        </div>
                       </div>
-                    </div>
                     )}
                     {user.userType === "faculty" && (
-                    <div className="col-md-3">
-                      <div className="form-group">
-                        <select
-                          className="form-control"
-                          name="section"
-                          value={filters.section}
-                          onChange={handleChanges}
-                        >
-                          <option value="">Select Section</option>
-                          {sections.map((section) => (
-                            <option key={section} value={section}>
-                              {section}
-                            </option>
-                          ))}
-                        </select>
+                      <div className="col-md-3">
+                        <div className="form-group">
+                          <select
+                            className="form-control"
+                            name="section"
+                            value={filters.section}
+                            onChange={handleChanges}
+                          >
+                            <option value="">Select Section</option>
+                            {sections.map((section) => (
+                              <option key={section} value={section}>
+                                {section}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
-                    </div>
                     )}
-                    <div className={`col-md-${user.userType === "faculty" ? 3 : 2}`}>
+                    <div
+                      className={`col-md-${
+                        user.userType === "faculty" ? 3 : 2
+                      }`}
+                    >
                       <div className="form-group">
                         <select
                           className="form-control"
@@ -176,7 +268,11 @@ function EnterMarks() {
                         </select>
                       </div>
                     </div>
-                    <div className={`col-md-${user.userType === "faculty" ? 3 : 2}`}>
+                    <div
+                      className={`col-md-${
+                        user.userType === "faculty" ? 3 : 2
+                      }`}
+                    >
                       <div className="form-group">
                         <select
                           className="form-control"
@@ -196,7 +292,11 @@ function EnterMarks() {
                         </select>
                       </div>
                     </div>
-                    <div className={`col-md-${user.userType === "faculty" ? 3 : 2}`}>
+                    <div
+                      className={`col-md-${
+                        user.userType === "faculty" ? 3 : 2
+                      }`}
+                    >
                       <div className="form-group">
                         <select
                           className="form-control"
@@ -208,7 +308,7 @@ function EnterMarks() {
                           {departmentSubjects.map((subject) => (
                             <option
                               key={subject._id}
-                              value={subject.subjectName}
+                              value={subject._id}
                             >
                               {subject.subjectName}
                             </option>
@@ -216,7 +316,11 @@ function EnterMarks() {
                         </select>
                       </div>
                     </div>
-                    <div className={`col-md-${user.userType === "faculty" ? 3 : 2}`}>
+                    <div
+                      className={`col-md-${
+                        user.userType === "faculty" ? 3 : 2
+                      }`}
+                    >
                       <div className="form-group">
                         <select
                           className="form-control"
@@ -270,7 +374,24 @@ function EnterMarks() {
                             <td>{student.department}</td>
                             <td>{student.batch}</td>
                             <td>
-                              <input type="number" min={0} max={25} />
+                              <input
+                                type="number"
+                                value={
+                                  multipleUpdate
+                                    .find(
+                                      (update) =>
+                                        update.studentId === student._id
+                                    )
+                                    ?.updatedMarks.find(
+                                      (mark) => mark.subject === filters.course
+                                    )?.[filters.phase] || ""
+                                }
+                                onChange={(e) =>
+                                  handleMultipleUpdate(e, student._id)
+                                }
+                                min={0}
+                                max={25}
+                              />
                             </td>
                           </tr>
                         ))}
