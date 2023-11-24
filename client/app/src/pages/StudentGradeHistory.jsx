@@ -60,6 +60,7 @@ function StudentGradeHistory() {
         })
         .then((res) => {
           setStudentGrade(res.data.result);
+          console.log(res.data);
         })
         .catch((err) => {
           toast.error(err.response.data.message);
@@ -189,7 +190,7 @@ function StudentGradeHistory() {
                             {studentGrade?.result.map((backlog, index) => {
                               return (
                                 <td key={index}>
-                                  {backlog.backlogs}
+                                  {backlog.backlogs || `0`}
                                 </td>
                               );
                             }
