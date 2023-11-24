@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import network from "../config/network";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { userContext, departmentContext } from "../App";
 import { Link } from "react-router-dom";
 
@@ -23,6 +23,10 @@ function AddFaculty({ onAdd }) {
     sections: [""], // Change to an array for multiple sections
     joiningDate: "",
   });
+
+  useEffect(() => {
+    document.title = "Add Faculty | College ERP";
+  }, []);
 
   const handleInputChange = (event) => {
     const { name, value, type, checked } = event.target;

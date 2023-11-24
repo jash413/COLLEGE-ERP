@@ -17,6 +17,7 @@ import {
   getAllFaculty,
   getAllAdmin,
   getAllDepartment,
+  getDepartmentById,
   getAllSubject,
   getMarks,
   updatedPassword,
@@ -39,6 +40,7 @@ router.get("/getallstudent", auth, getAllStudent);
 router.post("/createnotice", auth, createNotice);
 router.get("/getallfaculty", auth, getAllFaculty);
 router.get("/getalldepartment", auth, getAllDepartment);
+router.get("/getdepartmentbyid/:id", auth, getDepartmentById);
 router.get("/getallsubject", auth, getAllSubject);
 router.get("/getallfilteredstudent", auth, getAllFilteredStudent);
 router.get("/getalladmin", auth, getAllAdmin);

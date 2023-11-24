@@ -5,6 +5,7 @@ import Student from "../models/student.js";
 import Subject from "../models/subject.js";
 import Notice from "../models/notice.js";
 import Marks from "../models/marks.js";
+import blacklistedTokens from "../models/blacklistedTokens.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
@@ -320,14 +321,12 @@ export const addFaculty = async (req, res) => {
         <p>Click <a href="http://localhost:3000/">here</a> to login.</p>
       `,
     };
-    
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.log(error);
       }
     });
-
 
     await newFaculty.save();
     return res.status(200).json({
@@ -343,26 +342,91 @@ export const addFaculty = async (req, res) => {
 };
 
 export const updateMarks = async (req, res) => {
-  const { filter, updateData, isBulkUpdate } = req.body;
-
   try {
-    let result;
+    const { updates } = req.body;
 
-    if (isBulkUpdate) {
-      result = await Marks.updateMany(filter, updateData);
-    } else {
-      result = await Marks.findOneAndUpdate(filter, updateData, { new: true });
+    if (Array.isArray(updates)) {
+      const updateResults = await Promise.all(
+        updates.map(async (update) => {
+          const { studentId, semester, updatedMarks } = update;
+          const marks = await Marks.findOne({ student: studentId });
+
+          if (!marks) {
+            return { studentId, error: "Marks not found for the student." };
+          }
+
+          const semesterIndex = marks.result.findIndex(
+            (semesterObj) => semesterObj.semester === semester
+          );
+
+          if (semesterIndex !== -1) {
+            const semesterObj = marks.result[semesterIndex];
+
+            updatedMarks.forEach((updatedSubjectMarks) => {
+              const existingSubjectIndex = semesterObj.subjectMarks.findIndex(
+                (subjectMark) =>
+                  subjectMark.subject.toString() === updatedSubjectMarks.subject
+              );
+
+              if (existingSubjectIndex !== -1) {
+                semesterObj.subjectMarks[existingSubjectIndex] = {
+                  ...semesterObj.subjectMarks[existingSubjectIndex],
+                  ...updatedSubjectMarks,
+                };
+              } else {
+                semesterObj.subjectMarks.push(updatedSubjectMarks);
+              }
+            });
+
+            await marks.save();
+            return { studentId, message: "Marks updated successfully." };
+          }
+
+          return { studentId, error: `Semester ${semester} not found.` };
+        })
+      );
+
+      return res.status(200).json({ updates: updateResults });
     }
 
-    if (result) {
-      res.status(200).json(result);
-    } else {
-      res.status(404).json({ message: "Marks not found" });
+    // Single update logic
+    const { studentId, semester, updatedMarks } = req.body;
+    const marks = await Marks.findOne({ student: studentId });
+
+    if (!marks) {
+      return res
+        .status(404)
+        .json({ error: "Marks not found for the student." });
     }
+
+    const semesterObj = marks.result.find(
+      (semesterObj) => semesterObj.semester === semester
+    );
+
+    if (!semesterObj) {
+      return res.status(404).json({ error: `Semester ${semester} not found.` });
+    }
+
+    updatedMarks.forEach((updatedSubjectMarks) => {
+      const existingSubjectIndex = semesterObj.subjectMarks.findIndex(
+        (subjectMark) =>
+          subjectMark.subject.toString() === updatedSubjectMarks.subject
+      );
+
+      if (existingSubjectIndex !== -1) {
+        semesterObj.subjectMarks[existingSubjectIndex] = {
+          ...semesterObj.subjectMarks[existingSubjectIndex],
+          ...updatedSubjectMarks,
+        };
+      } else {
+        semesterObj.subjectMarks.push(updatedSubjectMarks);
+      }
+    });
+
+    await marks.save();
+    return res.status(200).json({ message: "Marks updated successfully." });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: `Failed to update marks: ${error.message}` });
+    return res.status(500).json({ error: error.message });
   }
 };
 
@@ -770,14 +834,14 @@ export const forgotPasswordLink = async (req, res) => {
     let modelName;
 
     // Determine the user model based on the userType provided in the request
-    if (userType === 'admin') {
+    if (userType === "admin") {
       user = await Admin.findOne({ email: email.toUpperCase() });
-      modelName = 'Admin';
-    } else if (userType === 'faculty') {
+      modelName = "Admin";
+    } else if (userType === "faculty") {
       user = await Faculty.findOne({ email: email.toUpperCase() });
-      modelName = 'Faculty';
+      modelName = "Faculty";
     } else {
-      return res.status(400).json({ message: 'Invalid userType provided' });
+      return res.status(400).json({ message: "Invalid userType provided" });
     }
 
     if (!user) {
@@ -785,7 +849,11 @@ export const forgotPasswordLink = async (req, res) => {
     }
 
     // Generate a reset token (you can use JWT or any other method)
-    const resetToken = jwt.sign({ userId: user._id, userType }, "your_secret_key", { expiresIn: "1h" });
+    const resetToken = jwt.sign(
+      { userId: user._id, userType },
+      "your_secret_key",
+      { expiresIn: "1h" }
+    );
 
     // Send an email to the user with a reset link containing the resetToken
     const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
@@ -833,10 +901,24 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
+    // Check if token is not blacklisted
+    const blacklisted = blacklistedTokens.findOne({ token });
+    if (blacklisted) {
+      return res
+        .status(401)
+        .json({
+          message: "Invalid or expired token. Please request a new link.",
+        });
+    }
+
     // Verify the token
     jwt.verify(token, "your_secret_key", async (err, decoded) => {
       if (err) {
-        return res.status(401).json({ message: "Invalid or expired token. Please request a new link." });
+        return res
+          .status(401)
+          .json({
+            message: "Invalid or expired token. Please request a new link.",
+          });
       }
 
       const { userId, userType } = decoded;
@@ -888,10 +970,15 @@ export const resetPassword = async (req, res) => {
 
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          return res.status(500).json({ message: "Failed to send reset email" });
+          return res
+            .status(500)
+            .json({ message: "Failed to send reset email" });
         }
       });
 
+      // Blacklist the token
+      const blacklistedToken = new blacklistedTokens({ token });
+      await blacklistedToken.save();
 
       return res.status(200).json({ message: "Password updated successfully" });
     });
@@ -901,8 +988,25 @@ export const resetPassword = async (req, res) => {
   }
 };
 
+export const getDepartmentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const errors = { noDepartmentError: String };
+    const department = await Department.findOne({ _id: id });
 
+    if (!department) {
+      errors.noDepartmentError = "No Department Found";
+      return res.status(404).json(errors);
+    }
 
+    res.status(200).json({ department });
+  } catch (error) {
+    console.log("Backend Error", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
-
-
+// Empty the blacklistedTokens collection every 24 hours
+setInterval(async () => {
+  await blacklistedTokens.deleteMany({});
+}, 1000 * 60 * 60 * 24);

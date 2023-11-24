@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import network from "../config/network";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { userContext, departmentContext } from "../App";
 
 function AddSubject({onAdd}) {
@@ -21,6 +21,10 @@ function AddSubject({onAdd}) {
     ipeWeightage: "",
     practicalWeightage: "",
   });
+
+  useEffect(() => {
+    document.title = "Add Subject | College ERP";
+  }, []);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;

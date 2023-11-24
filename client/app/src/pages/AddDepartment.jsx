@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import network from "../config/network";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { subjectContext, userContext } from "../App";
 
 function AddDepartment({onAdd}) {
@@ -12,6 +12,10 @@ function AddDepartment({onAdd}) {
     department: "",
     hod: "",
   });
+
+  useEffect(() => {
+    document.title = "Add Department | College ERP";
+  }, []);
 
   const handleInputChange = (event) => {
     const { name, value, type, checked } = event.target;

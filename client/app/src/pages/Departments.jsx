@@ -83,15 +83,6 @@ function Departments() {
                 <table className="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
                   <thead className="student-thread">
                     <tr>
-                      <th>
-                        <div className="form-check check-tables">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            defaultValue="something"
-                          />
-                        </div>
-                      </th>
                       <th>Department Name</th>
                       <th>HOD</th>
                       <th>Department Code</th>
@@ -101,33 +92,18 @@ function Departments() {
                   <tbody>
                     {department.map((department) => (
                       <tr>
-                        <td>
-                          <div className="form-check check-tables">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              defaultValue="something"
-                            />
-                          </div>
-                        </td>
                         <td>{department.department}</td>
                         <td>{department.hod}</td>
                         <td>{department.departmentCode}</td>
 
                         <td className="text-end">
                           <div className="actions">
-                            <a
-                              href="javascript:;"
-                              className="btn btn-sm bg-success-light me-2"
-                            >
-                              <i className="feather-eye" />
-                            </a>
-                            <a
-                              href="edit-teacher.html"
+                            <Link
+                              to={`/department/update/${department._id}`}
                               className="btn btn-sm bg-danger-light"
                             >
                               <i className="feather-edit" />
-                            </a>
+                            </Link>
                           </div>
                         </td>
                       </tr>
