@@ -74,11 +74,43 @@ export const updatedPassword = async (req, res) => {
 
 export const updateFaculty = async (req, res) => {
   try {
-    const { name, dob, department, contactNumber, avatar, email, designation } =
+    const { name, password, username, gender, sections, joiningYear, joiningDate, passwordUpdated, userType, dob, department, contactNumber, email, designation } =
       req.body;
     const updatedFaculty = await Faculty.findOne({ email });
     if (name) {
       updatedFaculty.name = name;
+      await updatedFaculty.save();
+    }
+    if (password) {
+      updatedFaculty.password = password;
+      await updatedFaculty.save();
+    }
+    if (username) {
+      updatedFaculty.username = usernname;
+      await updatedFaculty.save();
+    }
+    if (gender) {
+      updatedFaculty.gender = gender;
+      await updatedFaculty.save();
+    }
+    if (sections) {
+      updatedFaculty.sections = sections;
+      await updatedFaculty.save();
+    }
+    if (joiningYear) {
+      updatedFaculty.joiningYear = joiningYear;
+      await updatedFaculty.save();
+    }
+    if (joiningDate) {
+      updatedFaculty.joiningDate = joiningDate;
+      await updatedFaculty.save();
+    }
+    if (passwordUpdated) {
+      updatedFaculty.passwordUpdated = passwordUpdated;
+      await updatedFaculty.save();
+    }
+    if (userType) {
+      updatedFaculty.userType = userType;
       await updatedFaculty.save();
     }
     if (dob) {
@@ -93,14 +125,15 @@ export const updateFaculty = async (req, res) => {
       updatedFaculty.contactNumber = contactNumber;
       await updatedFaculty.save();
     }
+    if (email) {
+      updatedFaculty.email = email;
+      await updatedFaculty.save();
+    }
     if (designation) {
       updatedFaculty.designation = designation;
       await updatedFaculty.save();
     }
-    if (avatar) {
-      updatedFaculty.avatar = avatar;
-      await updatedFaculty.save();
-    }
+  
     res.status(200).json(updatedFaculty);
   } catch (error) {
     const errors = { backendError: String };
