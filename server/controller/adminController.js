@@ -6,6 +6,7 @@ import Subject from "../models/subject.js";
 import Notice from "../models/notice.js";
 import Marks from "../models/marks.js";
 import blacklistedTokens from "../models/blacklistedTokens.js";
+import cron from "node-cron";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
@@ -901,24 +902,22 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
-    // Check if token is not blacklisted
-    const blacklisted = blacklistedTokens.findOne({ token });
+    // Check if token is blacklisted
+    const blacklisted = await blacklistedTokens
+      .findOne({ token: token })
+      .exec();
     if (blacklisted) {
-      return res
-        .status(401)
-        .json({
-          message: "Invalid or expired token. Please request a new link.",
-        });
+      return res.status(401).json({
+        message: "Invalid or expired token. Please request a new link.",
+      });
     }
 
     // Verify the token
     jwt.verify(token, "your_secret_key", async (err, decoded) => {
       if (err) {
-        return res
-          .status(401)
-          .json({
-            message: "Invalid or expired token. Please request a new link.",
-          });
+        return res.status(401).json({
+          message: "Invalid or expired token. Please request a new link.",
+        });
       }
 
       const { userId, userType } = decoded;
@@ -936,6 +935,14 @@ export const resetPassword = async (req, res) => {
 
       // Find the user by ID
       const user = await userModel.findById(userId);
+
+      // New password cannot be the same as the old password
+      const isSamePassword = await bcrypt.compare(newPassword, user.password);
+      if (isSamePassword) {
+        return res
+          .status(400)
+          .json({ message: "New password cannot be the same as old password" });
+      }
 
       if (!user) {
         return res.status(404).json({ message: `${userType} not found` });
@@ -1006,7 +1013,19 @@ export const getDepartmentById = async (req, res) => {
   }
 };
 
-// Empty the blacklistedTokens collection every 24 hours
-setInterval(async () => {
-  await blacklistedTokens.deleteMany({});
-}, 1000 * 60 * 60 * 24);
+const deleteOldTokens = async () => {
+  try {
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago
+
+    // Delete tokens older than 24 hours
+    await blacklistedTokens.deleteMany({
+      createdAt: { $lt: twentyFourHoursAgo },
+    });
+    console.log("Old tokens deleted successfully");
+  } catch (error) {
+    console.error("Error deleting old tokens:", error);
+  }
+};
+
+// Schedule the task to run every day at a specific time (e.g., midnight)
+cron.schedule("0 0 * * *", deleteOldTokens);

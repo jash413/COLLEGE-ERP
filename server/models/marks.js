@@ -331,14 +331,6 @@ markSchema.pre("save", async function (next) {
       semester.spi = semester.totalGradePoints / semester.totalSubjectsCredits;
     });
 
-    // calculate backlogs
-    markDocument.result.forEach((semester) => {
-      semester.subjectMarks.forEach((subject) => {
-        if (subject.isBacklog) {
-          semester.backlogs++;
-        }
-      });
-    });
 
     // calculate total backlogs
     markDocument.totalBacklogs = 0;
