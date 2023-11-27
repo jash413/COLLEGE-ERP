@@ -347,6 +347,7 @@ markSchema.pre("save", async function (next) {
     });
     markDocument.cpi = totalGradePoints / totalCredits;
 
+
     next();
   } catch (e) {
     console.log(e);

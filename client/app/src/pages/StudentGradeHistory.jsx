@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { userContext, subjectContext } from "../App";
 import { toast } from "react-hot-toast";
 import network from "../config/network";
@@ -25,6 +24,7 @@ function StudentGradeHistory() {
       enrollmentNumber !== null &&
       enrollmentNumber !== undefined
     ) {
+      setStudentGrade(null);
       setSearchLoading(true);
       axios
         .get(
@@ -144,8 +144,8 @@ function StudentGradeHistory() {
               <div className="card-body">
                 <div className="page-header">
                   <div className="row text-center">
-                    <h3 className="page-title">
-                    LOK JAGRUTI KENDRA UNIVERSITY
+                    <h3 className="page-title" style={{ color: "red" }}>
+                      LOK JAGRUTI KENDRA UNIVERSITY
                     </h3>
                   </div>
                 </div>
@@ -157,47 +157,72 @@ function StudentGradeHistory() {
                     <div style={{ fontWeight: "bold" }}>Phone Number:</div>
                   </div>
                   <div className="col-sm-6 m-b-20">
-                    <div>{student?.enrollmentNumber}</div>
-                    <div>{student?.name}</div>
-                    <div>{student?.department}</div>
-                    <div>{student?.contactNumber}</div>
+                    <div>{student?.enrollmentNumber || "NA"}</div>
+                    <div>{student?.name || "NA"}</div>
+                    <div>{student?.department || "NA"}</div>
+                    <div>{student?.contactNumber || "NA"}</div>
                   </div>
                 </div>
                 <div className="row text-center">
-                  <div className="table-responsive">
+                  <div className="table-responsive table-striped table-hover">
                     <table className="table table-bordered mb-0">
-                      <thead>
-                        <tr>
-                          <th>Enrollment No</th>
-                          <th>CPI</th>
-                          <th>TOTBACKL</th>
-                          <th>BCK1</th>
-                          <th>BCK2</th>
-                          <th>BCK3</th>
-                          <th>BCK4</th>
-                          <th>BCK5</th>
-                          <th>BCK6</th>
-                          <th>BCK7</th>
-                          <th>BCK8</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {studentGrade && (
-                          <tr>
-                            <td>{student?.enrollmentNumber}</td>
-                            <td>{studentGrade?.cpi}</td>
-                            <td>{studentGrade?.totalBacklogs}</td>
-                            {studentGrade?.result.map((backlog, index) => {
-                              return (
-                                <td key={index}>
-                                  {backlog.backlogs || `0`}
-                                </td>
-                              );
-                            }
-                            )}
-                          </tr>
-                        )}
-                      </tbody>
+                      {studentGrade && (
+                        <>
+                          <thead>
+                            <tr
+                              style={{
+                                backgroundColor: "darkblue",
+                                color: "white",
+                              }}
+                            >
+                              <th>Enrollment No</th>
+                              <th>CPI</th>
+                              <th>SPI</th>
+                              <th>TOTBACKL</th>
+                              <th>BCK1</th>
+                              <th>BCK2</th>
+                              <th>BCK3</th>
+                              <th>BCK4</th>
+                              <th>BCK5</th>
+                              <th>BCK6</th>
+                              <th>BCK7</th>
+                              <th>BCK8</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>{student?.enrollmentNumber}</td>
+                              <td>{studentGrade?.cpi}</td>
+                              <td>
+                                {(() => {
+                                  const semestersWithValidSPI =
+                                    studentGrade?.result.filter(
+                                      (sem) => sem.spi > 0
+                                    );
+
+                                  if (
+                                    semestersWithValidSPI &&
+                                    semestersWithValidSPI.length > 0
+                                  ) {
+                                    const lastSemesterWithValidSPI =
+                                      semestersWithValidSPI[
+                                        semestersWithValidSPI.length - 1
+                                      ];
+                                    return lastSemesterWithValidSPI.spi || "-";
+                                  }
+                                  return "0";
+                                })()}
+                              </td>
+                              <td>{studentGrade?.totalBacklogs}</td>
+                              {studentGrade?.result.map((backlog, index) => {
+                                return (
+                                  <td key={index}>{backlog.backlogs || `0`}</td>
+                                );
+                              })}
+                            </tr>
+                          </tbody>
+                        </>
+                      )}
                     </table>
                   </div>
                 </div>
@@ -209,10 +234,15 @@ function StudentGradeHistory() {
                         <>
                           <div className="row text-center">
                             <div className="table-responsive">
-                              <table className="table table-bordered mb-0">
+                              <table className="table table-bordered mb-0 table-striped">
                                 <thead>
                                   <tr>
-                                    <th colSpan={6}>SEM {sem.semester}</th>
+                                    <th
+                                      colSpan={6}
+                                      style={{ backgroundColor: "#add8e68f" }}
+                                    >
+                                      SEMESTER {sem.semester}
+                                    </th>
                                   </tr>
                                   <tr>
                                     <th className="col-1">Course Code</th>
@@ -241,14 +271,41 @@ function StudentGradeHistory() {
                                               subject.subject
                                                 ?.practicalCredit || "-"}
                                           </td>
-                                          <td>
+                                          <td
+                                            style={{
+                                              color: `${
+                                                subject.subjectMarks
+                                                  ?.theoryGrade === "F"
+                                                  ? "red"
+                                                  : ""
+                                              }`,
+                                            }}
+                                          >
                                             {subject.subjectMarks?.theoryGrade}
                                           </td>
-                                          <td>
+                                          <td
+                                            style={{
+                                              color: `${
+                                                subject.subjectMarks
+                                                  ?.practicalGrade === "F"
+                                                  ? "red"
+                                                  : ""
+                                              }`,
+                                            }}
+                                          >
                                             {subject.subjectMarks
                                               ?.practicalGrade || "-"}
                                           </td>
-                                          <td>
+                                          <td
+                                            style={{
+                                              color: `${
+                                                subject.subjectMarks
+                                                  ?.overallGrade === "F"
+                                                  ? "red"
+                                                  : ""
+                                              }`,
+                                            }}
+                                          >
                                             {subject.subjectMarks
                                               ?.overallGrade || "-"}
                                           </td>

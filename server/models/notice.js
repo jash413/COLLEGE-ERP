@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const noticeSchema = mongoose.Schema({
-  topic: {
+  title: {
     type: String,
     require: true,
   },
@@ -13,13 +13,12 @@ const noticeSchema = mongoose.Schema({
     type: String,
     require: true,
   },
-  from: {
+  to: {
     type: String,
     require: true,
   },
-  noticeFor: {
-    type: String,
-    require: true,
+  faculty: {
+    type: mongoose.Schema.Types.ObjectId,
   },
 });
 

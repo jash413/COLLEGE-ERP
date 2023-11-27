@@ -40,6 +40,8 @@ import Error404 from "./pages/Error-404";
 import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
 import UpdateDepartment from "./pages/UpdatedDepartment";
+import AddNotice from "./pages/AddNotice";
+import FacultyDashboard from "./pages/FacultyDashboard";
 
 // create context
 export const userContext = createContext();
@@ -161,13 +163,13 @@ useEffect(() => {
   }
 }, []);
 
-// Force logout after 1 hour in case of inactivity
+// Force logout after 55 minutes in case of inactivity
 useEffect(() => {
   let logoutTimer;
   if (isAuthenticated) {
     logoutTimer = setTimeout(() => {
       handleSignOut();
-    }, 3600000);
+    }, 3300000);
   }
   return () => {
     clearTimeout(logoutTimer);
@@ -234,7 +236,7 @@ useEffect(() => {
                               <Header />
                               <SideBar />
                               {user.userType === "admin" && <AdminDashboard />}
-                              {user.userType === "faculty" && <EnterMarks />}
+                              {user.userType === "faculty" && <FacultyDashboard />}
                             </>
                           }
                         />
@@ -359,6 +361,20 @@ useEffect(() => {
                         />
                       ) : (
                         <Route path="/course/list" element={<Error404 />} />
+                      )}
+                      {isAuthenticated && user.userType === "admin" ? (
+                        <Route
+                          path="/notice/add"
+                          element={
+                            <>
+                              <Header />
+                              <SideBar />
+                              <AddNotice />
+                            </>
+                          }
+                        />
+                      ) : (
+                        <Route path="/notice/add" element={<Error404 />} />
                       )}
                       {isAuthenticated && user.userType === "admin" ? (
                         <Route

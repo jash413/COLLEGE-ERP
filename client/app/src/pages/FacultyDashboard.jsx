@@ -32,8 +32,9 @@ const customStyles = {
   },
 };
 
-function AdminDashboard() {
+function FacultyDashboard() {
   const { token } = useContext(userContext);
+  const { user } = useContext(userContext);
   const [notices, setNotices] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedNotice, setSelectedNotice] = useState(null);
@@ -46,14 +47,14 @@ function AdminDashboard() {
     const fetchNotices = async () => {
       try {
         const response = await axios.get(
-          `${network.server}/api/admin/getnotice`,
+          `${network.server}/api/admin/getfilterednotice?faculty=${user._id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        setNotices(response.data.result);
+        setNotices(response.data);
       } catch (error) {
         console.error("Error fetching notices:", error);
       }
@@ -262,7 +263,7 @@ function AdminDashboard() {
                         </tr>
                       </thead>
                       <tbody>
-                        {notices.map((notice) => (
+                        {notices && notices.map((notice) => (
                           <tr key={notice._id}>
                             <td>
                               <h5 className="mb-0 text-primary">
@@ -396,4 +397,4 @@ function AdminDashboard() {
   );
 }
 
-export default AdminDashboard;
+export default FacultyDashboard;

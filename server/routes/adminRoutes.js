@@ -14,6 +14,7 @@ import {
   addDepartment,
   getAllStudent,
   getAllFilteredStudent,
+  getFilteredFaculty,
   getAllFaculty,
   getAllAdmin,
   getAllDepartment,
@@ -29,6 +30,7 @@ import {
   deleteSubject,
   createNotice,
   getNotice,
+  getFilteredNotice,
   forgotPasswordLink,
   resetPassword,
 } from "../controller/adminController.js";
@@ -43,6 +45,7 @@ router.get("/getalldepartment", auth, getAllDepartment);
 router.get("/getdepartmentbyid/:id", auth, getDepartmentById);
 router.get("/getallsubject", auth, getAllSubject);
 router.get("/getallfilteredstudent", auth, getAllFilteredStudent);
+router.get("/getfilteredfaculty", auth, getFilteredFaculty);
 router.get("/getalladmin", auth, getAllAdmin);
 router.post("/updateprofile", auth, updateAdmin);
 router.post("/addadmin", auth, addAdmin);
@@ -53,7 +56,7 @@ router.post("/addsubject", auth, addSubject);
 router.post("/getsubject", auth, getSubject);
 router.post("/addstudent", auth, addStudent);
 router.post("/getstudent", auth, getStudent);
-router.post("/getnotice", auth, getNotice);
+router.get("/getnotice", auth, getNotice);
 router.post("/getadmin", auth, getAdmin);
 router.get("/getmarks/:id", auth, getMarks);
 router.post("/deleteadmin", auth, deleteAdmin);
@@ -64,5 +67,6 @@ router.post("/deletesubject", auth, deleteSubject);
 router.post("/updatemarks", auth, updateMarks);
 router.post("/forgotpassword", forgotPasswordLink);
 router.post("/resetpassword", resetPassword);
+router.get("/getfilterednotice", auth, getFilteredNotice);
 
 export default router;

@@ -12,7 +12,7 @@ function EnterMarks() {
   const [departments] = useContext(departmentContext);
   const [students, setStudents] = useState([]);
   const [tableLoading, setTableLoading] = useState(null);
-  const [buttonLoading, setButtonLoading] = useState(true); // for submit button
+  const [buttonLoading, setButtonLoading] = useState(false); // for submit button
   const [sections, setSections] = useState([]);
   const [filters, setFilters] = useState({
     department: "",
@@ -185,7 +185,7 @@ function EnterMarks() {
           <div className="col-sm-12">
             <div className="card">
               <div className="card-body">
-                <form>
+                <form onSubmit={handleSubmit}>
                   <div className="row">
                     {user.userType === "admin" && (
                       <div className="col-md-2">

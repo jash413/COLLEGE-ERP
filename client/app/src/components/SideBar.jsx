@@ -23,7 +23,6 @@ function SideBar() {
               <li className="menu-title">
                 <span>Main Menu</span>
               </li>
-              {user.userType === "admin" && (
               <li
                 className={`${
                   location.pathname === "/dashboard" && !activeSubMenu
@@ -35,114 +34,134 @@ function SideBar() {
                   <i className="fas fa-th-large" /> <span>Dashboard</span>
                 </Link>
               </li>
+              {user.userType === "admin" && (
+                <li
+                  className={`submenu ${
+                    isSubMenuActive("students") ? "active" : ""
+                  }`}
+                >
+                  <a href="#" onClick={() => handleSubMenuToggle("students")}>
+                    <i className="fas fa-graduation-cap" />{" "}
+                    <span>Students</span> <span className="menu-arrow" />
+                  </a>
+                  <ul
+                    style={{
+                      display: isSubMenuActive("students") ? "block" : "none",
+                    }}
+                  >
+                    <li>
+                      <Link to="/student/list">Student List</Link>
+                    </li>
+                    <li>
+                      <Link to="/student/add">Add Student</Link>
+                    </li>
+                  </ul>
+                </li>
               )}
               {user.userType === "admin" && (
-              <li
-                className={`submenu ${isSubMenuActive("students") ? "active" : ""}`}
-              >
-                <a
-                  href="#"
-                  onClick={() => handleSubMenuToggle("students")}
+                <li
+                  className={`submenu ${
+                    isSubMenuActive("faculties") ? "active" : ""
+                  }`}
                 >
-                  <i className="fas fa-graduation-cap" /> <span>Students</span>{" "}
-                  <span className="menu-arrow" />
-                </a>
-                <ul
-                  style={{
-                    display: isSubMenuActive("students") ? "block" : "none",
-                  }}
-                >
-                  <li>
-                    <Link to="/student/list">Student List</Link>
-                  </li>
-                  <li>
-                    <Link to="/student/add">Add Student</Link>
-                  </li>
-                </ul>
-              </li>
+                  <a href="#" onClick={() => handleSubMenuToggle("faculties")}>
+                    <i className="fas fa-user-tie" /> <span>Faculties</span>{" "}
+                    <span className="menu-arrow" />
+                  </a>
+                  <ul
+                    style={{
+                      display: isSubMenuActive("faculties") ? "block" : "none",
+                    }}
+                  >
+                    <li>
+                      <Link to="/faculty/list">Faculty List</Link>
+                    </li>
+                    <li>
+                      <Link to="/faculty/add">Add Faculty</Link>
+                    </li>
+                  </ul>
+                </li>
               )}
               {user.userType === "admin" && (
-              <li
-                className={`submenu ${isSubMenuActive("faculties") ? "active" : ""}`}
-              >
-                <a
-                  href="#"
-                  onClick={() => handleSubMenuToggle("faculties")}
+                <li
+                  className={`submenu ${
+                    isSubMenuActive("departments") ? "active" : ""
+                  }`}
                 >
-                  <i className="fas fa-user-tie" /> <span>Faculties</span>{" "}
-                  <span className="menu-arrow" />
-                </a>
-                <ul
-                  style={{
-                    display: isSubMenuActive("faculties") ? "block" : "none",
-                  }}
-                >
-                  <li>
-                    <Link to="/faculty/list">Faculty List</Link>
-                  </li>
-                  <li>
-                    <Link to="/faculty/add">Add Faculty</Link>
-                  </li>
-                </ul>
-              </li>
+                  <a
+                    href="#"
+                    onClick={() => handleSubMenuToggle("departments")}
+                  >
+                    <i className="fas fa-building" /> <span>Departments</span>{" "}
+                    <span className="menu-arrow" />
+                  </a>
+                  <ul
+                    style={{
+                      display: isSubMenuActive("departments")
+                        ? "block"
+                        : "none",
+                    }}
+                  >
+                    <li>
+                      <Link to="/department/list">Department List</Link>
+                    </li>
+                    <li>
+                      <Link to="/department/add">Add Department</Link>
+                    </li>
+                  </ul>
+                </li>
               )}
               {user.userType === "admin" && (
-              <li
-                className={`submenu ${isSubMenuActive("departments") ? "active" : ""}`}
-              >
-                <a
-                  href="#"
-                  onClick={() => handleSubMenuToggle("departments")}
+                <li
+                  className={`submenu ${
+                    isSubMenuActive("courses") ? "active" : ""
+                  }`}
                 >
-                  <i className="fas fa-building" /> <span>Departments</span>{" "}
-                  <span className="menu-arrow" />
-                </a>
-                <ul
-                  style={{
-                    display: isSubMenuActive("departments") ? "block" : "none",
-                  }}
-                >
-                  <li>
-                    <Link to="/department/list">Department List</Link>
-                  </li>
-                  <li>
-                    <Link to="/department/add">Add Department</Link>
-                  </li>
-                </ul>
-              </li> 
+                  <a href="#" onClick={() => handleSubMenuToggle("courses")}>
+                    <i className="fas fa-book" /> <span>Courses</span>{" "}
+                    <span className="menu-arrow" />
+                  </a>
+                  <ul
+                    style={{
+                      display: isSubMenuActive("courses") ? "block" : "none",
+                    }}
+                  >
+                    <li>
+                      <Link to="/course/list">Course List</Link>
+                    </li>
+                    <li>
+                      <Link to="/course/add">Add Course</Link>
+                    </li>
+                  </ul>
+                </li>
               )}
               {user.userType === "admin" && (
-              <li
-                className={`submenu ${isSubMenuActive("courses") ? "active" : ""}`}
-              >
-                <a
-                  href="#"
-                  onClick={() => handleSubMenuToggle("courses")}
+                <li
+                  className={`submenu ${
+                    isSubMenuActive("notice") ? "active" : ""
+                  }`}
                 >
-                  <i className="fas fa-book" /> <span>Courses</span>{" "}
-                  <span className="menu-arrow" />
-                </a>
-                <ul
-                  style={{
-                    display: isSubMenuActive("courses") ? "block" : "none",
-                  }}
-                >
-                  <li>
-                    <Link to="/course/list">Course List</Link>
-                  </li>
-                  <li>
-                    <Link to="/course/add">Add Course</Link>
-                  </li>
-                </ul>
-              </li>
+                  <a href="#" onClick={() => handleSubMenuToggle("notice")}>
+                    <i className="fas fa-book" /> <span>Notice</span>{" "}
+                    <span className="menu-arrow" />
+                  </a>
+                  <ul
+                    style={{
+                      display: isSubMenuActive("notice") ? "block" : "none",
+                    }}
+                  >
+                    <li>
+                      <Link to="/notice/add">Add Notice</Link>
+                    </li>
+                  </ul>
+                </li>
               )}
               <li
-                className={`submenu ${isSubMenuActive("marks") ? "active" : ""}`}
+                className={`submenu ${
+                  isSubMenuActive("marks") ? "active" : ""
+                }`}
               >
-                <a
-                  href="#"
-                  onClick={() => handleSubMenuToggle("marks")}
-                >
+                <a href="#" onClick={() => handleSubMenuToggle("marks")}>
                   <i className="fas fa-book" /> <span>Marks</span>{" "}
                   <span className="menu-arrow" />
                 </a>

@@ -165,20 +165,20 @@ export const addAdmin = async (req, res) => {
 
 export const createNotice = async (req, res) => {
   try {
-    const { from, content, topic, date, noticeFor } = req.body;
+    const { title, content, date, to, faculty } = req.body;
 
     const errors = { noticeError: String };
-    const exisitingNotice = await Notice.findOne({ topic, content, date });
+    const exisitingNotice = await Notice.findOne({ content, date });
     if (exisitingNotice) {
       errors.noticeError = "Notice already created";
       return res.status(400).json(errors);
     }
     const newNotice = await new Notice({
-      from,
+      title,
       content,
-      topic,
-      noticeFor,
       date,
+      to,
+      faculty,
     });
     await newNotice.save();
     return res.status(200).json({
@@ -460,6 +460,27 @@ export const getNotice = async (req, res) => {
     const errors = { backendError: String };
     errors.backendError = error;
     res.status(500).json(errors);
+  }
+};
+
+export const getFilteredNotice = async (req, res) => {
+  try {
+    const filters = { ...req.query.faculty };
+    const faculty = req.query.faculty;
+
+    // Fetch notices addressed to 'all'
+    const allNotices = await Notice.find({ to: 'all', ...filters });
+
+    // Fetch notices specific to the faculty (if 'faculty' parameter exists)
+    const facultyNotices = faculty ? await Notice.find({ faculty: faculty, ...filters }) : [];
+
+    // Merge the results of both queries
+    const mergedNotices = [...allNotices, ...facultyNotices];
+
+    res.status(200).json(mergedNotices);
+  } catch (error) {
+    console.log("Backend Error", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -770,6 +791,23 @@ export const getAllFilteredStudent = async (req, res) => {
     const students = await Student.find(filters);
 
     res.status(200).json(students);
+  } catch (error) {
+    console.log("Backend Error", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getFilteredFaculty = async (req, res) => {
+  try {
+    const { contactNumber } = req.query;
+
+    // Check if contactNumber exists in the query
+    if (contactNumber) {
+      const faculties = await Faculty.find({ contactNumber });
+      res.status(200).json(faculties);
+    } else {
+      res.status(200).json(allFaculties);
+    }
   } catch (error) {
     console.log("Backend Error", error);
     res.status(500).json({ error: "Internal Server Error" });
