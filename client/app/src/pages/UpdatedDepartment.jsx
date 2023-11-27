@@ -52,7 +52,7 @@ function UpdateDepartment({ onAdd }) {
     
 
     try {
-      const response = await axios.put(
+      const response = await axios.patch(
         `${network.server}/updatedepartment/${departmentId}`,
         data,
         {

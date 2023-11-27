@@ -10,6 +10,7 @@ import cron from "node-cron";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
+import Attendance from "../models/attendance.js";
 
 export const adminLogin = async (req, res) => {
   const { username, password } = req.body;
@@ -543,7 +544,26 @@ export const addSubject = async (req, res) => {
             }
           });
         }
+
         await marks.save();
+        let attendance = await Attendance.findOne({ student: students[i]._id });
+        if (attendance) {
+          attendance.attendanceRecord.forEach((semester) => {
+            if (semester.semester === newSubject.semester) {
+              semester.subjectAttendance.push({
+                subject: newSubject._id,
+                t1: [],
+                t2: [],
+                t3: [],
+                t4: [],
+                totalLectures: 0,
+                attendedLectures: 0,
+                attendancePercentage: 0,
+              });
+            }
+          });
+          await attendance.save();
+        }
       }
     }
 
@@ -1021,9 +1041,9 @@ export const resetPassword = async (req, res) => {
         }
       });
 
-      // Blacklist the token
-      const blacklistedToken = new blacklistedTokens({ token });
-      await blacklistedToken.save();
+      // // Blacklist the token
+      // const blacklistedToken = new blacklistedTokens({ token });
+      // await blacklistedToken.save();
 
       return res.status(200).json({ message: "Password updated successfully" });
     });

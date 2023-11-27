@@ -34,8 +34,10 @@ import {
   forgotPasswordLink,
   resetPassword,
 } from "../controller/adminController.js";
+import { getAllAttendanceRecords, getAttendanceByStudentId, updateAttendanceRecord, deleteAttendanceRecord } from '../controller/attendanceController.js';
 const router = express.Router();
 
+// admin routes
 router.post("/login", adminLogin);
 router.post("/updatepassword", auth, updatedPassword);
 router.get("/getallstudent", auth, getAllStudent);
@@ -68,5 +70,11 @@ router.post("/updatemarks", auth, updateMarks);
 router.post("/forgotpassword", forgotPasswordLink);
 router.post("/resetpassword", resetPassword);
 router.get("/getfilterednotice", auth, getFilteredNotice);
+
+// attendance routes
+router.get('/attendance', getAllAttendanceRecords);
+router.get('/attendance/:studentId', getAttendanceByStudentId);
+router.patch('/attendance/:studentId', updateAttendanceRecord);
+router.delete('/attendance/:studentId', deleteAttendanceRecord);
 
 export default router;
