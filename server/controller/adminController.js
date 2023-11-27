@@ -9,6 +9,7 @@ import blacklistedTokens from "../models/blacklistedTokens.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
+import Attendance from "../models/attendance.js";
 
 export const adminLogin = async (req, res) => {
   const { username, password } = req.body;
@@ -521,7 +522,26 @@ export const addSubject = async (req, res) => {
             }
           });
         }
+
         await marks.save();
+        let attendance = await Attendance.findOne({ student: students[i]._id });
+        if (attendance) {
+          attendance.attendanceRecord.forEach((semester) => {
+            if (semester.semester === newSubject.semester) {
+              semester.subjectAttendance.push({
+                subject: newSubject._id,
+                t1: [],
+                t2: [],
+                t3: [],
+                t4: [],
+                totalLectures: 0,
+                attendedLectures: 0,
+                attendancePercentage: 0,
+              });
+            }
+          });
+          await attendance.save();
+        }
       }
     }
 
@@ -902,23 +922,19 @@ export const resetPassword = async (req, res) => {
     }
 
     // Check if token is not blacklisted
-    const blacklisted = blacklistedTokens.findOne({ token });
-    if (blacklisted) {
-      return res
-        .status(401)
-        .json({
-          message: "Invalid or expired token. Please request a new link.",
-        });
-    }
+    // const blacklisted = blacklistedTokens.findOne({ token });
+    // if (blacklisted) {
+    //   return res.status(401).json({
+    //     message: "Invalid or expired token. Please request a new link.",
+    //   });
+    // }
 
     // Verify the token
     jwt.verify(token, "your_secret_key", async (err, decoded) => {
       if (err) {
-        return res
-          .status(401)
-          .json({
-            message: "Invalid or expired token. Please request a new link.",
-          });
+        return res.status(401).json({
+          message: "Invalid or expired token. Please request a new link.",
+        });
       }
 
       const { userId, userType } = decoded;
@@ -976,9 +992,9 @@ export const resetPassword = async (req, res) => {
         }
       });
 
-      // Blacklist the token
-      const blacklistedToken = new blacklistedTokens({ token });
-      await blacklistedToken.save();
+      // // Blacklist the token
+      // const blacklistedToken = new blacklistedTokens({ token });
+      // await blacklistedToken.save();
 
       return res.status(200).json({ message: "Password updated successfully" });
     });

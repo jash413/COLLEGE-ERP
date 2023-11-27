@@ -23,9 +23,6 @@ const attendenceSchema = new Schema({
               dateWiseAttendance: [
                 {
                   date: { type: String },
-                  num_Lectures: {
-                    type: Number,
-                  },
                   attended: {
                     type: Number,
                   },
@@ -38,9 +35,6 @@ const attendenceSchema = new Schema({
               dateWiseAttendance: [
                 {
                   date: { type: String },
-                  num_Lectures: {
-                    type: Number,
-                  },
                   attended: {
                     type: Number,
                   },
@@ -53,9 +47,6 @@ const attendenceSchema = new Schema({
               dateWiseAttendance: [
                 {
                   date: { type: String },
-                  num_Lectures: {
-                    type: Number,
-                  },
                   attended: {
                     type: Number,
                   },
@@ -68,9 +59,6 @@ const attendenceSchema = new Schema({
               dateWiseAttendance: [
                 {
                   date: { type: String },
-                  num_Lectures: {
-                    type: Number,
-                  },
                   attended: {
                     type: Number,
                   },
