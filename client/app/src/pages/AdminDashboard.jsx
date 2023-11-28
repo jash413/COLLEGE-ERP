@@ -241,13 +241,6 @@ function AdminDashboard() {
             <div className="card flex-fill student-space comman-shadow">
               <div className="card-header d-flex align-items-center">
                 <h5 className="card-title">Notice Board</h5>
-                <ul className="chart-list-out student-ellips">
-                  <li className="star-menus">
-                    <a href="javascript:;">
-                      <i className="fas fa-ellipsis-v" />
-                    </a>
-                  </li>
-                </ul>
               </div>
               <div className="card-body">
                 <div className="notice-board">

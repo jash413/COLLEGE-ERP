@@ -1,5 +1,6 @@
 import express from "express";
 import auth from "../middleware/auth.js";
+import multer from "multer";
 import {
   adminLogin,
   updateAdmin,
@@ -9,6 +10,7 @@ import {
   addSubject,
   getSubject,
   addStudent,
+  addStudentsFromExcel,
   updateMarks,
   getStudent,
   addDepartment,
@@ -37,6 +39,28 @@ import {
 import { getAllAttendanceRecords, getAttendanceByStudentId, updateAttendanceRecord, deleteAttendanceRecord } from '../controller/attendanceController.js';
 const router = express.Router();
 
+// Multer config
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage,
+  fileFilter: function (req, file, cb) {
+    if (
+      file.mimetype !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ) {
+      return cb(new Error("Only excel files are allowed"));
+    }
+    cb(null, true);
+  },
+}).single("file");
+
 // admin routes
 router.post("/login", adminLogin);
 router.post("/updatepassword", auth, updatedPassword);
@@ -57,6 +81,7 @@ router.post("/getfaculty", auth, getFaculty);
 router.post("/addsubject", auth, addSubject);
 router.post("/getsubject", auth, getSubject);
 router.post("/addstudent", auth, addStudent);
+router.post("/addstudentsfromexcel", auth, upload, addStudentsFromExcel);
 router.post("/getstudent", auth, getStudent);
 router.get("/getnotice", auth, getNotice);
 router.post("/getadmin", auth, getAdmin);
