@@ -11,6 +11,9 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import Attendance from "../models/attendance.js";
+import XLSX from "xlsx";
+import mongoose from "mongoose";
+import fs from "fs";
 
 export const adminLogin = async (req, res) => {
   const { username, password } = req.body;
@@ -470,10 +473,12 @@ export const getFilteredNotice = async (req, res) => {
     const faculty = req.query.faculty;
 
     // Fetch notices addressed to 'all'
-    const allNotices = await Notice.find({ to: 'all', ...filters });
+    const allNotices = await Notice.find({ to: "all", ...filters });
 
     // Fetch notices specific to the faculty (if 'faculty' parameter exists)
-    const facultyNotices = faculty ? await Notice.find({ faculty: faculty, ...filters }) : [];
+    const facultyNotices = faculty
+      ? await Notice.find({ faculty: faculty, ...filters })
+      : [];
 
     // Merge the results of both queries
     const mergedNotices = [...allNotices, ...facultyNotices];
@@ -764,6 +769,128 @@ export const addStudent = async (req, res) => {
       response: newStudent,
     });
   } catch (error) {
+    return res.status(500).json({ backendError: error.message });
+  }
+};
+
+export const addStudentsFromExcel = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const excelFile = req.file;
+    if (!excelFile) {
+      return res.status(400).json({ message: "Please upload an Excel file" });
+    }
+
+    const workbook = XLSX.readFile(excelFile.path);
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+    const totalStudents = jsonData.length;
+    let processedStudents = 0;
+
+    const addedStudents = [];
+    for (const data of jsonData) {
+      try {
+        const {
+          name,
+          dob,
+          department,
+          contactNumber,
+          email,
+          enrollmentNumber,
+          gender,
+          batch,
+          section,
+          year,
+          fatherName,
+          motherName,
+          fatherContactNumber,
+          motherContactNumber,
+        } = data;
+
+        const existingStudent = await Student.findOne({ email }).session(
+          session
+        );
+        if (existingStudent) {
+          addedStudents.push({
+            email,
+            status: "Email already exists - Skipped",
+          });
+          processedStudents++;
+          continue;
+        }
+
+        const newStudent = new Student({
+          name,
+          dob,
+          department,
+          contactNumber,
+          email,
+          enrollmentNumber,
+          gender,
+          batch,
+          section,
+          year,
+          fatherName,
+          motherName,
+          fatherContactNumber,
+          motherContactNumber,
+        });
+
+        newStudent.name = newStudent.name.toUpperCase();
+        newStudent.department = newStudent.department.toUpperCase();
+        newStudent.email = newStudent.email.toUpperCase();
+        newStudent.fatherName = newStudent.fatherName.toUpperCase();
+        newStudent.motherName = newStudent.motherName.toUpperCase();
+        newStudent.section = newStudent.section.toUpperCase();
+        newStudent.year = newStudent.year.toUpperCase();
+
+        const subjects = await Subject.find({ department, year }).session(
+          session
+        );
+        newStudent.subjects = subjects.map((subject) => subject._id);
+
+        await newStudent.save({ session });
+
+        const io = req.app.get("socketio");
+        // Calculate progress percentage
+        processedStudents++;
+        const progress = Math.round((processedStudents / totalStudents) * 100);
+
+        // Emit progress update to connected clients
+        io.emit("progress", progress);
+
+        addedStudents.push({ email, status: "Successfully added" });
+      } catch (error) {
+        await session.abortTransaction(); // Rollback changes
+        session.endSession();
+        if (excelFile) {
+          fs.unlinkSync(excelFile.path);
+        }
+        return res.status(500).json({ backendError: error.message });
+      }
+    }
+
+    await session.commitTransaction(); // Commit changes
+    session.endSession();
+    if (excelFile) {
+      fs.unlinkSync(excelFile.path);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Students uploaded successfully",
+      addedStudents,
+    });
+  } catch (error) {
+    await session.abortTransaction(); // Rollback changes
+    session.endSession();
+    if (excelFile) {
+      fs.unlinkSync(excelFile.path);
+    }
     return res.status(500).json({ backendError: error.message });
   }
 };
