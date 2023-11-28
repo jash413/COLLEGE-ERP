@@ -32,6 +32,7 @@ function StudentAdd({ onAdd }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // socket connection
   useEffect(() => {
     const socket = io(
       "http://localhost:5000",
