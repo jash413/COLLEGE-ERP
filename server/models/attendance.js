@@ -22,19 +22,19 @@ const attendenceSchema = new Schema({
             {
               datewiseAttendance: [
                 {
-                  date: { type: String, required, unique: true },
+                  date: { type: String, unique: true },
                   Lectures: [
                     {
                       faculty :{
                         type: Schema.Types.ObjectId,
                         ref: "faculty",
-                        required: true,
+                        
                       },
-                      lectureNo: { type: Number, required },
+                      lectureNo: { type: Number },
                       attended: {
                         type: Boolean,
                         default:true,
-                        required,
+                        
                       },
                     },
                   ],
@@ -46,13 +46,13 @@ const attendenceSchema = new Schema({
             {
               datewiseAttendance: [
                 {
-                  date: { type: String, required, unique: true },
+                  date: { type: String,  unique: true },
                   Lectures: [
                     {
-                      lectureNo: { type: Number, required },
+                      lectureNo: { type: Number},
                       attended: {
                         type: Boolean,
-                        required,
+                        
                       },
                     },
                   ],
@@ -64,13 +64,13 @@ const attendenceSchema = new Schema({
             {
               datewiseAttendance: [
                 {
-                  date: { type: String, required, unique: true },
+                  date: { type: String, unique: true },
                   Lectures: [
                     {
-                      lectureNo: { type: Number, required },
+                      lectureNo: { type: Number },
                       attended: {
                         type: Boolean,
-                        required,
+                      
                       },
                     },
                   ],
@@ -82,13 +82,13 @@ const attendenceSchema = new Schema({
             {
               datewiseAttendance: [
                 {
-                  date: { type: String, required, unique: true },
+                  date: { type: String, unique: true },
                   Lectures: [
                     {
-                      lectureNo: { type: Number, required },
+                      lectureNo: { type: Number},
                       attended: {
                         type: Boolean,
-                        required,
+                        
                       },
                     },
                   ],

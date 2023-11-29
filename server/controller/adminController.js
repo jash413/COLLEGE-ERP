@@ -807,6 +807,7 @@ export const addStudent = async (req, res) => {
       motherName,
       fatherContactNumber,
       motherContactNumber,
+      mentor
     } = req.body;
 
     // Check for existing student with the same email
@@ -831,6 +832,7 @@ export const addStudent = async (req, res) => {
       motherName,
       fatherContactNumber,
       motherContactNumber,
+      mentor
     });
 
     // Uppercase all necessary fields
