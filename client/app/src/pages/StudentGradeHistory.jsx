@@ -314,6 +314,12 @@ function StudentGradeHistory() {
                                   )}
                                 </tbody>
                               </table>
+                              <table className="table table-bordered mb-0 table-striped">
+                              <tr>
+                                    <td>SPI: {sem.spi}</td>
+                                    <td>CURRENT BACKLOG: {sem.backlogs}</td>
+                                  </tr>
+                              </table>
                             </div>
                           </div>
                           <br />
