@@ -457,9 +457,6 @@ function StudentAdd({ onAdd }) {
                                 aria-label="Default select example"
                               >
                                 <option value="">Select Mentor</option>
-                                {/* make a search field where i can type shortname of mentor and it will search that faculty */}
-
-
                                 {faculty.map((faculty) => (
                                   <option value={faculty._id}>
                                     {faculty.shortName}-{faculty.name}
