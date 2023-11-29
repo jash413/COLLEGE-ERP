@@ -14,6 +14,94 @@ import Attendance from "../models/attendance.js";
 import XLSX from "xlsx";
 import mongoose from "mongoose";
 import fs from "fs";
+import { Client } from 'whatsapp-web.js';
+import qrcode from 'qrcode-terminal';
+
+export const createWhatsAppGroup = (req,res) => {
+  const client = new Client();
+
+  client.on('qr', (qr) => {
+      // Generate and scan this code with your phone
+      qrcode.generate(qr, {small: true});
+      console.log('QR RECEIVED', qr);
+  });
+  
+  client.on('ready', () => {
+      console.log('Client is ready!');
+  });
+  
+  client.on('message', async (msg) => {
+    if (msg.body === '!creategroup') {
+        // const partitipantsToAdd = ['919712947405@c.us'];
+        // await client.createGroup('Test Group', partitipantsToAdd);
+        /**
+         *
+         * {
+         *   title: 'Group Title',
+         *   gid: {
+         *     server: 'g.us',
+         *     user: '1111111111',
+         *     _serialized: '1111111111@g.us'
+         *   },
+         *   participants: {
+         *     'botNumber@c.us': {
+         *       statusCode: 200,
+         *       message: 'The participant was added successfully',
+         *       isGroupCreator: true,
+         *       isInviteV4Sent: false
+         *     },
+         *     'number1@c.us': {
+         *       statusCode: 200,
+         *       message: 'The participant was added successfully',
+         *       isGroupCreator: false,
+         *       isInviteV4Sent: false
+         *     },
+         *     'number2@c.us': {
+         *       statusCode: 403,
+         *       message: 'The participant can be added by sending private invitation only',
+         *       isGroupCreator: false,
+         *       isInviteV4Sent: true
+         *     },
+         *     'number3@c.us': {
+         *       statusCode: 404,
+         *       message: 'The phone number is not registered on WhatsApp',
+         *       isGroupCreator: false,
+         *       isInviteV4Sent: false
+         *     }
+         *   }
+         * }
+         */
+        // console.log(result);
+
+        /** If you want to create a group with yourself only: */
+        await client.createGroup('Group Title');
+
+        /**
+         * If in the provided array there are participants
+         * who have restricted others from being automatically added to groups
+         * and you explicitly don't want to send them private invitations:
+         */
+        // await client.createGroup('Group Title', partitipantsToAdd, { autoSendInviteV4: false });
+
+        /**
+         * If you want to provide a custom comment for private invitations
+         * (the same comment will be added to all private invitations, if any are going to be sent):
+         */
+        await client.createGroup('Group Title',["919712947405@c.us"], { comment: 'Welcome to the group' });
+
+        /** If you want to set the timer for messages (in seconds), after which messages will disappear: */
+        // await client.createGroup('Group Title', partitipantsToAdd, { messageTimer: 10 });
+
+        /**
+         * If you're an admin in some community and you want to create a new group and
+         * automatically link it to that community:
+         */
+        // await client.createGroup('Group Title', partitipantsToAdd, { parentGroupId: 'communityParentGroupId@g.us' });
+    }
+});
+  
+  client.initialize();
+};
 
 export const adminLogin = async (req, res) => {
   const { username, password } = req.body;
