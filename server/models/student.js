@@ -66,6 +66,12 @@ const studentSchema = new Schema({
     type: String,
     required: true,
   },
+  mentor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Faculty',
+    required: true
+  }
+  
 });
 
 studentSchema.pre("save", async function (next) {

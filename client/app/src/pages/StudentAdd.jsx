@@ -4,12 +4,15 @@ import network from "../config/network";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { userContext } from "../App";
+import { facultyContext } from "../App";
 import io from "socket.io-client";
 
 function StudentAdd({ onAdd }) {
   const { token } = useContext(userContext);
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [faculty] = useContext(facultyContext);
+  const [mentor, setMentor] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     department: "",
@@ -25,11 +28,15 @@ function StudentAdd({ onAdd }) {
     motherContactNumber: "",
     year: "",
     section: "",
+    mentor:""
   });
 
   // handle form data
   const handleFormData = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.name === "mentor") {
+      setMentor(e.target.value);
+    }
   };
 
   // socket connection
@@ -43,7 +50,7 @@ function StudentAdd({ onAdd }) {
       { secure: true },
       { rejectUnauthorized: false },
       { cors: { origin: "http://localhost:3000" } },
-      { origins: "http://localhost:3000" },
+      { origins: "http://localhost:3000" }
     ); // Replace with your server address
     socket.on("connect", () => {
       console.log("Connected to Socket.IO server");
@@ -58,11 +65,13 @@ function StudentAdd({ onAdd }) {
       console.log(data);
       setProgress(data);
     });
+    console.log(faculty);
 
     return () => {
       socket.disconnect();
       console.log("Socket disconnected");
     };
+
   }, []);
 
   // handle form submit
@@ -93,6 +102,7 @@ function StudentAdd({ onAdd }) {
         motherContactNumber: "",
         year: "",
         section: "",
+        mentor:""
       });
     } catch (error) {
       console.log(formData);
@@ -432,11 +442,38 @@ function StudentAdd({ onAdd }) {
                               />
                             </div>
                           </div>
+                          <div className="col-12 col-sm-4">
+                            <div className="form-group local-forms">
+                              <label className="form-label">
+                                Select Mentor
+                              </label>
+                              <select
+                                required
+                                type="text"
+                                name="mentor"
+                                value={formData.mentor}
+                                onChange={handleFormData}
+                                className="form-select"
+                                aria-label="Default select example"
+                              >
+                                <option value="">Select Mentor</option>
+                                {/* make a search field where i can type shortname of mentor and it will search that faculty */}
+
+
+                                {faculty.map((faculty) => (
+                                  <option value={faculty._id}>
+                                    {faculty.shortName}-{faculty.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
                           <div className="col-12">
                             <div className="student-submit">
                               <button type="submit" className="btn btn-primary">
                                 Submit
                               </button>
+                              
                             </div>
                           </div>
                         </div>
@@ -488,10 +525,12 @@ function StudentAdd({ onAdd }) {
                                   aria-valuemin={0}
                                   aria-valuemax={100}
                                 />
-                              </div><br />
+                              </div>
+                              <br />
                               <span className="progress-value">
-                                  {progress}% Completed, Please wait do not close the window
-                                </span>
+                                {progress}% Completed, Please wait do not close
+                                the window
+                              </span>
                             </div>
                           ) : (
                             <div className="col-12">
