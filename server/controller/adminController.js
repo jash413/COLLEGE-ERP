@@ -16,7 +16,149 @@ import mongoose from "mongoose";
 import fs from "fs";
 import { Client } from "whatsapp-web.js";
 import qrcode from "qrcode";
+import e from "express";
 
+export const downloadStudentExcelTemplate = async (req, res) => {
+  try {
+    // create a new workbook and worksheet with dummy data
+    const worksheet = XLSX.utils.json_to_sheet([
+      {
+        name: "John Doe",
+        dob: "01-01-2000",
+        department: "Computer Engineering",
+        contactNumber: "9876543210",
+        email: "xyz@gmail.com",
+        enrollmentNumber: "U19CO001",
+        gender: "male",
+        batch: "2021-2025",
+        section: "A1",
+        year: "FY",
+        fatherName: "John Doe",
+        motherName: "Jane Doe",
+        fatherContactNumber: "0123456789",
+        motherContactNumber: "0123456789",
+        mentor: "ABC",
+      },]);
+
+    const workbook = XLSX.utils.book_new(); 
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
+    const filePath = "../server/assets/Student_Excel_Template.xlsx";
+
+     XLSX.writeFile(
+        workbook,
+        filePath,
+        { bookType: "xlsx", type: "buffer" },
+        (err) => {
+          if (err) {
+            console.error("Error writing file:", err);
+            reject(err);
+          } else {
+            resolve();
+          }
+        }
+      );
+
+    // Download the file
+    await res.download(filePath, "Student_Excel_Template.xlsx", (err) => {
+      if (err) {
+        console.error("Error downloading file:", err);
+        res.status(500).json({ error: "Error downloading file" });
+      }else{
+        fs.unlinkSync(filePath);
+      }
+    });
+  } catch (error) {
+    console.log("Backend Error", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const downloadStudentExcel = async (req, res) => {
+  try {
+    const students = await Student.find();
+    const studentData = await Promise.all(
+      students.map(async (student) => {
+        const {
+          name,
+          dob,
+          department,
+          contactNumber,
+          email,
+          enrollmentNumber,
+          gender,
+          batch,
+          section,
+          year,
+          fatherName,
+          motherName,
+          fatherContactNumber,
+          motherContactNumber,
+          mentor,
+        } = student;
+
+        const faculty = await Faculty.findOne({ _id: mentor });
+
+        return {
+          name,
+          dob,
+          department,
+          contactNumber,
+          email,
+          enrollmentNumber,
+          gender,
+          batch,
+          section,
+          year,
+          fatherName,
+          motherName,
+          fatherContactNumber,
+          motherContactNumber,
+          mentor: faculty ? faculty.shortName : "", // Check if faculty exists before accessing name
+        };
+      })
+    );
+
+    const worksheet = XLSX.utils.json_to_sheet(studentData);
+    // Format all columns with numeric values as text
+    const range = XLSX.utils.decode_range(worksheet["!ref"]);
+    for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+        if (worksheet[cellRef] && !isNaN(worksheet[cellRef].v)) {
+          worksheet[cellRef].t = "s"; // Set the cell type as string (text)
+        }
+      }
+    }
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
+    const filePath = "../server/assets/Student_Excel.xlsx";
+
+    XLSX.writeFile(
+      workbook,
+      filePath,
+      { bookType: "xlsx", type: "buffer" },
+      (err) => {
+        if (err) {
+          console.error("Error writing file:", err);
+          res.status(500).json({ error: "Error writing file" });
+        }
+      }
+    );
+
+    await res.download(filePath, "Student_Excel.xlsx", (err) => {
+      if (err) {
+        console.error("Error downloading file:", err);
+        res.status(500).json({ error: "Error downloading file" });
+      }else{
+        fs.unlinkSync(filePath);
+      }
+    }
+    );
+  } catch (error) {
+    console.log("Backend Error", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 export const createWhatsAppGroup = async (req, res) => {
   try {
     const { groupName, participants } = req.body;
@@ -780,6 +922,8 @@ export const addStudent = async (req, res) => {
       return res.status(400).json({ emailError: "Email already exists" });
     }
 
+    const newMentor = await Faculty.findOne({ shortName: mentor });
+
     // Create a new Student instance
     const newStudent = new Student({
       name,
@@ -796,7 +940,7 @@ export const addStudent = async (req, res) => {
       motherName,
       fatherContactNumber,
       motherContactNumber,
-      mentor,
+      mentor: newMentor._id,
     });
 
     // Uppercase all necessary fields
@@ -863,6 +1007,7 @@ export const addStudentsFromExcel = async (req, res) => {
           motherName,
           fatherContactNumber,
           motherContactNumber,
+          mentor,
         } = data;
 
         const existingStudent = await Student.findOne({ email }).session(
@@ -876,6 +1021,10 @@ export const addStudentsFromExcel = async (req, res) => {
           processedStudents++;
           continue;
         }
+
+        const newMentor = await Faculty.findOne({ shortName: mentor }).session(
+          session
+        );
 
         const newStudent = new Student({
           name,
@@ -892,6 +1041,7 @@ export const addStudentsFromExcel = async (req, res) => {
           motherName,
           fatherContactNumber,
           motherContactNumber,
+          mentor: newMentor._id,
         });
 
         newStudent.name = newStudent.name.toUpperCase();
@@ -901,6 +1051,7 @@ export const addStudentsFromExcel = async (req, res) => {
         newStudent.motherName = newStudent.motherName.toUpperCase();
         newStudent.section = newStudent.section.toUpperCase();
         newStudent.year = newStudent.year.toUpperCase();
+        newStudent.gender = newStudent.gender.toUpperCase();
 
         const subjects = await Subject.find({ department, year }).session(
           session

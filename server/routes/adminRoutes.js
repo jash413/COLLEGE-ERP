@@ -36,6 +36,8 @@ import {
   forgotPasswordLink,
   resetPassword,
   createWhatsAppGroup,
+  downloadStudentExcel,
+  downloadStudentExcelTemplate,
 } from "../controller/adminController.js";
 import { getAllAttendanceRecords, getAttendanceByStudentId, updateAttendanceRecord, deleteAttendanceRecord } from '../controller/attendanceController.js';
 const router = express.Router();
@@ -96,7 +98,9 @@ router.post("/updatemarks", auth, updateMarks);
 router.post("/forgotpassword", forgotPasswordLink);
 router.post("/resetpassword", resetPassword);
 router.get("/getfilterednotice", auth, getFilteredNotice);
-router.post("/createwhatsappgroup", createWhatsAppGroup);
+router.post("/createwhatsappgroup", auth ,createWhatsAppGroup);
+router.get("/downloadstudentexcel" ,downloadStudentExcel);
+router.get("/downloadstudentexceltemplate",downloadStudentExcelTemplate);
 
 // attendance routes
 router.get('/attendance', getAllAttendanceRecords);

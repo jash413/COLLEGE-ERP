@@ -16,8 +16,9 @@ import "./assets/plugins/fontawesome/css/fontawesome.min.css"
 import "./assets/plugins/fontawesome/css/all.min.css"
 import "./assets/css/style.css";
 
-// Import network config
+// Import config
 import network from "./config/network";
+import socket from "./config/socket";
 
 // Import Components
 import Header from "./components/Header";
@@ -49,6 +50,7 @@ export const studentContext = createContext();
 export const facultyContext = createContext();
 export const departmentContext = createContext();
 export const subjectContext = createContext();
+export const socketContext = createContext();
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -203,6 +205,7 @@ useEffect(() => {
           <facultyContext.Provider value={[faculties]}>
             <departmentContext.Provider value={[departments]}>
               <subjectContext.Provider value={[subjects]}>
+                <socketContext.Provider value={{socket}}>
                 <Router>
                   <div
                     className={`main-wrapper ${
@@ -417,6 +420,7 @@ useEffect(() => {
                     </Routes>
                   </div>
                 </Router>
+                </socketContext.Provider>
               </subjectContext.Provider>
             </departmentContext.Provider>
           </facultyContext.Provider>

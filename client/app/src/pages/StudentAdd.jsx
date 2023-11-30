@@ -4,11 +4,11 @@ import network from "../config/network";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { userContext } from "../App";
-import { facultyContext } from "../App";
-import io from "socket.io-client";
+import { facultyContext, socketContext } from "../App";
 
 function StudentAdd({ onAdd }) {
   const { token } = useContext(userContext);
+  const { socket } = useContext(socketContext);
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(false);
   const [faculty] = useContext(facultyContext);
@@ -41,37 +41,10 @@ function StudentAdd({ onAdd }) {
 
   // socket connection
   useEffect(() => {
-    const socket = io(
-      "http://localhost:5000",
-      {
-        transports: ["websocket", "polling", "flashsocket"],
-      },
-      { path: "/socket.io" },
-      { secure: true },
-      { rejectUnauthorized: false },
-      { cors: { origin: "http://localhost:3000" } },
-      { origins: "http://localhost:3000" }
-    ); // Replace with your server address
-    socket.on("connect", () => {
-      console.log("Connected to Socket.IO server");
-    });
-    socket.on("disconnect", () => {
-      console.log("Disconnected from Socket.IO server");
-    });
-    socket.on("connect_error", (error) => {
-      console.error("Socket.IO connection error:", error);
-    });
     socket.on("progress", (data) => {
       console.log(data);
       setProgress(data);
     });
-    console.log(faculty);
-
-    return () => {
-      socket.disconnect();
-      console.log("Socket disconnected");
-    };
-
   }, []);
 
   // handle form submit
@@ -113,6 +86,26 @@ function StudentAdd({ onAdd }) {
       }
     }
   };
+
+  // handle sample file download
+  const handleSampleFileDownload = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/admin/downloadstudentexceltemplate", {
+        responseType: 'blob' // Set the response type to 'blob' to handle binary data
+      });
+  
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Student_Excel_Template.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+    }
+  };
+
 
   // handle bulk upload
   const handleBulkUpload = async (e) => {
@@ -492,6 +485,18 @@ function StudentAdd({ onAdd }) {
                               Bulk Upload{" "}
                             </h5>
                           </div>
+                          <div className="col-12 col-sm-3">
+                            <div className="form-group local-forms">
+                                <button type="button" className="btn btn-primary" onClick={()=>{
+                                  handleSampleFileDownload()
+                                }}>
+                                <i className="fas fa-download" /> Download Sample File
+                                </button>
+                            </div>
+                          </div>
+                          <p className="text-danger col-12 col-sm-9">
+                            Note: Please download the sample file and fill the details
+                          </p>
                           <div className="col-12 col-sm-4">
                             <div className="form-group local-forms">
                               <label>
