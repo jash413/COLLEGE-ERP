@@ -16,6 +16,78 @@ import mongoose from "mongoose";
 import fs from "fs";
 import { Client } from "whatsapp-web.js";
 import qrcode from "qrcode";
+import Leave from "../models/leave.js";
+
+// Controller function to get all leave requests
+export const getAllLeaveRequests = async (req, res) => {
+  try {
+    const leaveRequests = await Leave.find();
+    res.status(200).json(leaveRequests);
+  } catch (error) {
+    console.error('Error fetching leave requests:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+// Controller function to get a specific leave request by ID
+export const getLeaveRequestById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const leaveRequest = await Leave.findById(id);
+
+    if (!leaveRequest) {
+      return res.status(404).json({ message: 'Leave request not found' });
+    }
+
+    res.status(200).json(leaveRequest);
+  } catch (error) {
+    console.error('Error fetching leave request by ID:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+// Controller function to update a leave request by ID
+export const updateLeaveRequestById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { leaveFrom, leaveTo, leaveReason, approvalStatus } = req.body;
+
+    const leaveRequest = await Leave.findById(id);
+
+    if (!leaveRequest) {
+      return res.status(404).json({ message: 'Leave request not found' });
+    }
+
+    leaveRequest.leaveFrom = leaveFrom;
+    leaveRequest.leaveTo = leaveTo;
+    leaveRequest.leaveReason = leaveReason;
+    leaveRequest.approvalStatus = approvalStatus;
+
+    const updatedLeaveRequest = await leaveRequest.save();
+    res.status(200).json(updatedLeaveRequest);
+  } catch (error) {
+    console.error('Error updating leave request by ID:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+// Controller function to delete a leave request by ID
+export const deleteLeaveRequestById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedLeaveRequest = await Leave.findByIdAndDelete(id);
+
+    if (!deletedLeaveRequest) {
+      return res.status(404).json({ message: 'Leave request not found' });
+    }
+
+    res.status(200).json({ message: 'Leave request deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting leave request by ID:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 
 export const downloadStudentExcelTemplate = async (req, res) => {
   try {
@@ -1118,13 +1190,29 @@ export const getStudent = async (req, res) => {
   }
 };
 export const getAllStudent = async (req, res) => {
+  const page = parseInt(req.query.page) || 1; // Get the requested page or default to 1
+  const pageSize = parseInt(req.query.limit) || 10; // Set the default page size or specify a custom limit
+
   try {
-    const students = await Student.find();
-    res.status(200).json(students);
+    const totalStudents = await Student.countDocuments();
+    const totalPages = Math.ceil(totalStudents / pageSize);
+
+    const students = await Student.find()
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    res.status(200).json({
+      students,
+      page,
+      totalPages,
+      totalStudents,
+    });
   } catch (error) {
     console.log("Backend Error", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 export const getAllFilteredStudent = async (req, res) => {
   try {

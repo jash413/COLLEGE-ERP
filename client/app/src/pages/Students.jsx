@@ -1,29 +1,60 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { studentContext } from "../App";
 import axios from "axios";
+import { userContext } from "../App";
 
 function Students() {
-  const [students] = useContext(studentContext);
+  const { token } = useContext(userContext);
+  const [students, setStudents] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
 
- const download = async () => {
-  try {
-    const response = await axios.get("http://localhost:5000/api/admin/downloadstudentexcel", {
-      responseType: 'blob' // Set the response type to 'blob' to handle binary data
-    });
+  const fetchData = async (page) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `http://localhost:5000/api/admin/getAllStudent?page=${page}`
+      ,{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setStudents(response.data.students);
+      setTotalPages(response.data.totalPages);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching students:", error);
+    }
+  };
 
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'Student_Excel.xlsx');
-    document.body.appendChild(link);
-    link.click();
-    link.parentNode.removeChild(link);
-  } catch (error) {
-    console.error('Error downloading file:', error);
-  }
-};
+  useEffect(() => {
+    fetchData(currentPage);
+  }, [currentPage]);
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+  const download = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/api/admin/downloadstudentexcel",
+        {
+          responseType: "blob", // Set the response type to 'blob' to handle binary data
+        }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Student_Excel.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    }
+  };
 
   return (
     <div className="page-wrapper">
@@ -94,9 +125,12 @@ function Students() {
                       <h3 className="page-title">Students</h3>
                     </div>
                     <div className="col-auto text-end float-end ms-auto download-grp">
-                      <button className="btn btn-outline-primary me-2" onClick={()=>{
-                        download();
-                      }}>
+                      <button
+                        className="btn btn-outline-primary me-2"
+                        onClick={() => {
+                          download();
+                        }}
+                      >
                         <i className="fas fa-download" /> Download
                       </button>
                       <Link to="/student/add" className="btn btn-primary">
@@ -110,15 +144,6 @@ function Students() {
                   <table className="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
                     <thead className="student-thread">
                       <tr>
-                        <th>
-                          <div className="form-check check-tables">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              defaultValue="something"
-                            />
-                          </div>
-                        </th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Year</th>
@@ -132,51 +157,8 @@ function Students() {
                       </tr>
                     </thead>
                     <tbody>
-                      {/* <tr>
-                        <td>
-                          <div className="form-check check-tables">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              defaultValue="something"
-                            />
-                          </div>
-                        </td>
-                        <td>PRE2209</td>
-                        <td>Aaliyah</td>
-                        <td>10 A</td>
-                        <td>2 Feb 2002</td>
-                        <td>Jeffrey Wong</td>
-                        <td>097 3584 5870</td>
-                        <td>911 Deer Ridge Drive,USA</td>
-                        <td className="text-end">
-                          <div className="actions ">
-                            <a
-                              href="javascript:;"
-                              className="btn btn-sm bg-success-light me-2 "
-                            >
-                              <i className="feather-eye" />
-                            </a>
-                            <a
-                              href="edit-student.html"
-                              className="btn btn-sm bg-danger-light"
-                            >
-                              <i className="feather-edit" />
-                            </a>
-                          </div>
-                        </td>
-                      </tr> */}
-                      {students.map((student) => (
+                      {!loading && students.map((student) => (
                         <tr>
-                          <td>
-                            <div className="form-check check-tables">
-                              <input
-                                className="form-check-input"
-                                type="checkbox"
-                                defaultValue="something"
-                              />
-                            </div>
-                          </td>
                           <td>{student.name}</td>
                           <td>{student.email}</td>
                           <td>{student.year}</td>
@@ -204,8 +186,67 @@ function Students() {
                           </td>
                         </tr>
                       ))}
+                      {loading && (
+                        <tr>
+                          <td colSpan="11" className="text-center">
+                            <div className="spinner-border" role="status">
+                              <span className="visually-hidden">
+                                Loading...
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
-                  </table>
+                  </table><br/>
+                  <div>
+                    <ul className="pagination mb-4">
+                      <li
+                        className={`page-item ${
+                          currentPage === 1 && "disabled"
+                        }`}
+                      >
+                        <button
+                          className="page-link"
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage === 1}
+                        >
+                          Previous
+                        </button>
+                      </li>
+                      {Array.from(
+                        { length: totalPages },
+                        (_, index) => index + 1
+                      ).map((page) => (
+                        <li
+                          key={page}
+                          className={`page-item ${
+                            currentPage === page && "active"
+                          }`}
+                        >
+                          <button
+                            className="page-link"
+                            onClick={() => handlePageChange(page)}
+                          >
+                            {page}
+                          </button>
+                        </li>
+                      ))}
+                      <li
+                        className={`page-item ${
+                          currentPage === totalPages && "disabled"
+                        }`}
+                      >
+                        <button
+                          className="page-link"
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                        >
+                          Next
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
