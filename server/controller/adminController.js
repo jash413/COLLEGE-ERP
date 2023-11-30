@@ -14,6 +14,58 @@ import Attendance from "../models/attendance.js";
 import XLSX from "xlsx";
 import mongoose from "mongoose";
 import fs from "fs";
+import { Client } from "whatsapp-web.js";
+import qrcode from "qrcode";
+
+export const createWhatsAppGroup = async (req, res) => {
+  try {
+    const { groupName, participants } = req.body;
+    const client = new Client();
+
+    client.on("qr", async (qr) => {
+      try {
+        const qrImage = await qrcode.toDataURL(qr, {
+          errorCorrectionLevel: "H",
+        });
+        const imageBuffer = Buffer.from(
+          qrImage.replace(/^data:image\/(png|jpeg|jpg);base64,/, ""),
+          "base64"
+        );
+        fs.writeFileSync("qr_code.png", imageBuffer);
+
+        const io = req.app.get("socketio");
+        const imageData = fs.readFileSync("qr_code.png", {
+          encoding: "base64",
+        });
+        io.emit("whatsappQR", imageData);
+        console.log("QR RECEIVED");
+      } catch (qrError) {
+        console.error("Error generating QR code:", qrError);
+      }
+    });
+
+    client.on("ready", async () => {
+      try {
+        console.log("Client is ready!");
+        await client.createGroup(groupName, participants);
+        res.status(200).send("Group created successfully!");
+      } catch (groupError) {
+        console.error("Error creating group:", groupError);
+        res.status(500).send("Error creating group");
+      }
+    });
+
+    client.on("auth_failure", (err) => {
+      console.error("Authentication failed:", err);
+      res.status(401).send("Authentication failed");
+    });
+
+    client.initialize();
+  } catch (error) {
+    console.error("General error:", error);
+    res.status(500).send("Internal server error");
+  }
+};
 
 export const adminLogin = async (req, res) => {
   const { username, password } = req.body;
@@ -719,6 +771,7 @@ export const addStudent = async (req, res) => {
       motherName,
       fatherContactNumber,
       motherContactNumber,
+      mentor,
     } = req.body;
 
     // Check for existing student with the same email
@@ -743,6 +796,7 @@ export const addStudent = async (req, res) => {
       motherName,
       fatherContactNumber,
       motherContactNumber,
+      mentor,
     });
 
     // Uppercase all necessary fields
