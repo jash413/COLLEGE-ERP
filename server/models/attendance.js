@@ -20,48 +20,78 @@ const attendenceSchema = new Schema({
           },
           t1: [
             {
-              dateWiseAttendance: [
+              datewiseAttendance: [
                 {
-                  date: { type: String },
-                  attended: {
-                    type: Number,
-                  },
+                  date: { type: String, unique: true },
+                  Lectures: [
+                    {
+                      faculty :{
+                        type: Schema.Types.ObjectId,
+                        ref: "faculty",
+                        
+                      },
+                      lectureNo: { type: Number },
+                      attended: {
+                        type: Boolean,
+                        default:true,
+                        
+                      },
+                    },
+                  ],
                 },
               ],
             },
           ],
           t2: [
             {
-              dateWiseAttendance: [
+              datewiseAttendance: [
                 {
-                  date: { type: String },
-                  attended: {
-                    type: Number,
-                  },
+                  date: { type: String,  unique: true },
+                  Lectures: [
+                    {
+                      lectureNo: { type: Number},
+                      attended: {
+                        type: Boolean,
+                        
+                      },
+                    },
+                  ],
                 },
               ],
             },
           ],
           t3: [
             {
-              dateWiseAttendance: [
+              datewiseAttendance: [
                 {
-                  date: { type: String },
-                  attended: {
-                    type: Number,
-                  },
+                  date: { type: String, unique: true },
+                  Lectures: [
+                    {
+                      lectureNo: { type: Number },
+                      attended: {
+                        type: Boolean,
+                      
+                      },
+                    },
+                  ],
                 },
               ],
             },
           ],
-          t4: [
+          t4:[
             {
-              dateWiseAttendance: [
+              datewiseAttendance: [
                 {
-                  date: { type: String },
-                  attended: {
-                    type: Number,
-                  },
+                  date: { type: String, unique: true },
+                  Lectures: [
+                    {
+                      lectureNo: { type: Number},
+                      attended: {
+                        type: Boolean,
+                        
+                      },
+                    },
+                  ],
                 },
               ],
             },
@@ -87,12 +117,15 @@ const attendenceSchema = new Schema({
 attendenceSchema.pre("save", function (next) {
   this.attendanceRecord.forEach((record) => {
     record.subjectAttendance.forEach((subject) => {
+      // Reset attendedLectures
+      subject.attendedLectures = 0;
+
       // Calculate attendedLectures
-      ["t1", "t2", "t3", "t4"].forEach((term) => {
-        subject[term].forEach((termRecord) => {
-          termRecord.dateWiseAttendance.forEach((dateWiseAttendance) => {
-            subject.attendedLectures += dateWiseAttendance.attended;
-          });
+      subject.datewiseAttendance.forEach((datewiseAttendance) => {
+        datewiseAttendance.Lectures.forEach((lecture) => {
+          if (lecture.attended) {
+            subject.attendedLectures += 1;
+          }
         });
       });
 

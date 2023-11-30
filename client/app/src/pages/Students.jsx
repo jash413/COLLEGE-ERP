@@ -1,9 +1,30 @@
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { studentContext } from "../App";
+import axios from "axios";
 
 function Students() {
   const [students] = useContext(studentContext);
+
+ const download = async () => {
+  try {
+    const response = await axios.get("http://localhost:5000/api/admin/downloadstudentexcel", {
+      responseType: 'blob' // Set the response type to 'blob' to handle binary data
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'Student_Excel.xlsx');
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+  } catch (error) {
+    console.error('Error downloading file:', error);
+  }
+};
+
+
   return (
     <div className="page-wrapper">
       <div className="content container-fluid">
@@ -73,9 +94,11 @@ function Students() {
                       <h3 className="page-title">Students</h3>
                     </div>
                     <div className="col-auto text-end float-end ms-auto download-grp">
-                      <a href="#" className="btn btn-outline-primary me-2">
+                      <button className="btn btn-outline-primary me-2" onClick={()=>{
+                        download();
+                      }}>
                         <i className="fas fa-download" /> Download
-                      </a>
+                      </button>
                       <Link to="/student/add" className="btn btn-primary">
                         <i className="fas fa-plus" />
                       </Link>

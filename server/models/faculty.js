@@ -53,6 +53,10 @@ const facultySchema = mongoose.Schema({
     type: String,
     default: "faculty",
   },
+  shortName:{
+    type:String,
+  }
+
 });
 
 export default mongoose.model("faculty", facultySchema);
