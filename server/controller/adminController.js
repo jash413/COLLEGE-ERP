@@ -16,7 +16,6 @@ import mongoose from "mongoose";
 import fs from "fs";
 import { Client } from "whatsapp-web.js";
 import qrcode from "qrcode";
-import e from "express";
 
 export const downloadStudentExcelTemplate = async (req, res) => {
   try {
