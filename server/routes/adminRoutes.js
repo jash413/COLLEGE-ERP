@@ -38,6 +38,10 @@ import {
   createWhatsAppGroup,
   downloadStudentExcel,
   downloadStudentExcelTemplate,
+  getAllLeaveRequests,
+  updateLeaveRequestById,
+  getLeaveRequestById,
+  deleteLeaveRequestById,
 } from "../controller/adminController.js";
 import { getAllAttendanceRecords, getAttendanceByStudentId, updateAttendanceRecord, deleteAttendanceRecord } from '../controller/attendanceController.js';
 const router = express.Router();
@@ -101,6 +105,10 @@ router.get("/getfilterednotice", auth, getFilteredNotice);
 router.post("/createwhatsappgroup", auth ,createWhatsAppGroup);
 router.get("/downloadstudentexcel" ,downloadStudentExcel);
 router.get("/downloadstudentexceltemplate",downloadStudentExcelTemplate);
+router.get("/getallleaverequests", auth, getAllLeaveRequests);
+router.patch("/updateleaverequest/:id", auth, updateLeaveRequestById);
+router.get("/getleaverequest/:id", auth, getLeaveRequestById);
+router.delete("/deleteleaverequest/:id", auth, deleteLeaveRequestById);
 
 // attendance routes
 router.get('/attendance', getAllAttendanceRecords);
