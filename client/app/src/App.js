@@ -100,7 +100,7 @@ function App() {
           console.log(err);
         });
     }
-  };
+  }; 
 
   // Function to get all faculties
   const getAllFaculties = () => {

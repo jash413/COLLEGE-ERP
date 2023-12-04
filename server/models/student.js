@@ -69,7 +69,6 @@ const studentSchema = new Schema({
   mentor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Faculty',
-    required: true
   }
   
 });

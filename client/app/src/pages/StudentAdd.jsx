@@ -128,12 +128,12 @@ function StudentAdd({ onAdd }) {
         }
       );
       toast.success(res.data.message);
-      setProgress(0);
       onAdd();
     } catch (error) {
       toast.error("Something went wrong");
     } finally {
       setLoading(false);
+      setProgress(0);
     }
   };
 

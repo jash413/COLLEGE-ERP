@@ -993,8 +993,6 @@ export const addStudent = async (req, res) => {
       return res.status(400).json({ emailError: "Email already exists" });
     }
 
-    const newMentor = await Faculty.findOne({ shortName: mentor });
-
     // Create a new Student instance
     const newStudent = new Student({
       name,
@@ -1011,7 +1009,7 @@ export const addStudent = async (req, res) => {
       motherName,
       fatherContactNumber,
       motherContactNumber,
-      mentor: newMentor._id,
+      mentor,
     });
 
     // Uppercase all necessary fields
@@ -1093,9 +1091,7 @@ export const addStudentsFromExcel = async (req, res) => {
           continue;
         }
 
-        const newMentor = await Faculty.findOne({ shortName: mentor }).session(
-          session
-        );
+        const newMentor = await Faculty.findOne({ shortName: mentor }).session(session);
 
         const newStudent = new Student({
           name,
@@ -1122,7 +1118,6 @@ export const addStudentsFromExcel = async (req, res) => {
         newStudent.motherName = newStudent.motherName.toUpperCase();
         newStudent.section = newStudent.section.toUpperCase();
         newStudent.year = newStudent.year.toUpperCase();
-        newStudent.gender = newStudent.gender.toUpperCase();
 
         const subjects = await Subject.find({ department, year }).session(
           session
@@ -1164,12 +1159,14 @@ export const addStudentsFromExcel = async (req, res) => {
   } catch (error) {
     await session.abortTransaction(); // Rollback changes
     session.endSession();
+    console.log("Backend Error", error);
     if (excelFile) {
       fs.unlinkSync(excelFile.path);
     }
     return res.status(500).json({ backendError: error.message });
   }
 };
+
 
 export const getStudent = async (req, res) => {
   try {
