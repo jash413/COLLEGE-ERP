@@ -6,6 +6,27 @@ import Marks from "../models/marks.js";
 import Attendence from "../models/attendance.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import Leave from "../models/leave.js";
+
+// Controller function to create a new leave request
+export const createLeaveRequest = async (req, res) => {
+  try {
+    const { facultyId, leaveFrom, leaveTo, leaveReason } = req.body;
+
+    const newLeave = new Leave({
+      facultyId,
+      leaveFrom,
+      leaveTo,
+      leaveReason,
+    });
+
+    const createdLeave = await newLeave.save();
+    res.status(201).json(createdLeave);
+  } catch (error) {
+    console.error('Error creating leave request:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 
 export const facultyLogin = async (req, res) => {
   const { username, password } = req.body;

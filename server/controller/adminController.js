@@ -16,7 +16,220 @@ import mongoose from "mongoose";
 import fs from "fs";
 import { Client } from "whatsapp-web.js";
 import qrcode from "qrcode";
+import Leave from "../models/leave.js";
 
+// Controller function to get all leave requests
+export const getAllLeaveRequests = async (req, res) => {
+  try {
+    const leaveRequests = await Leave.find();
+    res.status(200).json(leaveRequests);
+  } catch (error) {
+    console.error('Error fetching leave requests:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+// Controller function to get a specific leave request by ID
+export const getLeaveRequestById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const leaveRequest = await Leave.findById(id);
+
+    if (!leaveRequest) {
+      return res.status(404).json({ message: 'Leave request not found' });
+    }
+
+    res.status(200).json(leaveRequest);
+  } catch (error) {
+    console.error('Error fetching leave request by ID:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+// Controller function to update a leave request by ID
+export const updateLeaveRequestById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { leaveFrom, leaveTo, leaveReason, approvalStatus } = req.body;
+
+    const leaveRequest = await Leave.findById(id);
+
+    if (!leaveRequest) {
+      return res.status(404).json({ message: 'Leave request not found' });
+    }
+
+    leaveRequest.leaveFrom = leaveFrom;
+    leaveRequest.leaveTo = leaveTo;
+    leaveRequest.leaveReason = leaveReason;
+    leaveRequest.approvalStatus = approvalStatus;
+
+    const updatedLeaveRequest = await leaveRequest.save();
+    res.status(200).json(updatedLeaveRequest);
+  } catch (error) {
+    console.error('Error updating leave request by ID:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+// Controller function to delete a leave request by ID
+export const deleteLeaveRequestById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedLeaveRequest = await Leave.findByIdAndDelete(id);
+
+    if (!deletedLeaveRequest) {
+      return res.status(404).json({ message: 'Leave request not found' });
+    }
+
+    res.status(200).json({ message: 'Leave request deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting leave request by ID:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
+export const downloadStudentExcelTemplate = async (req, res) => {
+  try {
+    // create a new workbook and worksheet with dummy data
+    const worksheet = XLSX.utils.json_to_sheet([
+      {
+        name: "John Doe",
+        dob: "01-01-2000",
+        department: "Computer Engineering",
+        contactNumber: "9876543210",
+        email: "xyz@gmail.com",
+        enrollmentNumber: "U19CO001",
+        gender: "male",
+        batch: "2021-2025",
+        section: "A1",
+        year: "FY",
+        fatherName: "John Doe",
+        motherName: "Jane Doe",
+        fatherContactNumber: "0123456789",
+        motherContactNumber: "0123456789",
+        mentor: "ABC",
+      },]);
+
+    const workbook = XLSX.utils.book_new(); 
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
+    const filePath = "../server/assets/Student_Excel_Template.xlsx";
+
+     XLSX.writeFile(
+        workbook,
+        filePath,
+        { bookType: "xlsx", type: "buffer" },
+        (err) => {
+          if (err) {
+            console.error("Error writing file:", err);
+            reject(err);
+          } else {
+            resolve();
+          }
+        }
+      );
+
+    // Download the file
+    await res.download(filePath, "Student_Excel_Template.xlsx", (err) => {
+      if (err) {
+        console.error("Error downloading file:", err);
+        res.status(500).json({ error: "Error downloading file" });
+      }else{
+        fs.unlinkSync(filePath);
+      }
+    });
+  } catch (error) {
+    console.log("Backend Error", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const downloadStudentExcel = async (req, res) => {
+  try {
+    const students = await Student.find();
+    const studentData = await Promise.all(
+      students.map(async (student) => {
+        const {
+          name,
+          dob,
+          department,
+          contactNumber,
+          email,
+          enrollmentNumber,
+          gender,
+          batch,
+          section,
+          year,
+          fatherName,
+          motherName,
+          fatherContactNumber,
+          motherContactNumber,
+          mentor,
+        } = student;
+
+        const faculty = await Faculty.findOne({ _id: mentor });
+
+        return {
+          name,
+          dob,
+          department,
+          contactNumber,
+          email,
+          enrollmentNumber,
+          gender,
+          batch,
+          section,
+          year,
+          fatherName,
+          motherName,
+          fatherContactNumber,
+          motherContactNumber,
+          mentor: faculty ? faculty.shortName : "", // Check if faculty exists before accessing name
+        };
+      })
+    );
+
+    const worksheet = XLSX.utils.json_to_sheet(studentData);
+    // Format all columns with numeric values as text
+    const range = XLSX.utils.decode_range(worksheet["!ref"]);
+    for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+        if (worksheet[cellRef] && !isNaN(worksheet[cellRef].v)) {
+          worksheet[cellRef].t = "s"; // Set the cell type as string (text)
+        }
+      }
+    }
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
+    const filePath = "../server/assets/Student_Excel.xlsx";
+
+    XLSX.writeFile(
+      workbook,
+      filePath,
+      { bookType: "xlsx", type: "buffer" },
+      (err) => {
+        if (err) {
+          console.error("Error writing file:", err);
+          res.status(500).json({ error: "Error writing file" });
+        }
+      }
+    );
+
+    await res.download(filePath, "Student_Excel.xlsx", (err) => {
+      if (err) {
+        console.error("Error downloading file:", err);
+        res.status(500).json({ error: "Error downloading file" });
+      }else{
+        fs.unlinkSync(filePath);
+      }
+    }
+    );
+  } catch (error) {
+    console.log("Backend Error", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 export const createWhatsAppGroup = async (req, res) => {
   try {
     const { groupName, participants } = req.body;
@@ -863,6 +1076,7 @@ export const addStudentsFromExcel = async (req, res) => {
           motherName,
           fatherContactNumber,
           motherContactNumber,
+          mentor,
         } = data;
 
         const existingStudent = await Student.findOne({ email }).session(
@@ -876,6 +1090,8 @@ export const addStudentsFromExcel = async (req, res) => {
           processedStudents++;
           continue;
         }
+
+        const newMentor = await Faculty.findOne({ shortName: mentor }).session(session);
 
         const newStudent = new Student({
           name,
@@ -892,6 +1108,7 @@ export const addStudentsFromExcel = async (req, res) => {
           motherName,
           fatherContactNumber,
           motherContactNumber,
+          mentor: newMentor._id,
         });
 
         newStudent.name = newStudent.name.toUpperCase();
@@ -942,12 +1159,14 @@ export const addStudentsFromExcel = async (req, res) => {
   } catch (error) {
     await session.abortTransaction(); // Rollback changes
     session.endSession();
+    console.log("Backend Error", error);
     if (excelFile) {
       fs.unlinkSync(excelFile.path);
     }
     return res.status(500).json({ backendError: error.message });
   }
 };
+
 
 export const getStudent = async (req, res) => {
   try {
@@ -968,13 +1187,29 @@ export const getStudent = async (req, res) => {
   }
 };
 export const getAllStudent = async (req, res) => {
+  const page = parseInt(req.query.page) || 1; // Get the requested page or default to 1
+  const pageSize = parseInt(req.query.limit) || 10; // Set the default page size or specify a custom limit
+
   try {
-    const students = await Student.find();
-    res.status(200).json(students);
+    const totalStudents = await Student.countDocuments();
+    const totalPages = Math.ceil(totalStudents / pageSize);
+
+    const students = await Student.find()
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    res.status(200).json({
+      students,
+      page,
+      totalPages,
+      totalStudents,
+    });
   } catch (error) {
     console.log("Backend Error", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 export const getAllFilteredStudent = async (req, res) => {
   try {
