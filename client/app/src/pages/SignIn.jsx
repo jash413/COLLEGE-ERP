@@ -86,7 +86,7 @@ function SignIn({ onSignIn }) {
           </div>
           <div className="login-right">
             <div className="login-right-wrap">
-              <h1>Welcome to Preskool</h1>
+              <h1>Welcome to LJ University</h1>
               <p className="account-subtitle">Access to our dashboard</p>
               <h2>Sign in</h2>
               {/* Form */}

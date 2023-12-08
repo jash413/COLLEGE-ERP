@@ -1278,7 +1278,7 @@ export const getFilteredFaculty = async (req, res) => {
       const faculties = await Faculty.find({ contactNumber });
       res.status(200).json(faculties);
     } else {
-      res.status(200).json(allFaculties);
+      res.status(200).json(faculties);
     }
   } catch (error) {
     console.log("Backend Error", error);
