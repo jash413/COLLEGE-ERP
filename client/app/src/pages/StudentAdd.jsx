@@ -155,7 +155,7 @@ function StudentAdd({ onAdd }) {
     formData.append("file", file);
     try {
       const res = await axios.post(
-        `${network.server}/api/admin/addstudentsfromexcel`,
+        `${network.server}/api/admin/addstudentsfromexcel?socketId=${socket.id}`,
         formData,
         {
           headers: { Authorization: `Bearer ${token}` },
