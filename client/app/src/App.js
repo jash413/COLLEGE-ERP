@@ -45,6 +45,9 @@ import AddNotice from "./pages/AddNotice";
 import FacultyDashboard from "./pages/FacultyDashboard";
 import CreateLeaveRequest from "./pages/CreateLeaveRequest";
 import LeaveHistory from "./pages/LeaveHistory";
+import MenteeStudents from "./pages/MenteeStudents";
+import Attendance from "./pages/Attendance";
+import TimeTable from "./pages/TimeTable";
 
 // create context
 export const userContext = createContext();
@@ -409,6 +412,18 @@ useEffect(() => {
                       )}
                       {isAuthenticated && (
                         <Route
+                          path="/mentor/students"
+                          element={
+                            <>
+                              <Header />
+                              <SideBar />
+                              <MenteeStudents />
+                            </>
+                          }
+                        />
+                      )}
+                      {isAuthenticated && (
+                        <Route
                           path="/marks/history"
                           element={
                             <>
@@ -419,41 +434,6 @@ useEffect(() => {
                           }
                         />
                       )}
-                      {isAuthenticated && user.userType === "faculty" ? (
-                        <Route
-                          path="/leave/create"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <CreateLeaveRequest />
-                            </>
-                          }
-                        />
-                      ):
-                      <Route
-                        path="/leave/create"
-                        element={<Error404 />}
-                      />
-                      }
-                       {isAuthenticated && user.userType === "faculty" ? (
-                        <Route
-                          path="/leave/history"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <LeaveHistory />
-                            </>
-                          }
-                        />
-                      ):
-                      <Route
-                        path="/leave/history"
-                        element={<Error404 />}
-                      />
-                      }
-                      <Route path="*" element={<Error404 />} />
                     </Routes>
                   </div>
                 </Router>

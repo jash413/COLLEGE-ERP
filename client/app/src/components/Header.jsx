@@ -3,8 +3,8 @@ import { userContext } from "../App";
 import socket from "../config/socket";
 
 // import images
-import logo from "../assets/img/logo.png";
-import logoSmall from "../assets/img/logo-small.png";
+import logo from "../assets/img/logo-transformed.png";
+import logoSmall from "../assets/img/logo-small-transformed.png";
 
 function Header() {
   const { user } = useContext(userContext);
