@@ -43,6 +43,9 @@ import ResetPassword from "./pages/ResetPassword";
 import UpdateDepartment from "./pages/UpdatedDepartment";
 import AddNotice from "./pages/AddNotice";
 import FacultyDashboard from "./pages/FacultyDashboard";
+import MenteeStudents from "./pages/MenteeStudents";
+import Attendance from "./pages/Attendance";
+import TimeTable from "./pages/TimeTable";
 
 // create context
 export const userContext = createContext();
@@ -407,12 +410,48 @@ useEffect(() => {
                       )}
                       {isAuthenticated && (
                         <Route
+                          path="/mentor/students"
+                          element={
+                            <>
+                              <Header />
+                              <SideBar />
+                              <MenteeStudents />
+                            </>
+                          }
+                        />
+                      )}
+                      {isAuthenticated && (
+                        <Route
                           path="/marks/history"
                           element={
                             <>
                               <Header />
                               <SideBar />
                               <StudentGradeHistory />
+                            </>
+                          }
+                        />
+                      )}
+                      {isAuthenticated && (
+                        <Route
+                          path="/attendance/students"
+                          element={
+                            <>
+                              <Header />
+                              <SideBar />
+                              <Attendance />
+                            </>
+                          }
+                        />
+                      )}
+                      {isAuthenticated && (
+                        <Route
+                          path="/timetable/faculty"
+                          element={
+                            <>
+                              <Header />
+                              <SideBar />
+                              <TimeTable />
                             </>
                           }
                         />
