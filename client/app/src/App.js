@@ -43,6 +43,8 @@ import ResetPassword from "./pages/ResetPassword";
 import UpdateDepartment from "./pages/UpdatedDepartment";
 import AddNotice from "./pages/AddNotice";
 import FacultyDashboard from "./pages/FacultyDashboard";
+import CreateLeaveRequest from "./pages/CreateLeaveRequest";
+import LeaveHistory from "./pages/LeaveHistory";
 
 // create context
 export const userContext = createContext();
@@ -417,6 +419,41 @@ useEffect(() => {
                           }
                         />
                       )}
+                      {isAuthenticated && user.userType === "faculty" ? (
+                        <Route
+                          path="/leave/create"
+                          element={
+                            <>
+                              <Header />
+                              <SideBar />
+                              <CreateLeaveRequest />
+                            </>
+                          }
+                        />
+                      ):
+                      <Route
+                        path="/leave/create"
+                        element={<Error404 />}
+                      />
+                      }
+                       {isAuthenticated && user.userType === "faculty" ? (
+                        <Route
+                          path="/leave/history"
+                          element={
+                            <>
+                              <Header />
+                              <SideBar />
+                              <LeaveHistory />
+                            </>
+                          }
+                        />
+                      ):
+                      <Route
+                        path="/leave/history"
+                        element={<Error404 />}
+                      />
+                      }
+                      <Route path="*" element={<Error404 />} />
                     </Routes>
                   </div>
                 </Router>
