@@ -227,6 +227,19 @@ export const updateLeaveRequestById = async (req, res) => {
   }
 };
 
+// Controller function to get filtered leave requests
+export const getFilteredLeaveRequests = async (req, res) => {
+  try {
+    const filters = { ...req.query };
+    const leaveRequests = await Leave.find(filters);
+    res.status(200).json(leaveRequests);
+  } catch (error) {
+    console.error("Error fetching leave requests:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
 // Controller function to delete a leave request by ID
 export const deleteLeaveRequestById = async (req, res) => {
   try {

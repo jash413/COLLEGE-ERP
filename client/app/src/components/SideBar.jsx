@@ -223,6 +223,30 @@ function SideBar() {
                 </ul>
                 
               </li>
+              {user.userType === "faculty" && (
+              <li
+                className={`submenu ${
+                  isSubMenuActive("leave") ? "active" : ""
+                }`}
+              >
+                <a href="#" onClick={() => handleSubMenuToggle("leave")}>
+                  <i className="fas fa-book" /> <span>Leave Management</span>{" "}
+                  <span className="menu-arrow" />
+                </a>
+                <ul
+                  style={{
+                    display: isSubMenuActive("leave") ? "block" : "none",
+                  }}
+                >
+                  <li>
+                    <Link to="/leave/create">Apply Leave</Link>
+                  </li>
+                  <li>
+                    <Link to="/leave/history">Leave History</Link>
+                  </li>
+                </ul>
+              </li>
+              )}
             </ul>
           </div>
         </div>

@@ -43,6 +43,8 @@ import ResetPassword from "./pages/ResetPassword";
 import UpdateDepartment from "./pages/UpdatedDepartment";
 import AddNotice from "./pages/AddNotice";
 import FacultyDashboard from "./pages/FacultyDashboard";
+import CreateLeaveRequest from "./pages/CreateLeaveRequest";
+import LeaveHistory from "./pages/LeaveHistory";
 import MenteeStudents from "./pages/MenteeStudents";
 import Attendance from "./pages/Attendance";
 import TimeTable from "./pages/TimeTable";
@@ -428,30 +430,6 @@ useEffect(() => {
                               <Header />
                               <SideBar />
                               <StudentGradeHistory />
-                            </>
-                          }
-                        />
-                      )}
-                      {isAuthenticated && (
-                        <Route
-                          path="/attendance/students"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <Attendance />
-                            </>
-                          }
-                        />
-                      )}
-                      {isAuthenticated && (
-                        <Route
-                          path="/timetable/faculty"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <TimeTable />
                             </>
                           }
                         />

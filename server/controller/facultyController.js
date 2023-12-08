@@ -324,3 +324,19 @@ export const markAttendance = async (req, res) => {
     res.status(500).json(errors);
   }
 };
+
+// Controller function to get filtered leave requests
+export const getFilteredLeaveRequests = async (req, res) => {
+  try {
+    const filters =  req.query.filters ? JSON.parse(req.query.filters) : {};
+    console.log(filters);
+    const leaveRequests = await Leave.find({
+      facultyId : filters.facultyId,
+      approvalStatus : filters.approvalStatus,
+    });
+    res.status(200).json(leaveRequests);
+  } catch (error) {
+    console.error("Error fetching leave requests:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
