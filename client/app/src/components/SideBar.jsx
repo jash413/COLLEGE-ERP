@@ -132,6 +132,9 @@ function SideBar() {
                     <li>
                       <Link to="/course/add">Add Course</Link>
                     </li>
+                    <li>
+                      <Link to="/timetable/faculty/">Time Table</Link>
+                    </li>
                   </ul>
                 </li>
               )}
@@ -152,6 +155,27 @@ function SideBar() {
                   >
                     <li>
                       <Link to="/notice/add">Add Notice</Link>
+                    </li>
+                  </ul>
+                </li>
+              )}
+              {user.userType === "admin" && (
+                <li
+                  className={`submenu ${
+                    isSubMenuActive("notice") ? "active" : ""
+                  }`}
+                >
+                  <a href="#" onClick={() => handleSubMenuToggle("attendance")}>
+                    <i className="fas fa-book" /> <span>Attendance</span>{" "}
+                    <span className="menu-arrow" />
+                  </a>
+                  <ul
+                    style={{
+                      display: isSubMenuActive("attendance") ? "block" : "none",
+                    }}
+                  >
+                    <li>
+                      <Link to="/attendance/students">Student Attendance</Link>
                     </li>
                   </ul>
                 </li>
@@ -177,7 +201,52 @@ function SideBar() {
                     <Link to="/marks/history">Student Grade History</Link>
                   </li>
                 </ul>
+                
               </li>
+              <li
+                className={`submenu ${
+                  isSubMenuActive("Students") ? "active" : ""
+                }`}
+              >
+                <a href="#" onClick={() => handleSubMenuToggle("Students")}>
+                  <i className="fas fa-book" /> <span>Mentor</span>{" "}
+                  <span className="menu-arrow" />
+                </a>
+                <ul
+                  style={{
+                    display: isSubMenuActive("Students") ? "block" : "none",
+                  }}
+                >
+                  <li>
+                      <Link to="/mentor/students">Mentor Students</Link>
+                    </li>
+                </ul>
+                
+              </li>
+              {user.userType === "faculty" && (
+              <li
+                className={`submenu ${
+                  isSubMenuActive("leave") ? "active" : ""
+                }`}
+              >
+                <a href="#" onClick={() => handleSubMenuToggle("leave")}>
+                  <i className="fas fa-book" /> <span>Leave Management</span>{" "}
+                  <span className="menu-arrow" />
+                </a>
+                <ul
+                  style={{
+                    display: isSubMenuActive("leave") ? "block" : "none",
+                  }}
+                >
+                  <li>
+                    <Link to="/leave/create">Apply Leave</Link>
+                  </li>
+                  <li>
+                    <Link to="/leave/history">Leave History</Link>
+                  </li>
+                </ul>
+              </li>
+              )}
             </ul>
           </div>
         </div>

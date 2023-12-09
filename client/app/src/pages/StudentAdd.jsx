@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import network from "../config/network";
 import axios from "axios";
+import AsyncSelect from "react-select/async";
 import { toast } from "react-hot-toast";
 import { userContext } from "../App";
 import { facultyContext, socketContext } from "../App";
@@ -11,7 +12,9 @@ function StudentAdd({ onAdd }) {
   const { socket } = useContext(socketContext);
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [faculty] = useContext(facultyContext);
+  const [selectedFaculty, setSelectedFaculty] = useState(null);
   const [mentor, setMentor] = useState("");
   const [formData, setFormData] = useState({
     name: "",
@@ -28,8 +31,31 @@ function StudentAdd({ onAdd }) {
     motherContactNumber: "",
     year: "",
     section: "",
-    mentor:""
+    mentor: "",
   });
+
+  const fetchFaculty = async (inputValue) => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        `${network.server}/api/admin/getfilteredfaculty?shortName=${inputValue}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setIsLoading(false);
+      return response.data.map((faculty) => ({
+        value: faculty._id,
+        label: faculty.name,
+      }));
+    } catch (error) {
+      console.error("Error fetching faculty:", error);
+      setIsLoading(false);
+      return [];
+    }
+  };
 
   // handle form data
   const handleFormData = (e) => {
@@ -46,6 +72,12 @@ function StudentAdd({ onAdd }) {
       setProgress(data);
     });
   }, []);
+
+  useEffect(() => {
+    if (formData.to === "all") {
+      setSelectedFaculty(null);
+    }
+  }, [formData.to]);
 
   // handle form submit
   const handleFormSubmit = async (e) => {
@@ -75,7 +107,7 @@ function StudentAdd({ onAdd }) {
         motherContactNumber: "",
         year: "",
         section: "",
-        mentor:""
+        mentor: "",
       });
     } catch (error) {
       console.log(formData);
@@ -90,22 +122,24 @@ function StudentAdd({ onAdd }) {
   // handle sample file download
   const handleSampleFileDownload = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/admin/downloadstudentexceltemplate", {
-        responseType: 'blob' // Set the response type to 'blob' to handle binary data
-      });
-  
+      const response = await axios.get(
+        "http://localhost:5000/api/admin/downloadstudentexceltemplate",
+        {
+          responseType: "blob", // Set the response type to 'blob' to handle binary data
+        }
+      );
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', 'Student_Excel_Template.xlsx');
+      link.setAttribute("download", "Student_Excel_Template.xlsx");
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
     } catch (error) {
-      console.error('Error downloading file:', error);
+      console.error("Error downloading file:", error);
     }
   };
-
 
   // handle bulk upload
   const handleBulkUpload = async (e) => {
@@ -121,7 +155,7 @@ function StudentAdd({ onAdd }) {
     formData.append("file", file);
     try {
       const res = await axios.post(
-        `${network.server}/api/admin/addstudentsfromexcel`,
+        `${network.server}/api/admin/addstudentsfromexcel?socketId=${socket.id}`,
         formData,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -435,35 +469,48 @@ function StudentAdd({ onAdd }) {
                               />
                             </div>
                           </div>
-                          <div className="col-12 col-sm-4">
+                          {/* <div className="col-12 col-sm-4">
                             <div className="form-group local-forms">
-                              <label className="form-label">
-                                Select Mentor
-                              </label>
-                              <select
-                                required
-                                type="text"
-                                name="mentor"
-                                value={formData.mentor}
-                                onChange={handleFormData}
-                                className="form-select"
-                                aria-label="Default select example"
-                              >
-                                <option value="">Select Mentor</option>
-                                {faculty.map((faculty) => (
-                                  <option value={faculty._id}>
-                                    {faculty.shortName}-{faculty.name}
-                                  </option>
-                                ))}
-                              </select>
+                              <div className="col-12 col-sm-4">
+                                <div className="form-group local-forms">
+                                  <label className="form-label">
+                                    Select Mentor
+                                  </label>
+                                  <AsyncSelect
+                                    cacheOptions
+                                    loadOptions={loadOptions}
+                                    defaultOptions
+                                    onInputChange={handleInputChange}
+                                    onChange={handleChange}
+                                  />
+                                  
                             </div>
-                          </div>
+                          </div> */}
+                          <div className="form-group local-forms">
+                        <label>
+                          Mentor <span className="login-danger">*</span>
+                        </label>
+                        <AsyncSelect
+                          value={selectedFaculty}
+                          isDisabled={formData.to === "mentor"}
+                          cacheOptions
+                          defaultOptions
+                          loadOptions={(inputValue, callback) => {
+                            fetchFaculty(inputValue).then((data) => {
+                              callback(data);
+                            });
+                          }}
+                          placeholder="Search By Mentor Short Name"
+                          onChange={handleFormData}
+                          isLoading={isLoading}
+                          noOptionsMessage={() => null}
+                        />
+                      </div>
                           <div className="col-12">
                             <div className="student-submit">
                               <button type="submit" className="btn btn-primary">
                                 Submit
                               </button>
-                              
                             </div>
                           </div>
                         </div>
@@ -487,15 +534,21 @@ function StudentAdd({ onAdd }) {
                           </div>
                           <div className="col-12 col-sm-3">
                             <div className="form-group local-forms">
-                                <button type="button" className="btn btn-primary" onClick={()=>{
-                                  handleSampleFileDownload()
-                                }}>
-                                <i className="fas fa-download" /> Download Sample File
-                                </button>
+                              <button
+                                type="button"
+                                className="btn btn-primary"
+                                onClick={() => {
+                                  handleSampleFileDownload();
+                                }}
+                              >
+                                <i className="fas fa-download" /> Download
+                                Sample File
+                              </button>
                             </div>
                           </div>
                           <p className="text-danger col-12 col-sm-9">
-                            Note: Please download the sample file and fill the details
+                            Note: Please download the sample file and fill the
+                            details
                           </p>
                           <div className="col-12 col-sm-4">
                             <div className="form-group local-forms">

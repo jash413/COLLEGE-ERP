@@ -9,11 +9,11 @@ import { Toaster } from "react-hot-toast";
 import axios from "axios";
 
 // Import CSS files
-import "./assets/plugins/feather/feather.css"
-import "./assets/plugins/bootstrap/css/bootstrap.min.css"
-import "./assets/plugins/feather/feather.css"
-import "./assets/plugins/fontawesome/css/fontawesome.min.css"
-import "./assets/plugins/fontawesome/css/all.min.css"
+import "./assets/plugins/feather/feather.css";
+import "./assets/plugins/bootstrap/css/bootstrap.min.css";
+import "./assets/plugins/feather/feather.css";
+import "./assets/plugins/fontawesome/css/fontawesome.min.css";
+import "./assets/plugins/fontawesome/css/all.min.css";
 import "./assets/css/style.css";
 
 // Import config
@@ -43,6 +43,11 @@ import ResetPassword from "./pages/ResetPassword";
 import UpdateDepartment from "./pages/UpdatedDepartment";
 import AddNotice from "./pages/AddNotice";
 import FacultyDashboard from "./pages/FacultyDashboard";
+import CreateLeaveRequest from "./pages/CreateLeaveRequest";
+import LeaveHistory from "./pages/LeaveHistory";
+import MenteeStudents from "./pages/MenteeStudents";
+import Attendance from "./pages/Attendance";
+import TimeTable from "./pages/TimeTable";
 
 // create context
 export const userContext = createContext();
@@ -100,7 +105,7 @@ function App() {
           console.log(err);
         });
     }
-  }; 
+  };
 
   // Function to get all faculties
   const getAllFaculties = () => {
@@ -141,43 +146,45 @@ function App() {
     setUser(JSON.parse(localStorage.getItem("user")));
   };
 
-// Check if the user is already authenticated
-useEffect(() => {
-  const storedToken = localStorage.getItem("token");
-  const currentPath = window.location.pathname;
+  // Check if the user is already authenticated
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    const currentPath = window.location.pathname;
 
-  if (storedToken) {
-    setIsAuthenticated(true);
-    if (currentPath !== "/dashboard" && !currentPath.startsWith("/reset-password/")) {
-      window.location.href = "/dashboard";
+    if (storedToken) {
+      setIsAuthenticated(true);
+      if (
+        currentPath !== "/dashboard" &&
+        !currentPath.startsWith("/reset-password/")
+      ) {
+        window.location.href = "/dashboard";
+      }
+      setToken(localStorage.getItem("token"));
+      setUser(JSON.parse(localStorage.getItem("user")));
+    } else {
+      setIsAuthenticated(false);
+      if (
+        currentPath !== "/" &&
+        currentPath !== "/forgetpassword" &&
+        !currentPath.startsWith("/reset-password/")
+      ) {
+        window.location.href = "/";
+      }
     }
-    setToken(localStorage.getItem("token"));
-    setUser(JSON.parse(localStorage.getItem("user")));
-  } else {
-    setIsAuthenticated(false);
-    if (
-      currentPath !== "/" &&
-      currentPath !== "/forgetpassword" &&
-      !currentPath.startsWith("/reset-password/")
-    ) {
-      window.location.href = "/";
+  }, []);
+
+  // Force logout after 55 minutes in case of inactivity
+  useEffect(() => {
+    let logoutTimer;
+    if (isAuthenticated) {
+      logoutTimer = setTimeout(() => {
+        handleSignOut();
+      }, 3300000);
     }
-  }
-}, []);
-
-// Force logout after 55 minutes in case of inactivity
-useEffect(() => {
-  let logoutTimer;
-  if (isAuthenticated) {
-    logoutTimer = setTimeout(() => {
-      handleSignOut();
-    }, 3300000);
-  }
-  return () => {
-    clearTimeout(logoutTimer);
-  };
-}, [isAuthenticated]);
-
+    return () => {
+      clearTimeout(logoutTimer);
+    };
+  }, [isAuthenticated]);
 
   // Handle sign out
   const handleSignOut = () => {
@@ -205,221 +212,293 @@ useEffect(() => {
           <facultyContext.Provider value={[faculties]}>
             <departmentContext.Provider value={[departments]}>
               <subjectContext.Provider value={[subjects]}>
-                <socketContext.Provider value={{socket}}>
-                <Router>
-                  <div
-                    className={`main-wrapper ${
-                      !isAuthenticated ? "login-body" : ""
-                    }`}
-                  >
-                    <Routes>
-                      <Route
-                        path="/forgetpassword"
-                        element={<ForgetPassword />}
-                      />
-                      <Route
-                        path="/reset-password/:token"
-                        element={<ResetPassword />}
-                      />
-                      <Route
-                        path="/"
-                        element={
-                          isAuthenticated ? (
+                <socketContext.Provider value={{ socket }}>
+                  <Router>
+                    <div
+                      className={`main-wrapper ${
+                        !isAuthenticated ? "login-body" : ""
+                      }`}
+                    >
+                      <Routes>
+                        <Route
+                          path="/forgetpassword"
+                          element={<ForgetPassword />}
+                        />
+                        <Route
+                          path="/reset-password/:token"
+                          element={<ResetPassword />}
+                        />
+                        <Route
+                          path="/"
+                          element={
+                            isAuthenticated ? (
                               <Navigate to="/dashboard" />
                             ) : (
-                            <SignIn onSignIn={handleSignIn} />
-                          )
-                        }
-                      />
-                      {isAuthenticated  && (
-                        <Route
-                          path="/dashboard"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              {user.userType === "admin" && <AdminDashboard />}
-                              {user.userType === "faculty" && <FacultyDashboard />}
-                            </>
+                              <SignIn onSignIn={handleSignIn} />
+                            )
                           }
                         />
-                       )}
-                      {isAuthenticated && user.userType === "admin" ? (
-                        <Route
-                          path="/student/add"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <StudentAdd onAdd={getAllStudents} />
-                            </>
-                          }
-                        />
-                      ) : (
-                        <Route path="/student/add" element={<Error404 />} />
-                      )}
-                      {isAuthenticated && user.userType === "admin" ? (
-                        <Route
-                          path="/faculty/add"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <AddFaculty onAdd={getAllFaculties} />
-                            </>
-                          }
-                        />
-                      ) : (
-                        <Route path="/faculty/add" element={<Error404 />} />
-                      )}
-                      {isAuthenticated && user.userType === "admin" ? (
-                        <Route
-                          path="/faculty/list"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <Faculty />
-                            </>
-                          }
-                        />
-                      ) : (
-                        <Route path="/faculty/list" element={<Error404 />} />
-                      )}
-                      {isAuthenticated && user.userType === "admin" ? (
-                        <Route
-                          path="/department/add"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <AddDepartment onAdd={getAllDepartments} />
-                            </>
-                          }
-                        />
-                      ) : (
-                        <Route
-                          path="/department/add"
-                          element={<Error404 />}
-                        />
-                      )}
-                      {isAuthenticated && user.userType === "admin" ? (
-                        <Route
-                          path="/department/update/:id"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <UpdateDepartment onAdd={getAllDepartments} />
-                            </>
-                          }
-                        />
-                      ) : (
-                        <Route
-                          path="/department/update/:id"
-                          element={<Error404 />}
-                        />
-                      )}
-                      {isAuthenticated && user.userType === "admin" ? (
-                        <Route
-                          path="/department/list"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <Departments />
-                            </>
-                          }
-                        />
-                      ) : (
-                        <Route
-                          path="/department/list"
-                          element={<Error404 />}
-                        />
-                      )}
-                      {isAuthenticated && user.userType === "admin" ? (
-                        <Route
-                          path="/course/add"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <AddSubject onAdd={getAllSubjects} />
-                            </>
-                          }
-                        />
-                      ) : (
-                        <Route path="/course/add" element={<Error404 />} />
-                      )}
-                      {isAuthenticated && user.userType === "admin" ? (
-                        <Route
-                          path="/course/list"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <Subjects />
-                            </>
-                          }
-                        />
-                      ) : (
-                        <Route path="/course/list" element={<Error404 />} />
-                      )}
-                      {isAuthenticated && user.userType === "admin" ? (
-                        <Route
-                          path="/notice/add"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <AddNotice />
-                            </>
-                          }
-                        />
-                      ) : (
-                        <Route path="/notice/add" element={<Error404 />} />
-                      )}
-                      {isAuthenticated && user.userType === "admin" ? (
-                        <Route
-                          path="/student/list"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <Students />
-                            </>
-                          }
-                        />
-                      ) : (
-                        <Route path="/student/list" element={<Error404 />} />
-                      )}
-                      {isAuthenticated && (
-                        <Route
-                          path="/marks/enter"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <EnterMarks />
-                            </>
-                          }
-                        />
-                      )}
-                      {isAuthenticated && (
-                        <Route
-                          path="/marks/history"
-                          element={
-                            <>
-                              <Header />
-                              <SideBar />
-                              <StudentGradeHistory />
-                            </>
-                          }
-                        />
-                      )}
-                    </Routes>
-                  </div>
-                </Router>
+                        {isAuthenticated && (
+                          <Route
+                            path="/dashboard"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                {user.userType === "admin" && (
+                                  <AdminDashboard />
+                                )}
+                                {user.userType === "faculty" && (
+                                  <FacultyDashboard />
+                                )}
+                              </>
+                            }
+                          />
+                        )}
+                        {isAuthenticated && user.userType === "admin" ? (
+                          <Route
+                            path="/student/add"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <StudentAdd onAdd={getAllStudents} />
+                              </>
+                            }
+                          />
+                        ) : (
+                          <Route path="/student/add" element={<Error404 />} />
+                        )}
+                        {isAuthenticated && user.userType === "admin" ? (
+                          <Route
+                            path="/faculty/add"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <AddFaculty onAdd={getAllFaculties} />
+                              </>
+                            }
+                          />
+                        ) : (
+                          <Route path="/faculty/add" element={<Error404 />} />
+                        )}
+                        {isAuthenticated && user.userType === "admin" ? (
+                          <Route
+                            path="/faculty/list"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <Faculty />
+                              </>
+                            }
+                          />
+                        ) : (
+                          <Route path="/faculty/list" element={<Error404 />} />
+                        )}
+                        {isAuthenticated && user.userType === "admin" ? (
+                          <Route
+                            path="/department/add"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <AddDepartment onAdd={getAllDepartments} />
+                              </>
+                            }
+                          />
+                        ) : (
+                          <Route
+                            path="/department/add"
+                            element={<Error404 />}
+                          />
+                        )}
+                        {isAuthenticated && user.userType === "admin" ? (
+                          <Route
+                            path="/department/update/:id"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <UpdateDepartment onAdd={getAllDepartments} />
+                              </>
+                            }
+                          />
+                        ) : (
+                          <Route
+                            path="/department/update/:id"
+                            element={<Error404 />}
+                          />
+                        )}
+                        {isAuthenticated && user.userType === "admin" ? (
+                          <Route
+                            path="/department/list"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <Departments />
+                              </>
+                            }
+                          />
+                        ) : (
+                          <Route
+                            path="/department/list"
+                            element={<Error404 />}
+                          />
+                        )}
+                        {isAuthenticated && user.userType === "admin" ? (
+                          <Route
+                            path="/course/add"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <AddSubject onAdd={getAllSubjects} />
+                              </>
+                            }
+                          />
+                        ) : (
+                          <Route path="/course/add" element={<Error404 />} />
+                        )}
+                        {isAuthenticated && user.userType === "admin" ? (
+                          <Route
+                            path="/course/list"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <Subjects />
+                              </>
+                            }
+                          />
+                        ) : (
+                          <Route path="/course/list" element={<Error404 />} />
+                        )}
+                        {isAuthenticated && user.userType === "admin" ? (
+                          <Route
+                            path="/notice/add"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <AddNotice />
+                              </>
+                            }
+                          />
+                        ) : (
+                          <Route path="/notice/add" element={<Error404 />} />
+                        )}
+                        {isAuthenticated && user.userType === "admin" ? (
+                          <Route
+                            path="/student/list"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <Students />
+                              </>
+                            }
+                          />
+                        ) : (
+                          <Route path="/student/list" element={<Error404 />} />
+                        )}
+                        {isAuthenticated && (
+                          <Route
+                            path="/marks/enter"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <EnterMarks />
+                              </>
+                            }
+                          />
+                        )}
+                        {isAuthenticated && (
+                          <Route
+                            path="/mentor/students"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <MenteeStudents />
+                              </>
+                            }
+                          />
+                        )}
+                        {isAuthenticated && (
+                          <Route
+                            path="/marks/history"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <StudentGradeHistory />
+                              </>
+                            }
+                          />
+                        )}
+                        {isAuthenticated && user.userType === "faculty" ? (
+                          <Route
+                            path="/leave/create"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <CreateLeaveRequest />
+                              </>
+                            }
+                          />
+                        ) : (
+                          <Route path="/leave/create" element={<Error404 />} />
+                        )}
+                          {isAuthenticated && user.userType === "faculty" ? (
+                          <Route
+                            path="/leave/history"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <LeaveHistory />
+                              </>
+                            }
+                          />
+                        ) : (
+                          <Route path="/leave/history" element={<Error404 />} />
+                        )}
+                          {isAuthenticated && user.userType === "admin" ? (
+                          <Route
+                            path="/attendance/students"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <Attendance />
+                              </>
+                            }
+                          />
+                        ) : (
+                          <Route path="/attendance/students" element={<Error404 />} />
+                        )}
+                          {isAuthenticated && user.userType === "admin" ? (
+                          <Route
+                            path="/timetable/faculty"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <TimeTable />
+                              </>
+                            }
+                          />
+                        ) : (
+                          <Route path="/timetable/faculty" element={<Error404 />} />
+                        )}
+                      </Routes>
+                    </div>
+                  </Router>
                 </socketContext.Provider>
               </subjectContext.Provider>
             </departmentContext.Provider>
