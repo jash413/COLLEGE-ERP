@@ -162,7 +162,7 @@ function SideBar() {
               {user.userType === "admin" && (
                 <li
                   className={`submenu ${
-                    isSubMenuActive("notice") ? "active" : ""
+                    isSubMenuActive("attendance") ? "active" : ""
                   }`}
                 >
                   <a href="#" onClick={() => handleSubMenuToggle("attendance")}>
