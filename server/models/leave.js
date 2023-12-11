@@ -22,6 +22,10 @@ const leaveSchema = mongoose.Schema({
         type: String,
         default: "pending",
     },
+    appliedOn: {
+        type: Date,
+        default: Date.now,
+    },
     });
 
 const Leave = mongoose.model("Leave", leaveSchema);

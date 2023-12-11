@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { userContext } from "../App";
 import socket from "../config/socket";
+import { Link } from "react-router-dom";
 
 // import images
 import logo from "../assets/img/logo-transformed.png";
@@ -12,6 +13,7 @@ function Header() {
   const [notificationsCount, setNotificationsCount] = useState(0);
 
   const [isMaximized, setIsMaximized] = useState(false);
+
 
   const handleZoomToggle = () => {
     // Toggle the maximized state when the zoom button is clicked
@@ -65,24 +67,24 @@ function Header() {
       <div className="header">
         {/* Logo */}
         <div className="header-left">
-          <a href="index.html" className="logo">
+          <Link to={"/dashboard"} className="logo">
             <img src={logo} alt="Logo" />
-          </a>
+          </Link>
           <a href="index.html" className="logo logo-small">
             <img src={logoSmall} alt="Logo" width={30} height={30} />
           </a>
         </div>
         {/* /Logo */}
-        <div className="menu-toggle">
+        {/* <div className="menu-toggle">
           <a href="javascript:void(0);" id="toggle_btn">
             <i className="fas fa-bars" />
           </a>
-        </div>
+        </div> */}
         {/* /Search Bar */}
         {/* Mobile Menu Toggle */}
-        <a className="mobile_btn" id="mobile_btn">
+        {/* <a className="mobile_btn" id="mobile_btn">
           <i className="fas fa-bars" />
-        </a>
+        </a> */}
         {/* /Mobile Menu Toggle */}
         {/* Header Right Menu */}
         <ul className="nav user-menu">

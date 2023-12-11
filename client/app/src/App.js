@@ -48,6 +48,7 @@ import LeaveHistory from "./pages/LeaveHistory";
 import MenteeStudents from "./pages/MenteeStudents";
 import Attendance from "./pages/Attendance";
 import TimeTable from "./pages/TimeTable";
+import FacultyLeaveManagement from "./pages/FacultyLeaveManagement";
 
 // create context
 export const userContext = createContext();
@@ -173,18 +174,6 @@ function App() {
     }
   }, []);
 
-  // Force logout after 55 minutes in case of inactivity
-  useEffect(() => {
-    let logoutTimer;
-    if (isAuthenticated) {
-      logoutTimer = setTimeout(() => {
-        handleSignOut();
-      }, 3300000);
-    }
-    return () => {
-      clearTimeout(logoutTimer);
-    };
-  }, [isAuthenticated]);
 
   // Handle sign out
   const handleSignOut = () => {
@@ -454,7 +443,7 @@ function App() {
                         ) : (
                           <Route path="/leave/create" element={<Error404 />} />
                         )}
-                          {isAuthenticated && user.userType === "faculty" ? (
+                        {isAuthenticated && user.userType === "faculty" ? (
                           <Route
                             path="/leave/history"
                             element={
@@ -468,7 +457,7 @@ function App() {
                         ) : (
                           <Route path="/leave/history" element={<Error404 />} />
                         )}
-                          {isAuthenticated && user.userType === "admin" ? (
+                        {isAuthenticated && user.userType === "admin" ? (
                           <Route
                             path="/attendance/students"
                             element={
@@ -480,9 +469,12 @@ function App() {
                             }
                           />
                         ) : (
-                          <Route path="/attendance/students" element={<Error404 />} />
+                          <Route
+                            path="/attendance/students"
+                            element={<Error404 />}
+                          />
                         )}
-                          {isAuthenticated && user.userType === "admin" ? (
+                        {isAuthenticated && user.userType === "admin" ? (
                           <Route
                             path="/timetable/faculty"
                             element={
@@ -494,7 +486,27 @@ function App() {
                             }
                           />
                         ) : (
-                          <Route path="/timetable/faculty" element={<Error404 />} />
+                          <Route
+                            path="/timetable/faculty"
+                            element={<Error404 />}
+                          />
+                        )}
+                        {isAuthenticated && user.userType === "admin" ? (
+                          <Route
+                            path="/leave/management"
+                            element={
+                              <>
+                                <Header />
+                                <SideBar />
+                                <FacultyLeaveManagement />
+                              </>
+                            }
+                          />
+                        ) : (
+                          <Route
+                            path="/leave/Management"
+                            element={<Error404 />}
+                          />
                         )}
                       </Routes>
                     </div>

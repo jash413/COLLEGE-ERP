@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import network from "../config/network";
 import { userContext } from "../App";
+import { axiosInstance } from "../utility/axiosInstance";
 
 function LeaveHistory() {
   const { token, user } = useContext(userContext);
@@ -13,6 +14,15 @@ function LeaveHistory() {
     approvalStatus: selectedTab,
   });
 
+  const formatDate = (dateString) => {
+    const formattedDate = new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+    return formattedDate;
+  };
+
   useEffect(() => {
     document.title = "Leave History | College ERP";
   }, []);
@@ -20,15 +30,12 @@ function LeaveHistory() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(
-          `${network.server}/api/faculty/getfilteredleaverequests?filters=${JSON.stringify(
+        const res = await axiosInstance.get(
+          `${
+            network.server
+          }/api/faculty/getfilteredleaverequests?filters=${JSON.stringify(
             filters
-            )}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          )}`
         );
         setData(res.data); // Assuming 'res.data' contains fetched leave history
       } catch (err) {
@@ -115,10 +122,14 @@ function LeaveHistory() {
                           {/* Map 'data' and render pending requests */}
                           {data.map((item) => (
                             <tr key={item.id}>
-                              <td>{item.leaveFrom}</td>
-                              <td>{item.leaveTo}</td>
-                              <td>{item.appliedOn}</td>
-                              <td><span className="badge badge-soft-warning badge-border">Pending</span></td>
+                              <td>{formatDate(item.leaveFrom)}</td>
+                              <td>{formatDate(item.leaveTo)}</td>
+                              <td>{formatDate(item.appliedOn)}</td>
+                              <td>
+                                <span className="badge badge-soft-warning badge-border">
+                                  Pending
+                                </span>
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -130,26 +141,30 @@ function LeaveHistory() {
                       }`}
                     >
                       <div className="table-responsive">
-                      <table className="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
-                        <thead className="student-thread">
-                          <tr>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>Applied On</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {data.map((item) => (
-                            <tr key={item.id}>
-                              <td>{item.leaveFrom}</td>
-                              <td>{item.leaveTo}</td>
-                              <td>{item.appliedOn}</td>
-                              <td><span className="badge badge-soft-success badge-border">Approved</span></td>
+                        <table className="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                          <thead className="student-thread">
+                            <tr>
+                              <th>From</th>
+                              <th>To</th>
+                              <th>Applied On</th>
+                              <th>Status</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody>
+                            {data.map((item) => (
+                              <tr key={item.id}>
+                                <td>{formatDate(item.leaveFrom)}</td>
+                                <td>{formatDate(item.leaveTo)}</td>
+                                <td>{formatDate(item.appliedOn)}</td>
+                                <td>
+                                  <span className="badge badge-soft-success badge-border">
+                                    Approved
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                     <div
@@ -157,27 +172,31 @@ function LeaveHistory() {
                         selectedTab === "declined" ? "show active" : ""
                       }`}
                     >
-                     <div className="table-responsive">
-                     <table className="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
-                        <thead className="student-thread">
-                          <tr>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>Applied On</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {data.map((item) => (
-                            <tr key={item.id}>
-                              <td>{item.leaveFrom}</td>
-                              <td>{item.leaveTo}</td>
-                              <td>{item.appliedOn}</td>
-                              <td><span className="badge badge-soft-danger badge-border">Declined</span></td>
+                      <div className="table-responsive">
+                        <table className="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                          <thead className="student-thread">
+                            <tr>
+                              <th>From</th>
+                              <th>To</th>
+                              <th>Applied On</th>
+                              <th>Status</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody>
+                            {data.map((item) => (
+                              <tr key={item.id}>
+                                <td>{formatDate(item.leaveFrom)}</td>
+                                <td>{formatDate(item.leaveTo)}</td>
+                                <td>{formatDate(item.appliedOn)}</td>
+                                <td>
+                                  <span className="badge badge-soft-danger badge-border">
+                                    Declined
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </div>

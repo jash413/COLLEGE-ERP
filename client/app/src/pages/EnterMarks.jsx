@@ -391,6 +391,88 @@ function EnterMarks() {
                                 }
                                 min={0}
                                 max={25}
+                                style={{ backgroundColor: `${(multipleUpdate).find(
+                                  (update) =>
+                                    update.studentId === student._id
+                                )
+                                  ?.updatedMarks.find(
+                                    (mark) => mark.subject === filters.course
+                                  )?.[filters.phase] >= 0 &&
+                                  (multipleUpdate).find(
+                                    (update) =>
+                                      update.studentId === student._id
+                                  )
+                                    ?.updatedMarks.find(
+                                      (mark) => mark.subject === filters.course
+                                    )?.[filters.phase] < 9
+                                  ? "pink"
+                                  : ""}`,
+                                color: `${(multipleUpdate).find(
+                                  (update) =>
+                                    update.studentId === student._id
+                                )
+                                  ?.updatedMarks.find(
+                                    (mark) => mark.subject === filters.course
+                                  )?.[filters.phase] >= 0 &&
+                                  (multipleUpdate).find(
+                                    (update) =>
+                                      update.studentId === student._id
+                                  )
+                                    ?.updatedMarks.find(
+                                      (mark) => mark.subject === filters.course
+                                    )?.[filters.phase] < 9
+                                  ? "#a40000"
+                                  : ""}`,
+                                fontWeight: `${(multipleUpdate).find(
+                                  (update) =>
+                                    update.studentId === student._id
+                                )
+                                  ?.updatedMarks.find(
+                                    (mark) => mark.subject === filters.course
+                                  )?.[filters.phase] >= 0 &&
+                                  (multipleUpdate).find(
+                                    (update) =>
+                                      update.studentId === student._id
+                                  )
+                                    ?.updatedMarks.find(
+                                      (mark) => mark.subject === filters.course
+                                    )?.[filters.phase] < 9
+                                  ? "bold"
+                                  : ""}`,
+                                border: `${(multipleUpdate).find(
+                                  (update) =>
+                                    update.studentId === student._id
+                                )
+                                  ?.updatedMarks.find(
+                                    (mark) => mark.subject === filters.course
+                                  )?.[filters.phase] >= 0 &&
+                                  (multipleUpdate).find(
+                                    (update) =>
+                                      update.studentId === student._id
+                                  )
+                                    ?.updatedMarks.find(
+                                      (mark) => mark.subject === filters.course
+                                    )?.[filters.phase] < 9
+                                  ? "1px solid #a40000"
+                                  : ""}`,
+                                borderRadius: `${(multipleUpdate).find(
+                                  (update) =>
+                                    update.studentId === student._id
+                                )
+                                  ?.updatedMarks.find(
+                                    (mark) => mark.subject === filters.course
+                                  )?.[filters.phase] >= 0 &&
+                                  (multipleUpdate).find(
+                                    (update) =>
+                                      update.studentId === student._id
+                                  )
+                                    ?.updatedMarks.find(
+                                      (mark) => mark.subject === filters.course
+                                    )?.[filters.phase] < 9
+                                  ? "0.25rem"
+                                  : ""}`,
+                                textAlign: "center",
+                              }}
                               />
                             </td>
                           </tr>

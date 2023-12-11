@@ -213,11 +213,11 @@ export const updateLeaveRequestById = async (req, res) => {
     if (!leaveRequest) {
       return res.status(404).json({ message: "Leave request not found" });
     }
-
-    leaveRequest.leaveFrom = leaveFrom;
-    leaveRequest.leaveTo = leaveTo;
-    leaveRequest.leaveReason = leaveReason;
-    leaveRequest.approvalStatus = approvalStatus;
+    
+    if(leaveFrom) leaveRequest.leaveFrom = leaveFrom;
+    if(leaveTo) leaveRequest.leaveTo = leaveTo;
+    if(leaveReason) leaveRequest.leaveReason = leaveReason;
+    if(approvalStatus) leaveRequest.approvalStatus = approvalStatus;
 
     const updatedLeaveRequest = await leaveRequest.save();
     res.status(200).json(updatedLeaveRequest);

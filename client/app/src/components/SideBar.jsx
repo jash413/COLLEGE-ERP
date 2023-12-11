@@ -18,6 +18,47 @@ function SideBar() {
       {/* Sidebar */}
       <div className="sidebar" id="sidebar">
         <div className="sidebar-inner slimscroll">
+        <style>
+            {`
+              .sidebar-inner {
+                overflow-y: auto;
+                max-height: calc(100vh - 60px);
+                padding-bottom: 20px;
+                border-right: 1px solid #eee;
+                scrollbar-width: thin;
+              }
+              /* Define scrollbar styles */
+              .sidebar-inner::-webkit-scrollbar {
+                width: 6px;
+              }
+              .sidebar-inner::-webkit-scrollbar-track {
+                background: #f9f9f9;
+              }
+              .sidebar-inner::-webkit-scrollbar-thumb {
+                background-color: #ccc;
+                border-radius: 10px;
+              }
+              .sidebar-menu ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+              }
+              .sidebar-menu ul li {
+                margin-bottom: 10px;
+              }
+              .sidebar-menu ul li a {
+                display: block;
+                color: #333;
+                text-decoration: none;
+                padding: 10px;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;
+              }
+              .sidebar-menu ul li a:hover {
+                background-color: #ebebeb;
+              }
+            `}
+          </style>
           <div id="sidebar-menu" className="sidebar-menu">
             <ul>
               <li className="menu-title">
@@ -162,7 +203,7 @@ function SideBar() {
               {user.userType === "admin" && (
                 <li
                   className={`submenu ${
-                    isSubMenuActive("notice") ? "active" : ""
+                    isSubMenuActive("attendance") ? "active" : ""
                   }`}
                 >
                   <a href="#" onClick={() => handleSubMenuToggle("attendance")}>
@@ -246,6 +287,27 @@ function SideBar() {
                   </li>
                 </ul>
               </li>
+              )}
+               {user.userType === "admin" && (
+                <li
+                  className={`submenu ${
+                    isSubMenuActive("leaveManagement") ? "active" : ""
+                  }`}
+                >
+                  <a href="#" onClick={() => handleSubMenuToggle("leaveManagement")}>
+                    <i className="fas fa-book" /> <span>Leave Management</span>{" "}
+                    <span className="menu-arrow" />
+                  </a>
+                  <ul
+                    style={{
+                      display: isSubMenuActive("leaveManagement") ? "block" : "none",
+                    }}
+                  >
+                    <li>
+                      <Link to="/leave/management">Leave Requests</Link>
+                    </li>
+                  </ul>
+                </li>
               )}
             </ul>
           </div>

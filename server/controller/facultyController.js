@@ -330,10 +330,14 @@ export const getFilteredLeaveRequests = async (req, res) => {
   try {
     const filters =  req.query.filters ? JSON.parse(req.query.filters) : {};
     console.log(filters);
-    const leaveRequests = await Leave.find({
-      facultyId : filters.facultyId,
-      approvalStatus : filters.approvalStatus,
-    });
+    const newFilters = {};
+    if (filters.facultyId) {
+      newFilters.facultyId = filters.facultyId;
+    }
+    if (filters.approvalStatus) {
+      newFilters.approvalStatus = filters.approvalStatus;
+    }
+    const leaveRequests = await Leave.find(newFilters);
     res.status(200).json(leaveRequests);
   } catch (error) {
     console.error("Error fetching leave requests:", error);
