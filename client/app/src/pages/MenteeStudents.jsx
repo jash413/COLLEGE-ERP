@@ -40,12 +40,14 @@ function MenteeStudents() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [selectedFaculty, setSelectedFaculty] = useState('');
+  const { user } = useContext(userContext);
 
   const fetchData = async (page) => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:5000/api/admin/getAllStudent?page=${page}`,
+        `http://localhost:5000/api/admin/getAllStudent?page=${page}&faculty=${selectedFaculty}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -62,7 +64,29 @@ function MenteeStudents() {
 
   useEffect(() => {
     fetchData(currentPage);
+    console.log(selectedFaculty)
   }, [currentPage]);
+
+  useEffect(() => {
+  
+    // If user is a faculty, set selectedFaculty to faculty's shortName
+    if (user.type === 'faculty') {
+      setSelectedFaculty(faculty.shortName);
+    }
+  }, []);
+  
+  // In your render method
+  {
+    user.type === 'admin' && (
+      <select onChange={handleFacultySelection}>
+        {/* Populate this select with options for each faculty */}
+      </select>
+    )
+  }
+
+  const handleFacultySelection = (e) => {
+    setSelectedFaculty(e.target.value);
+  };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -154,7 +178,7 @@ function MenteeStudents() {
                 <div className="page-header">
                   <div className="row align-items-center">
                     <div className="col">
-                      <h3 className="page-title">{`Students under ${faculty.name}`}</h3>
+                    <h3 className="page-title">{faculty.shortName}</h3>
                     </div>
                     <div className="col-auto text-end float-end ms-auto download-grp">
                       <button

@@ -1,30 +1,35 @@
 const mongoose = require('mongoose');
 
 const timeTableSchema = new mongoose.Schema({
-    day: {
-        type: String,
-        required: true
+    date:{
+        type:Date,
+        required:true
     },
-    startTime: {
-        type: String,
-        required: true
-    },
-    endTime: {
-        type: String,
-        required: true
-    },
-    subject: {
-        type: String,
-        required: true
-    },
-    professor: {
-        type: String,
-        required: true
-    },
-    room: {
-        type: String,
-        required: true
-    }
+    lectures: [{
+        subjectId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Subject',
+            required: true
+        },
+        startTime: {
+            type: Date,
+            required: true
+        },
+        endTime: {
+            type: Date,
+            required: true
+        },
+        room: {
+            type: String,
+            required: true
+        },
+        facultyId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Faculty',
+            required: true
+        }
+    }]
+    
 });
 
 const TimeTable = mongoose.model('TimeTable', timeTableSchema);

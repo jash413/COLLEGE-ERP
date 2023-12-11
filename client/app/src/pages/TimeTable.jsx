@@ -9,63 +9,38 @@ function TimeTable() {
   const { token, user } = useContext(userContext);
   const [date, setDate] = useState(new Date());
   const [departments] = useContext(departmentContext);
-  const [subjects] = useContext(subjectContext);
-  const [departmentSubjects, setDepartmentSubjects] = useState([]);
   const [tableLoading, setTableLoading] = useState(null);
+  const [subjects] = useContext(subjectContext);
+  const [buttonLoading, setButtonLoading] = useState(false); // for submit button
   const [students, setStudents] = useState([]);
+  const [sections, setSections] = useState([]);
+  const [filters, setFilters] = useState({
+    year: "",
+    semester: "",
+    phase: "",
+    section:""
+  });
   const [lectures, setLectures] = useState([
     { name: "", startTime: "", endTime: "" },
   ]);
 
-  const [filters, setFilters] = useState({
-    department: "",
-    year: "",
-    semester: "",
-    section: "",
-    course: "",
-    phase: "",
-  });
-
   const handleDateChange = (event) => {
     setDate(event.target.value);
   };
-
-  const handleLectureChange = (event, index, field) => {
-    const updatedLectures = [...lectures];
-    updatedLectures[index][field] = event.target.value;
-    setLectures(updatedLectures);
-  };
-
-  const handleRemoveLecture = (index) => {
-    if (lectures.length > 1) {
-      const updatedLectures = [...lectures];
-      updatedLectures.splice(index, 1);
-      setLectures(updatedLectures);
-    }
-  };
-
   const handleChanges = (e) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
-
-  const handleAddLecture = () => {
-    if (lectures.length < 5) {
-      setLectures([...lectures, { name: "", startTime: "", endTime: "" }]);
-    }
-  };
   useEffect(() => {
     if (
-      filters.department &&
       filters.year &&
       filters.semester &&
       filters.section &&
-      filters.course &&
       filters.phase
     ) {
       setTableLoading(true);
       axios
         .get(
-          `${network.server}/api/admin/getallfilteredstudent?department=${filters.department}&year=${filters.year}&section=${filters.section}`,
+          `${network.server}/api/admin/getallfilteredstudent?year=${filters.year}&section=${filters.section}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -82,28 +57,105 @@ function TimeTable() {
     }
   }, [filters, token]);
 
-//   subjects for section 
-useEffect(() => {
-    if (filters.department && filters.semester) {
-      const subject = subjects.filter((subject) => {
-        if (
-          subject.department === filters.department &&
-          subject.semester === parseInt(filters.semester)
-        ) {
-          return subject;
-        }
+  const [multipleUpdate, setMultipleUpdate] = useState([]);
+
+  useEffect(() => {
+    if (
+      filters.semester &&
+      filters.phase &&
+      students.length > 0
+    ) {
+      const updatedMultipleUpdate = students.map((student) => {
+        return {
+          studentId: student._id,
+          semester: filters.semester,
+          updatedAttendance: [
+            {
+              subject: filters.course,
+            },
+          ],
+        };
       });
-      setDepartmentSubjects(subject);
+      setMultipleUpdate(updatedMultipleUpdate);
     }
-  }, [filters.department, filters.semester, subjects]);
+  }, [filters.semester, filters.phase, students]);
+
+  const handleMultipleUpdate = (e, studentId) => {
+    const updatedMultipleUpdate = multipleUpdate.map((student) => {
+      if (student.studentId === studentId) {
+        const updatedAttendance = student.updatedAttendance.map((attendance) => {
+          if (attendance.subject === filters.course) {
+            return {
+              ...attendance,
+              [filters.phase]: e.target.checked, // Assuming e.target.checked is the attendance status
+            };
+          }
+          return attendance;
+        });
+        return {
+          ...student,
+          updatedAttendance,
+        };
+      }
+      return student;
+    });
+  
+    setMultipleUpdate(updatedMultipleUpdate);
+  };
+
+  const handleLectureChange = (event, index, field) => {
+    const updatedLectures = [...lectures];
+    updatedLectures[index][field] = event.target.value;
+    setLectures(updatedLectures);
+  };
+
+  const handleRemoveLecture = (index) => {
+    if (lectures.length > 1) {
+      const updatedLectures = [...lectures];
+      updatedLectures.splice(index, 1);
+      setLectures(updatedLectures);
+    }
+  };
+
+
+  const handleAddLecture = () => {
+    if (lectures.length < 5) {
+      setLectures([...lectures, { name: "", startTime: "", endTime: "" }]);
+    }
+  };
+ 
+
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Placeholder for your submit logic
-    setTimeout(() => {
-      // Simulating an API call completion
-      toast.success("Form submitted successfully!");
-    }, 2000); // Replace this with your actual API call
+    let data = {}
+    if(multipleUpdate.length === 1) {
+      data = multipleUpdate[0]
+    } else {
+      data = {
+        multipleUpdate
+      }
+    }
+    setButtonLoading(true);
+    axios
+      .post(
+        `${network.server}/api/admin/updateattendance`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        toast.success(res.data.message);
+        setButtonLoading(false);
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+        setButtonLoading(false);
+      });
   };
 
   return (
@@ -132,44 +184,89 @@ useEffect(() => {
               <div className="card-body">
                 <form onSubmit={handleSubmit}>
                   <div className="row">
+                    <div className="col-sm-12">
+                      <div className=""></div>
+                    </div>
                     <div className="row mb-3">
-                      <div className="col-md-2">
-                        {/* Department Input */}
-                        {(
-                           <div className="form-group">
-                           <select
-                             className="form-control"
-                             name="year"
-                             value={filters.year}
-                             onChange={handleChanges}
-                           >
-                             <option value="">Select Year</option>
-                             <option value="FY">FY</option>
-                             <option value="SY">SY</option>
-                             <option value="TY">TY</option>
-                             <option value="FINAL">FINAL YEAR</option>
-                           </select>
-                         </div>
-                        )}
-                        
+                    <div className="form-group">
+                        <select
+                          className="form-control"
+                          name="year"
+                          value={filters.year}
+                          onChange={handleChanges}
+                        >
+                          <option value="">Select Year</option>
+                          <option value="FY">FY</option>
+                          <option value="SY">SY</option>
+                          <option value="TY">TY</option>
+                          <option value="FINAL">FINAL YEAR</option>
+                        </select>
                       </div>
-                      <div className="col-md-2">
-                        {/* Section Input */}
-                        {user.userType === "admin" && (
-                          <div className="form-group">
-                            <input
-                              disabled={user.userType === "faculty"}
-                              type="text"
-                              className="form-control"
-                              placeholder="Enter Section"
-                              name="section"
-                              value={filters.section}
-                              onChange={handleChanges}
-                            />
-                          </div>
-                        )}
+                      <div
+                      className={`col-md-${
+                        user.userType === "faculty" ? 3 : 2
+                      }`}
+                    >
+                      <div className="form-group">
+                        <select
+                          className="form-control"
+                          name="semester"
+                          value={filters.semester}
+                          onChange={handleChanges}
+                        >
+                          <option value="">Select Semester</option>
+                          <option value="1">Semester 1</option>
+                          <option value="2">Semester 2</option>
+                          <option value="3">Semester 3</option>
+                          <option value="4">Semester 4</option>
+                          <option value="5">Semester 5</option>
+                          <option value="6">Semester 6</option>
+                          <option value="7">Semester 7</option>
+                          <option value="8">Semester 8</option>
+                        </select>
                       </div>
+                    </div>
 
+                    <div
+                      className={`col-md-${
+                        user.userType === "faculty" ? 3 : 2
+                      }`}
+                    >
+                      <div className="form-group">
+                        <select
+                          className="form-control"
+                          name="phase"
+                          value={filters.phase}
+                          onChange={handleChanges}
+                        >
+                          <option value="">Select Phase</option>
+                          <option value="T1">T1</option>
+                          <option value="T2">T2</option>
+                          <option value="T3">T3</option>
+                          <option value="T4">T4</option>
+                          <option value="ipe">IPE</option>
+                          <option value="project">Practical</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="col-md-3">
+                        <div className="form-group">
+                          <select
+                            className="form-control"
+                            name="section"
+                            value={filters.section}
+                            onChange={handleChanges}
+                          >
+                            <option value="">Select Section</option>
+                            {sections.map((section) => (
+                              <option key={section} value={section}>
+                                {section}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
                       {/* /Filter Section */}
                     </div>
                     <div className="col-12"></div>
