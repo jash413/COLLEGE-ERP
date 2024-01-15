@@ -1495,6 +1495,7 @@ export const resetPassword = async (req, res) => {
           <p>Hello ${user.name},</p>
           <p>Your password has been reset successfully.</p>
           <p>If you didn't request this, please contact the admin.</p>
+          <p>Your updated password: ${user.password}</p>
         `,
       };
 
