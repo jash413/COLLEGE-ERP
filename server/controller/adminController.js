@@ -18,7 +18,7 @@ import { Client } from "whatsapp-web.js";
 import qrcode from "qrcode";
 import Leave from "../models/leave.js";
 
-const MAX_RETRIES = 10;
+const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 2000; // Longer initial delay in milliseconds
 
 export const addStudentsFromExcel = async (req, res) => {
@@ -65,7 +65,7 @@ export const addStudentsFromExcel = async (req, res) => {
 
         await session.commitTransaction(); // Commit changes
         session.endSession();
-        fs.unlinkSync(excelFile.path);
+        // fs.unlinkSync(excelFile.path);
 
         return res.status(200).json({
           success: true,
@@ -163,7 +163,7 @@ const handleTransactionError = async (session, excelFile, error) => {
     session.endSession();
   }
   if (excelFile) {
-    fs.unlinkSync(excelFile.path);
+    // fs.unlinkSync(excelFile.path);
   }
 };
 
